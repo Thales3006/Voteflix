@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox alignment="TOP_CENTER" minHeight="300.0" minWidth="300.0" prefHeight="600.0" prefWidth="1000.0" spacing="10.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+       <Text text="Welcome" textAlignment="CENTER" wrappingWidth="164.046875">
+         <font>
+            <Font name="Cascadia Mono Regular" size="30.0" />
+         </font>
+      </Text>
+      <Separator prefWidth="200.0" />
+      <VBox alignment="CENTER" prefHeight="492.0" prefWidth="1008.0" spacing="10.0">
+         <children>
+            <Text text="Enter" textAlignment="CENTER" wrappingWidth="93.83984375">
+               <font>
+                  <Font name="Century Gothic" size="18.0" />
+               </font>
+            </Text>
+            <GridPane alignment="CENTER" hgap="10" prefHeight="0.0" prefWidth="747.0" vgap="10">
+             
+                      <Label text="Username:" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+             
+                      <TextField id="username" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+             
+                      <Label prefHeight="17.0" prefWidth="77.0" text="Password:" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+             
+                      <PasswordField id="password" fx:id="passwordField" prefHeight="25.0" prefWidth="119.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+               <columnConstraints>
+                  <ColumnConstraints maxWidth="0.0" minWidth="0.0" prefWidth="0.0" />
+                  <ColumnConstraints maxWidth="56.0" minWidth="56.0" prefWidth="56.0" />
+                  <ColumnConstraints />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints />
+                  <RowConstraints />
+                  <RowConstraints />
+               </rowConstraints>
+            </GridPane>
+            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="230.0" text="Login" />
+            <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="230.0" text="Register" />
+         </children>
+      </VBox>
+   </children>
+   <padding>
+      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+   </padding>
+</VBox>
