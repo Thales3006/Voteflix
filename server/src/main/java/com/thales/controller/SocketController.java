@@ -31,13 +31,15 @@ public class SocketController extends Thread {
         } catch(Exception e) {
             System.err.println(e);
         } finally {
-            this.close();
+            close();
         }
     } 
 
     private void handleMessage(String message){
         System.out.println("Received: " + message);
         AppController.getInstance().handleMessage(message);
+
+        sendMessage(message.toUpperCase());
     }
 
     public void sendMessage(String message){
