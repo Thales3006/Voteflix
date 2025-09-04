@@ -1,31 +1,79 @@
 package com.thales.controller;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 public class ClientController {
-    @FXML private Button loginButton;
-    @FXML private Button registerButton;
-    @FXML private TextField usernameField;
+    private static final int PORT = 20616;
+    private static ClientController instance;
 
-    private NetworkController network;
+    private Socket socket;
+    private PrintWriter out;
+    private BufferedReader in;
+    private boolean running;
 
-    @FXML
-    public void initialize() {
-        network = new NetworkController();
-        network.connect("localhost", 20666, this);
+    private ClientController(String serverIP,int serverPort){
+        this.running = false;
+        this.connect(serverIP, serverPort);
     }
 
-    @FXML private void HandleLogin(){
-        network.sendMessage(usernameField.getText());
+    public static ClientController getInstance(){
+        if(instance == null){
+            instance = new ClientController("localhost", PORT);
+        }
+        return instance;
     }
 
-    @FXML private void HandleRegister(){
+    private void connect(String serverIP, int serverPort){
+        new Thread(()->{
+            try{
+                this.socket = new Socket(serverIP, serverPort);
+                this.out = new PrintWriter(socket.getOutputStream(), true);
+                this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                this.running = true;
 
+                String line;
+                while (this.running && (line = this.in.readLine()) != null) {
+                    handleMessage(line);
+                }
+            } catch(Exception e){
+                System.err.println(e);
+            } finally {
+                close();
+            }
+        }).start();
     }
 
-    public void handleMessage(String message){
-        
+    private void handleMessage(String message){
+        System.out.println("Received: " + message);
+        AppController.getInstance().handleMessage(message);
     }
 
+    public void sendMessage(String message){
+        if(this.out == null){
+            return;
+        }
+        System.out.println("Send: " + message);
+        out.println(message);
+    }
+
+    public void close() {
+        this.running = false;
+        try {
+            if (this.in != null){
+                this.in.close();
+            }
+            if (this.out != null){
+                this.out.close();
+            }
+            if (this.socket != null && !socket.isClosed()){ 
+                this.socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
