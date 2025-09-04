@@ -32,6 +32,7 @@ public class ClientController {
         new Thread(()->{
             try{
                 this.socket = new Socket(serverIP, serverPort);
+                this.socket.setSoTimeout(2000);
                 this.out = new PrintWriter(socket.getOutputStream(), true);
                 this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 this.running = true;

@@ -20,6 +20,7 @@ public class SocketController extends Thread {
 
     public void run(){
         try{
+            this.connection.setSoTimeout(2000);
             this.in = new BufferedReader(new InputStreamReader(this.connection.getInputStream()));
             this.out = new PrintWriter(this.connection.getOutputStream(), true);
             this.running = true;
