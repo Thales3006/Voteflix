@@ -53,14 +53,14 @@ public class SocketController extends Thread {
     public void close() {
         this.running = false;
         try {
+            if (this.connection != null && !this.connection.isClosed()){ 
+                this.connection.close();
+            }
             if (this.in != null){
                 this.in.close();
             }
             if (this.out != null){
                 this.out.close();
-            }
-            if (this.connection != null && !this.connection.isClosed()){ 
-                this.connection.close();
             }
             System.out.println("A has Client disconnected");
         } catch (IOException e) {

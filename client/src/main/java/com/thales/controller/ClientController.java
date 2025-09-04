@@ -63,14 +63,14 @@ public class ClientController {
     public void close() {
         this.running = false;
         try {
+            if (this.socket != null && !socket.isClosed()){ 
+                this.socket.close();
+            }
             if (this.in != null){
                 this.in.close();
             }
             if (this.out != null){
                 this.out.close();
-            }
-            if (this.socket != null && !socket.isClosed()){ 
-                this.socket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
