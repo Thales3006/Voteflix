@@ -62,6 +62,7 @@ public class SocketController extends Thread {
             if (this.connection != null && !this.connection.isClosed()){ 
                 this.connection.close();
             }
+            System.out.println("A has Client disconnected");
         } catch (IOException e) {
             e.printStackTrace();
         }
