@@ -1,5 +1,8 @@
 package com.thales;
 
+import java.net.ServerSocket;
+import java.net.Socket;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
