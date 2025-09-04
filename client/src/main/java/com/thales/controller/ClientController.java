@@ -28,12 +28,14 @@ public class ClientController {
     }
 
     private void connect(String serverIP, int serverPort){
+        System.out.println("Trying to connect to server");
         new Thread(()->{
             try{
                 this.socket = new Socket(serverIP, serverPort);
                 this.out = new PrintWriter(socket.getOutputStream(), true);
                 this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 this.running = true;
+                System.out.println("You are connected");
 
                 String line;
                 while (this.running && (line = this.in.readLine()) != null) {
@@ -72,6 +74,7 @@ public class ClientController {
             if (this.out != null){
                 this.out.close();
             }
+            System.out.println("You were disconnected");
         } catch (IOException e) {
             e.printStackTrace();
         }
