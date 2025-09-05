@@ -1,15 +1,18 @@
-package com.thales;
+package com.thales.model;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import lombok.Data;
+
 import java.io.InputStream;
 import java.util.HashMap;
 
+@Data
 public class ErrorTable {
     private static ErrorTable instance;
 
-    public final HashMap<String,String> table;
+    private final HashMap<String,String> table;
 
     private ErrorTable(){
         HashMap<String,String> table = new HashMap<>();
