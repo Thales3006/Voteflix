@@ -4,7 +4,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import javafx.concurrent.Task;
+import lombok.Data;
 
+@Data
 public class ServerController {
     private static final int PORT = 20616;
     private static ServerController instance;
@@ -31,18 +33,22 @@ public class ServerController {
 
     private void listen(int serverPort){
         try {
+            AppController app = AppController.getInstance();
             listener = new ServerSocket(serverPort);
             System.out.println("Server Online!");
+            app.appendToLog("Server Online!");
 
             while (true) {
                 try {
                     Socket connection = listener.accept();
                     System.out.println("A client has connected");
+                    app.appendToLog("A client has connected");
 
                     SocketController socket = new SocketController(connection);
                     socket.start();
                 } catch (Exception e) {
                     System.out.println("Server Offline!");
+                    app.appendToLog("Server Offline!");
                     return;
                 } 
             }

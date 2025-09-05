@@ -15,6 +15,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/server.fxml"));
+
         Scene scene = new Scene(fxmlLoader.load());
         stage.setScene(scene);
         stage.setTitle("VoteFlix");
@@ -27,7 +28,7 @@ public class Main extends Application {
                 Platform.exit();
                 System.exit(0);
             }
-        });
+        });  
     }
 
     public static void main(String[] args) {

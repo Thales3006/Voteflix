@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import lombok.Data;
+
+@Data
 public class ClientController {
     private static final int PORT = 20616;
     private static ClientController instance;
@@ -32,7 +35,7 @@ public class ClientController {
         new Thread(()->{
             try{
                 this.socket = new Socket(serverIP, serverPort);
-                this.socket.setSoTimeout(2000);
+                //this.socket.setSoTimeout(2000);
                 this.out = new PrintWriter(socket.getOutputStream(), true);
                 this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 this.running = true;
@@ -68,6 +71,7 @@ public class ClientController {
         try {
             if (this.socket != null && !socket.isClosed()){ 
                 this.socket.close();
+                System.out.println("You were disconnected");
             }
             if (this.in != null){
                 this.in.close();
@@ -75,7 +79,6 @@ public class ClientController {
             if (this.out != null){
                 this.out.close();
             }
-            System.out.println("You were disconnected");
         } catch (IOException e) {
             e.printStackTrace();
         }

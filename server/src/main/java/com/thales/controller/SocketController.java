@@ -1,11 +1,14 @@
 package com.thales.controller;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
 public class SocketController extends Thread {
     
     private Socket connection;
@@ -20,7 +23,7 @@ public class SocketController extends Thread {
 
     public void run(){
         try{
-            this.connection.setSoTimeout(2000);
+            //this.connection.setSoTimeout(2000);
             this.in = new BufferedReader(new InputStreamReader(this.connection.getInputStream()));
             this.out = new PrintWriter(this.connection.getOutputStream(), true);
             this.running = true;
@@ -38,6 +41,7 @@ public class SocketController extends Thread {
 
     private void handleMessage(String message){
         System.out.println("Received: " + message);
+        AppController.getInstance().appendToLog("Received: " + message);
         AppController.getInstance().handleMessage(message);
 
         sendMessage(message.toUpperCase());
@@ -48,6 +52,8 @@ public class SocketController extends Thread {
             return;
         }
         System.out.println("Send: " + message);
+        AppController.getInstance().appendToLog("Send: " + message);
+
         this.out.println(message);
     }
 
@@ -56,6 +62,8 @@ public class SocketController extends Thread {
         try {
             if (this.connection != null && !this.connection.isClosed()){ 
                 this.connection.close();
+                System.out.println("A client has disconnected");
+                AppController.getInstance().appendToLog("A client has disconnected");
             }
             if (this.in != null){
                 this.in.close();
@@ -63,8 +71,7 @@ public class SocketController extends Thread {
             if (this.out != null){
                 this.out.close();
             }
-            System.out.println("A has Client disconnected");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
