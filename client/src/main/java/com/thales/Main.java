@@ -1,7 +1,6 @@
 package com.thales;
 
 import com.thales.controller.ClientController;
-import com.thales.model.ErrorTable;
 
 import javafx.application.Application;
 import javafx.application.Platform;
