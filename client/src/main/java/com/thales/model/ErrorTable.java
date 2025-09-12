@@ -22,11 +22,11 @@ public class ErrorTable {
             ){
 
             Sheet sheet = workbook.getSheetAt(2);
-            for (int rowIndex = 3; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+            for (int rowIndex = 2; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                 Row row = sheet.getRow(rowIndex);
                 if (row == null) continue;
 
-                for (int colIndex = 0; colIndex <= row.getLastCellNum(); colIndex+=3){
+                for (int colIndex = 0; colIndex <= row.getLastCellNum(); colIndex+=4){
                     DataFormatter formatter = new DataFormatter();
 
                     Cell keyCell = row.getCell(colIndex);

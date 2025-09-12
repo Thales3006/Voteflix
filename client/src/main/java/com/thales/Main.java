@@ -1,6 +1,7 @@
 package com.thales;
 
 import com.thales.controller.ClientController;
+import com.thales.model.ErrorTable;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -20,6 +21,7 @@ public class Main extends Application {
         stage.setTitle("VoteFlix");
         stage.show();
 
+        System.out.println(ErrorTable.getInstance().getTable().get("400"));
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
