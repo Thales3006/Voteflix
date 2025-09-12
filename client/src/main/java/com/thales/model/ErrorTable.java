@@ -52,4 +52,8 @@ public class ErrorTable {
         }
         return instance;
     }
+
+    public String get(String key){
+        return instance.table.get(key);
+    }
 }
