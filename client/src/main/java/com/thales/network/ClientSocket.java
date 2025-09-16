@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import com.thales.service.ClientService;
 
@@ -28,21 +29,18 @@ public class ClientSocket {
         running = new SimpleBooleanProperty(false);
     }
 
-    public void connect(String serverIP, int serverPort) throws IOException {
+    public void connect(String serverIP, int serverPort) throws IOException, UnknownHostException {
         System.out.println("Trying to connect to server");
         if (running.get()) {
             throw new IOException("A socket connection is still on");
         }
-        try{
-            socket = new Socket(serverIP, serverPort);
-            //socket.setSoTimeout(2000);
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            running.set(true);
-            System.out.println("You are connected");
-        } catch(Exception e){
-            System.err.println(e);
-        }
+        
+        socket = new Socket(serverIP, serverPort);
+        //socket.setSoTimeout(2000);
+        out = new PrintWriter(socket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        running.set(true);
+        System.out.println("You are connected");
 
         new Thread(()->{
             try{

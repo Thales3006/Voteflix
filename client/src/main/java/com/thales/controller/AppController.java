@@ -2,11 +2,14 @@ package com.thales.controller;
 
 import java.io.IOException;
 
+import com.thales.model.User;
 import com.thales.network.ClientSocket;
 import com.thales.service.ClientService;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import lombok.Data;
 
 @Data
@@ -27,20 +30,31 @@ public class AppController {
     @FXML private void initialize() {
         clientSocket = new ClientSocket();
         clientService = new ClientService(clientSocket, this); 
+        clientSocket.setClientService(clientService);
 
         connectButton.disableProperty().bind(clientSocket.getRunning());
         disconnectButton.disableProperty().bind(clientSocket.getRunning().not());
     }
     
+    public void showPopup(String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
     // ===================================
     //  UI interaction handlers
     // ===================================
 
     @FXML private void HandleLoginButton(){
-        try{
-            clientSocket.sendMessage(usernameField.getText());
+        try {
+        clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
         } catch (IOException e) {
-            System.err.println(e);
+            showPopup("Request Error", e.toString());
         }
     }
 
@@ -52,6 +66,10 @@ public class AppController {
         try{
             clientSocket.connect(IPField.getText(), Integer.parseInt(portField.getText()));
         } catch (IOException e) {
+            showPopup("Connection Error", e.toString());
+            System.err.println(e);
+        } catch (Exception e) {
+            showPopup("Error", e.toString());
             System.err.println(e);
         }
     }
