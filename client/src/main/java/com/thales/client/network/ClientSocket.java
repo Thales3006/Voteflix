@@ -48,13 +48,10 @@ public class ClientSocket {
                 while (running.get() && (line = in.readLine()) != null) {
                     receiveMessage(line);
                 }
-            } catch(SocketException e){
-                if(!running.get()){
-                    return;
+            } catch(IOException e){
+                if(running.get()){
+                    System.err.println(e);
                 }
-                System.err.println(e);
-            } catch(Exception e){
-                System.err.println(e);
             } finally {
                 close();
             }
