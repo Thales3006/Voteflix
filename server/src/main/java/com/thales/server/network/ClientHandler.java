@@ -1,11 +1,11 @@
-package com.thales.network;
+package com.thales.server.network;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import com.thales.service.ServerService;
+import com.thales.server.service.ServerService;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

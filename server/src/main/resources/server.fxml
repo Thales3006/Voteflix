@@ -13,7 +13,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox alignment="TOP_CENTER" minHeight="300.0" minWidth="300.0" prefHeight="600.0" prefWidth="1000.0" spacing="10.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.controller.AppController">
+<VBox alignment="TOP_CENTER" minHeight="300.0" minWidth="300.0" prefHeight="600.0" prefWidth="1000.0" spacing="10.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.server.controller.AppController">
    <children>
        <Text text="Server" textAlignment="CENTER" wrappingWidth="164.046875">
          <font>
@@ -45,7 +45,7 @@
             <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
                <children>
                   <Label alignment="CENTER" prefHeight="17.0" prefWidth="154.0" text="Users" />
-                  <Accordion>
+                  <Accordion fx:id="ClientList">
                     <panes>
                       <TitledPane animated="false" text="untitled 1">
                         <content>

@@ -1,7 +1,7 @@
-package com.thales.controller;
+package com.thales.server.controller;
 
-import com.thales.network.ServerListener;
-import com.thales.service.ServerService;
+import com.thales.server.network.ServerListener;
+import com.thales.server.service.ServerService;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;

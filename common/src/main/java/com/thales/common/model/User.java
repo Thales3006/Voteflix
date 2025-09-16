@@ -1,4 +1,4 @@
-package com.thales.model;
+package com.thales.common.model;
 
 import lombok.Data;
 

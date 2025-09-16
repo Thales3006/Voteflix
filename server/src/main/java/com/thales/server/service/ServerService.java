@@ -1,9 +1,9 @@
-package com.thales.service;
+package com.thales.server.service;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.thales.controller.AppController;
-import com.thales.network.ClientHandler;
+import com.thales.server.controller.AppController;
+import com.thales.server.network.ClientHandler;
 
 import javafx.application.Platform;
 

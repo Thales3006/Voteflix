@@ -1,11 +1,11 @@
-package com.thales.service;
+package com.thales.client.service;
 
 import java.io.IOException;
 
 import com.google.gson.JsonObject;
-import com.thales.controller.AppController;
-import com.thales.model.User;
-import com.thales.network.ClientSocket;
+import com.thales.client.controller.AppController;
+import com.thales.common.model.User;
+import com.thales.client.network.ClientSocket;
 
 import javafx.application.Platform;
 

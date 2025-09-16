@@ -1,6 +1,6 @@
-package com.thales;
+package com.thales.client;
 
-import com.thales.controller.AppController;
+import com.thales.client.controller.AppController;
 
 import javafx.application.Application;
 import javafx.application.Platform;

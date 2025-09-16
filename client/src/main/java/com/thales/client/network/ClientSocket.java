@@ -1,4 +1,4 @@
-package com.thales.network;
+package com.thales.client.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import com.thales.service.ClientService;
+import com.thales.client.service.ClientService;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

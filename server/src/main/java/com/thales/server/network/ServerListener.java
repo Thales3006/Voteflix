@@ -1,4 +1,4 @@
-package com.thales.network;
+package com.thales.server.network;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.thales.service.ServerService;
+import com.thales.server.service.ServerService;
 
 import lombok.Data;
 

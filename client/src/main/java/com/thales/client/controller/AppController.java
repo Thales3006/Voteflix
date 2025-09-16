@@ -1,10 +1,10 @@
-package com.thales.controller;
+package com.thales.client.controller;
 
 import java.io.IOException;
 
-import com.thales.model.User;
-import com.thales.network.ClientSocket;
-import com.thales.service.ClientService;
+import com.thales.common.model.User;
+import com.thales.client.network.ClientSocket;
+import com.thales.client.service.ClientService;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
