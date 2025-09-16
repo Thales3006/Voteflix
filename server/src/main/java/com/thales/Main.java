@@ -1,6 +1,6 @@
 package com.thales;
 
-import com.thales.controller.ServerController;
+import com.thales.controller.AppController;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -14,9 +14,9 @@ public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/server.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/server.fxml"));
 
-        Scene scene = new Scene(fxmlLoader.load());
+        Scene scene = new Scene(loader.load());
         stage.setScene(scene);
         stage.setTitle("VoteFlix");
         stage.show();
@@ -24,7 +24,8 @@ public class Main extends Application {
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                ServerController.getInstance().close();
+                AppController controller = loader.getController();
+                controller.getServerListener().close();
                 Platform.exit();
                 System.exit(0);
             }

@@ -1,37 +1,28 @@
 package com.thales.controller;
 
-import javafx.application.Platform;
+import com.thales.network.ServerListener;
+import com.thales.service.ServerService;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import lombok.Data;
 
 @Data
 public class AppController {
+
+    private ServerService serverService;
+    private ServerListener serverListener;
+
     @FXML private TextArea log_output;
 
-    private static AppController instance;
-
-    public AppController(){
-        if(instance == null){
-            instance = this;
-        }
-    }
-
     @FXML public void initialize() {
-        ServerController.getInstance();
+        serverService = new ServerService(this);
+        serverListener = new ServerListener(serverService, 20737);
     }
 
-    public static AppController getInstance() {
-        return instance;
+    @FXML public void appendToLog(String message){
+        log_output.appendText(message + "\n");
     }
 
-    public void handleMessage(String message){
-
-    }
-
-    public void appendToLog(String message){
-        Platform.runLater(()->{
-            log_output.appendText(message + "\n");
-        });
-    }
+    
 }

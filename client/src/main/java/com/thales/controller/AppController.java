@@ -3,6 +3,7 @@ package com.thales.controller;
 import java.io.IOException;
 
 import com.thales.network.ClientSocket;
+import com.thales.service.ClientService;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -10,6 +11,10 @@ import lombok.Data;
 
 @Data
 public class AppController {
+
+    private ClientSocket clientSocket;
+    private ClientService clientService;
+
     @FXML private Button loginButton;
     @FXML private Button registerButton;
     @FXML private TextField usernameField;
@@ -19,16 +24,12 @@ public class AppController {
     @FXML private Button connectButton;
     @FXML private Button disconnectButton;
 
-    @FXML public void initialize() {
-        ClientSocket.getInstance().getLastMessage().addListener((_, _, newMsg) -> {
-            handleMessage(newMsg);
-        });
-        connectButton.disableProperty().bind(ClientSocket.getInstance().getRunning());
-        disconnectButton.disableProperty().bind(ClientSocket.getInstance().getRunning().not());
-    }
+    @FXML private void initialize() {
+        clientSocket = new ClientSocket();
+        clientService = new ClientService(clientSocket, this); 
 
-    @FXML public void handleMessage(String message){
-        registerButton.setText(message);
+        connectButton.disableProperty().bind(clientSocket.getRunning());
+        disconnectButton.disableProperty().bind(clientSocket.getRunning().not());
     }
     
     // ===================================
@@ -37,7 +38,7 @@ public class AppController {
 
     @FXML private void HandleLoginButton(){
         try{
-            ClientSocket.getInstance().sendMessage(usernameField.getText());
+            clientSocket.sendMessage(usernameField.getText());
         } catch (IOException e) {
             System.err.println(e);
         }
@@ -49,14 +50,14 @@ public class AppController {
 
     @FXML private void HandleConnectButton(){
         try{
-            ClientSocket.getInstance().connect(IPField.getText(), Integer.parseInt(portField.getText()));
+            clientSocket.connect(IPField.getText(), Integer.parseInt(portField.getText()));
         } catch (IOException e) {
             System.err.println(e);
         }
     }
 
     @FXML private void HandleDisconnectButton(){
-        ClientSocket.getInstance().close();
+        clientSocket.close();
     }
 
 }

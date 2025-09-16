@@ -7,33 +7,25 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-import javafx.application.Platform;
+import com.thales.service.ClientService;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import lombok.Data;
 
 @Data
 public class ClientSocket {
-    private static ClientSocket instance;
+
+    private ClientService clientService;
 
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
+
     private BooleanProperty running;
-    private StringProperty lastMessage;
 
-    private ClientSocket(){
+    public ClientSocket(){
         running = new SimpleBooleanProperty(false);
-        lastMessage = new SimpleStringProperty();
-    }
-
-    public static ClientSocket getInstance(){
-        if(instance == null){
-            instance = new ClientSocket();
-        }
-        return instance;
     }
 
     public void connect(String serverIP, int serverPort) throws IOException {
@@ -56,7 +48,7 @@ public class ClientSocket {
             try{
                 String line;
                 while (running.get() && (line = in.readLine()) != null) {
-                    handleMessage(line);
+                    receiveMessage(line);
                 }
             } catch(SocketException e){
                 if(!running.get()){
@@ -71,9 +63,9 @@ public class ClientSocket {
         }).start();
     }
 
-    private void handleMessage(String message){
+    private void receiveMessage(String message){
         System.out.println("Received: " + message);
-        Platform.runLater(() -> lastMessage.set(message));
+        clientService.handleMessage(message);;
     }
 
     public void sendMessage(String message) throws IOException{
