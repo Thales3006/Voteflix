@@ -1,6 +1,9 @@
 package com.thales.controller;
 
-import javafx.application.Platform;
+import java.io.IOException;
+
+import com.thales.network.ClientSocket;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import lombok.Data;
@@ -11,35 +14,49 @@ public class AppController {
     @FXML private Button registerButton;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
+    @FXML private TextField IPField;
+    @FXML private TextField portField;
+    @FXML private Button connectButton;
+    @FXML private Button disconnectButton;
 
-    private static AppController instance;
+    @FXML public void initialize() {
+        ClientSocket.getInstance().getLastMessage().addListener((_, _, newMsg) -> {
+            handleMessage(newMsg);
+        });
+        connectButton.disableProperty().bind(ClientSocket.getInstance().getRunning());
+        disconnectButton.disableProperty().bind(ClientSocket.getInstance().getRunning().not());
+    }
 
-    public AppController(){
-        if(instance == null){
-            instance = this;
+    @FXML public void handleMessage(String message){
+        registerButton.setText(message);
+    }
+    
+    // ===================================
+    //  UI interaction handlers
+    // ===================================
+
+    @FXML private void HandleLoginButton(){
+        try{
+            ClientSocket.getInstance().sendMessage(usernameField.getText());
+        } catch (IOException e) {
+            System.err.println(e);
         }
     }
 
-    @FXML public void initialize() {
-        ClientController.getInstance();
-    }
-
-    public static AppController getInstance() {
-        return instance;
-    }
-
-    @FXML private void HandleLogin(){
-        ClientController.getInstance().sendMessage(usernameField.getText());
-    }
-
-    @FXML private void HandleRegister(){
+    @FXML private void HandleRegisterButton(){
 
     }
 
-    public void handleMessage(String message){
-        Platform.runLater(() -> {
-            registerButton.setText(message);
-        });
+    @FXML private void HandleConnectButton(){
+        try{
+            ClientSocket.getInstance().connect(IPField.getText(), Integer.parseInt(portField.getText()));
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+    }
+
+    @FXML private void HandleDisconnectButton(){
+        ClientSocket.getInstance().close();
     }
 
 }

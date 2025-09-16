@@ -33,11 +33,11 @@
       <HBox prefHeight="42.0" prefWidth="1000.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
             <Label alignment="CENTER" prefHeight="56.0" prefWidth="32.0" text="IPv4" />
-            <TextField fx:id="IPLabel" promptText="000.000.000.000" />
+            <TextField fx:id="IPField" promptText="000.000.000.000" />
             <Label alignment="CENTER" prefHeight="34.0" prefWidth="32.0" text="Port" />
-            <TextField fx:id="portLabel" promptText="0000" />
-            <Button fx:id="connectButton" mnemonicParsing="false" onAction="#HandleLogin" prefWidth="110.0" text="Connect" />
-            <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" onAction="#HandleLogin" prefHeight="43.0" prefWidth="110.0" text="Disconnect" />
+            <TextField fx:id="portField" promptText="0000" />
+            <Button fx:id="connectButton" mnemonicParsing="false" onAction="#HandleConnectButton" prefWidth="110.0" text="Connect" />
+            <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" onAction="#HandleDisconnectButton" prefHeight="43.0" prefWidth="110.0" text="Disconnect" />
          </children>
          <BorderPane.margin>
             <Insets />
@@ -81,9 +81,9 @@
             </GridPane>
             <HBox spacing="10.0">
                <children>
-                  <Button fx:id="loginButton" mnemonicParsing="false" onAction="#HandleLogin" prefHeight="26.0" prefWidth="110.0" text="Login" />
+                  <Button fx:id="loginButton" mnemonicParsing="false" onAction="#HandleLoginButton" prefHeight="26.0" prefWidth="110.0" text="Login" />
                   <Label alignment="CENTER" prefHeight="26.0" prefWidth="22.0" text="or" />
-                  <Button fx:id="registerButton" mnemonicParsing="false" onAction="#HandleRegister" prefHeight="26.0" prefWidth="110.0" text="Register" />
+                  <Button fx:id="registerButton" mnemonicParsing="false" onAction="#HandleRegisterButton" prefHeight="26.0" prefWidth="110.0" text="Register" />
                </children>
                <VBox.margin>
                   <Insets />
