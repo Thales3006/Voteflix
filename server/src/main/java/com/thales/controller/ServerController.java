@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 public class ServerController {
-    private static final int PORT = 20616;
+    private static final int PORT = 20737;
     private static ServerController instance;
 
     private ServerSocket listener;
