@@ -27,7 +27,6 @@ public class ServerListener {
             System.err.println(e);
             System.exit(1);
         }
-        System.out.println("Server Online!");
         serverService.log("Server Online!");
 
         new Thread(() -> listen()).start();
@@ -41,10 +40,8 @@ public class ServerListener {
                 clients.add(socket);
                 socket.start();
 
-                System.out.println("A client has connected");
                 serverService.log("A client has connected");
             } catch (Exception e) {
-                System.out.println("Server Offline!");
                 serverService.log("Server Offline!");
                 return;
             } 

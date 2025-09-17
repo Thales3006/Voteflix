@@ -46,7 +46,6 @@ public class ClientHandler extends Thread {
     } 
 
     private void receiveMessage(String message){
-        System.out.println("Received: " + message);
         serverService.log("Received: " + message);
         serverService.handleMessage(message, this);
     }
@@ -55,7 +54,6 @@ public class ClientHandler extends Thread {
         if(out == null){
             return;
         }
-        System.out.println("Send: " + message);
         serverService.log("Send: " + message);
         out.println(message);
     }
@@ -65,7 +63,6 @@ public class ClientHandler extends Thread {
         try {
             if (connection != null && !connection.isClosed()){ 
                 connection.close();
-                System.out.println("A client has disconnected");
                 serverService.log("A client has disconnected");
             }
             if (in != null){

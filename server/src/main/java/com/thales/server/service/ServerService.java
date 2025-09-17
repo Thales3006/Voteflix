@@ -18,6 +18,7 @@ public class ServerService {
 
     public void log(String message){
         String time = java.time.LocalTime.now().withNano(0).toString();
+        System.out.println("[" + time + "] " + message);
         Platform.runLater(() -> appController.appendToLog("[" + time + "] " + message));
     }
 
