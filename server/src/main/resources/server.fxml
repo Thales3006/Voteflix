@@ -5,74 +5,53 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TitledPane?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox alignment="TOP_CENTER" minHeight="300.0" minWidth="300.0" prefHeight="600.0" prefWidth="1000.0" spacing="10.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.server.controller.AppController">
-   <children>
-       <Text text="Server" textAlignment="CENTER" wrappingWidth="164.046875">
-         <font>
-            <Font name="Cascadia Mono Regular" size="30.0" />
-         </font>
-      </Text>
-      <Separator prefWidth="200.0" />
-      <BorderPane VBox.vgrow="ALWAYS">
-         <center>
-            <Pane prefHeight="492.0" prefWidth="805.0">
-               <children>
-                  <VBox prefHeight="492.0" prefWidth="850.0">
-                     <children>
-                        <Label alignment="CENTER" prefHeight="17.0" prefWidth="861.0" text="Server Log" VBox.vgrow="ALWAYS" />
-                        <AnchorPane VBox.vgrow="ALWAYS">
-                           <children>
-                              <TextArea fx:id="log_output" editable="false" focusTraversable="false" prefHeight="200.0" prefWidth="685.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                           </children>
-                        </AnchorPane>
-                     </children>
-                  </VBox>
-               </children>
-               <BorderPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </BorderPane.margin>
-            </Pane>
-         </center>
-         <left>
-            <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-               <children>
-                  <Label alignment="CENTER" prefHeight="17.0" prefWidth="154.0" text="Users" />
-                  <Accordion fx:id="ClientList">
-                    <panes>
-                      <TitledPane animated="false" text="untitled 1">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                        </content>
-                      </TitledPane>
-                      <TitledPane animated="false" text="untitled 2">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                        </content>
-                      </TitledPane>
-                      <TitledPane animated="false" text="untitled 3">
-                        <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                        </content>
-                      </TitledPane>
-                    </panes>
-                  </Accordion>
-               </children>
-            </VBox>
-         </left>
+<BorderPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.server.controller.AppController">
+   <center>
+      <VBox alignment="CENTER" fillWidth="true" spacing="5.0">
+         <children>
+            <Label alignment="CENTER" text="Server Log" />
+            <TextArea fx:id="log_output" editable="false" focusTraversable="false" wrapText="true" VBox.vgrow="ALWAYS" />
+         </children>
          <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" />
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </padding>
-      </BorderPane>
-   </children>
+      </VBox>
+   </center>
+   <left>
+      <VBox prefHeight="476.0" prefWidth="170.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label alignment="CENTER" prefHeight="17.0" prefWidth="154.0" text="Users" />
+            <Accordion fx:id="userList" prefHeight="0.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+   </left>
    <padding>
-      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
    </padding>
-</VBox>
+   <top>
+      <VBox alignment="TOP_CENTER" prefHeight="79.0" prefWidth="995.0" BorderPane.alignment="CENTER">
+         <children>
+             <Text text="Server" textAlignment="CENTER" wrappingWidth="164.046875">
+               <font>
+                  <Font name="Cascadia Mono Regular" size="30.0" />
+               </font>
+            </Text>
+            <Separator prefWidth="200.0" />
+         </children>
+      </VBox>
+   </top>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+</BorderPane>
