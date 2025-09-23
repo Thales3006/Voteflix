@@ -16,7 +16,7 @@
 <?import javafx.scene.text.Text?>
 
 
-<BorderPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.client.controller.LoginController">
+<BorderPane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@style.css" fx:controller="com.thales.client.controller.LoginController">
    <top>
       <VBox alignment="CENTER" prefHeight="63.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <children>
