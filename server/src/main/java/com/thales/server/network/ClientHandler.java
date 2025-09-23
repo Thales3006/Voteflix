@@ -20,6 +20,7 @@ public class ClientHandler extends Thread {
     private PrintWriter out;
     private BufferedReader in;
     private BooleanProperty running;
+    private String username;
 
     public ClientHandler(ServerService serverService, Socket connection){
         running = new SimpleBooleanProperty(false);
@@ -60,6 +61,7 @@ public class ClientHandler extends Thread {
 
     public void close() {
         running.set(false);
+        serverService.handleClosed(this);
         try {
             if (connection != null && !connection.isClosed()){ 
                 connection.close();

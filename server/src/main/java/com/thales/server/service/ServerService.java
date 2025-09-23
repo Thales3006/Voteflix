@@ -25,7 +25,7 @@ public class ServerService {
     public ServerService(AppController appController){
         this.appController = appController;
 
-        users.addListener((MapChangeListener<String, User>) change -> {
+        users.addListener((MapChangeListener<String, User>) _ -> {
             Platform.runLater(() -> appController.updateUserList(users));
         });
     }
@@ -87,12 +87,9 @@ public class ServerService {
             if(users.containsKey(username)){
                 status = "401";
             }
-            System.out.println(username);
-            System.out.println(username);
-            System.out.println(username);
-            System.out.println(username);
             users.put(username, new User(username, password));
         }
+        client.setUsername(username);
 
         JsonObject json = new JsonObject();
         json.addProperty("status", "200");
@@ -127,5 +124,13 @@ public class ServerService {
         return json.toString();
     }
 
+    public void handleClosed(ClientHandler client) {
+        String username = client.getUsername();
+        if (username != null) {
+            synchronized (usersLock){
+            users.remove(username);
+            }
+        }
+    }
 
 }

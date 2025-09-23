@@ -1,7 +1,5 @@
 package com.thales.client.controller;
 
-import java.io.IOException;
-
 import com.thales.client.model.StatusException;
 import com.thales.client.service.ClientService;
 import com.thales.common.model.ErrorTable;
