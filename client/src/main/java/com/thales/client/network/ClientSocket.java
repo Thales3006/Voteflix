@@ -7,8 +7,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import com.thales.client.service.ClientService;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import lombok.Data;
@@ -16,7 +14,6 @@ import lombok.Data;
 @Data
 public class ClientSocket {
 
-    private static final ClientService clientService = ClientService.getInstance();
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
@@ -38,26 +35,6 @@ public class ClientSocket {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         running.set(true);
         System.out.println("You are connected");
-
-        new Thread(()->{
-            try{
-                String line;
-                while (running.get() && (line = in.readLine()) != null) {
-                    receiveMessage(line);
-                }
-            } catch(IOException e){
-                if(running.get()){
-                    System.err.println(e);
-                }
-            } finally {
-                close();
-            }
-        }).start();
-    }
-
-    private void receiveMessage(String message){
-        System.out.println("Received: " + message);
-        clientService.handleMessage(message);;
     }
 
     public void sendMessage(String message) throws IOException{
@@ -66,6 +43,16 @@ public class ClientSocket {
         }
         System.out.println("Send: " + message);
         out.println(message);
+    }
+
+    public String waitMessage() throws IOException {
+        String message = in.readLine();
+        if(message == null){
+            close();
+            throw new IOException("Received Null, Connection was Closed");
+        }
+        System.out.println("Received: " + message);
+        return message;
     }
 
     public void close() {

@@ -3,7 +3,6 @@ package com.thales.client.controller;
 import java.io.IOException;
 
 import com.thales.common.model.User;
-import com.google.gson.JsonObject;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -14,7 +13,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginController extends Controller {
+public class LoginController extends FXMLController {
 
     @FXML private Button loginButton;
     @FXML private Button registerButton;
@@ -40,17 +39,14 @@ public class LoginController extends Controller {
         });
     }
 
-    public void handleMessage(JsonObject json){
-        registerButton.setText(json.toString());
-    }
-
     // ===================================
     //  UI interaction handlers
     // ===================================
 
     @FXML private void HandleLoginButton(){
         try {
-            clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
+            String token = clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
+            registerButton.setText(token);
         } catch (IOException e) {
             showPopup("Request Error", e.toString());
         }
