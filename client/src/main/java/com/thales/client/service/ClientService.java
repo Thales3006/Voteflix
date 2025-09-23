@@ -19,6 +19,7 @@ public class ClientService {
     private static ClientService instance;
     private ClientSocket socket;
     private FXMLController activeController;
+    private String token;
     private final Gson gson = new Gson(); 
 
 
@@ -45,7 +46,7 @@ public class ClientService {
     //  Requests
     // ===================================
 
-    public String requestLogin(User user) throws IOException {
+    public void requestLogin(User user) throws IOException {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "LOGIN");
         json.addProperty("usuario", user.getUsername());
@@ -58,6 +59,6 @@ public class ClientService {
         if(token == null){
             throw new IOException("No token field");
         }
-        return token.getAsString();
+        this.token = token.getAsString();
     }
 }

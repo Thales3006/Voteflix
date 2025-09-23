@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.thales.common.model.User;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
@@ -43,20 +44,25 @@ public class LoginController extends FXMLController {
     //  UI interaction handlers
     // ===================================
 
-    @FXML private void HandleLoginButton(){
+    @FXML private void HandleLoginButton(ActionEvent event){
         try {
-            String token = clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
-            registerButton.setText(token);
+            clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
+            SceneController.switchTo(event, "/voting.fxml");
         } catch (IOException e) {
             showPopup("Request Error", e.toString());
         }
     }
 
-    @FXML private void HandleRegisterButton(){
-
+    @FXML private void HandleRegisterButton(ActionEvent event){
+        try{
+        SceneController.switchTo(event, "/voting.fxml");
+        } catch (IOException e) {
+            showPopup("Error", e.toString());
+            System.err.println(e);
+        }
     }
 
-    @FXML private void HandleConnectButton(){
+    @FXML private void HandleConnectButton(ActionEvent event){
         try{
             clientService.connect(IPField.getText(), Integer.parseInt(portField.getText()));
         } catch (IOException e) {
@@ -68,7 +74,7 @@ public class LoginController extends FXMLController {
         }
     }
 
-    @FXML private void HandleDisconnectButton(){
+    @FXML private void HandleDisconnectButton(ActionEvent event){
         clientService.close();
     }
 
