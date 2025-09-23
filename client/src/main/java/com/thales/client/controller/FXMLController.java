@@ -1,5 +1,6 @@
 package com.thales.client.controller;
 
+import com.thales.client.model.StatusException;
 import com.thales.client.service.ClientService;
 import com.thales.common.model.ErrorTable;
 
@@ -35,5 +36,21 @@ public abstract class FXMLController {
             return;
         }
         showPopup("Status Error", errorMessage);
+    }
+
+    @FunctionalInterface
+    protected interface ThrowingRunnable {
+        void run() throws Exception;
+    }
+
+    protected void runWithPopup(ThrowingRunnable action) {
+        try {
+            action.run();
+        } catch (StatusException e) {
+            showStatusError(e.getStatus());
+        } catch (Exception e) {
+            showPopup("Exception Error", e.toString());
+            System.err.println(e);
+        }
     }
 }
