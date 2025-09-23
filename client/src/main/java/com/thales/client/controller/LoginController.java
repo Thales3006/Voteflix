@@ -2,13 +2,12 @@ package com.thales.client.controller;
 
 import java.io.IOException;
 
+import com.thales.client.model.StatusException;
 import com.thales.common.model.User;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,16 +28,6 @@ public class LoginController extends FXMLController {
         connectButton.disableProperty().bind(clientService.getSocket().getRunning());
         disconnectButton.disableProperty().bind(clientService.getSocket().getRunning().not());
     }
-    
-    public void showPopup(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
-    }
 
     // ===================================
     //  UI interaction handlers
@@ -48,15 +37,19 @@ public class LoginController extends FXMLController {
         try {
             clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
             SceneController.switchTo(event, "/voting.fxml");
-        } catch (IOException e) {
+        }  catch (StatusException e) {
+            showStatusError(e.getStatus());
+        } catch (Exception e) {
             showPopup("Request Error", e.toString());
         }
     }
 
     @FXML private void HandleRegisterButton(ActionEvent event){
         try{
-        SceneController.switchTo(event, "/voting.fxml");
-        } catch (IOException e) {
+            clientService.requestRegister(new User(usernameField.getText(), passwordField.getText()));
+        } catch (StatusException e) {
+            showStatusError(e.getStatus());
+        } catch (Exception e) {
             showPopup("Error", e.toString());
             System.err.println(e);
         }
