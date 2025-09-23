@@ -1,5 +1,7 @@
 package com.thales.client.controller;
 
+import java.io.IOException;
+
 import com.thales.client.model.StatusException;
 import com.thales.client.service.ClientService;
 import com.thales.common.model.ErrorTable;
@@ -43,7 +45,7 @@ public abstract class FXMLController {
         void run() throws Exception;
     }
 
-    protected void runWithPopup(ThrowingRunnable action) {
+    protected void handle(ThrowingRunnable action) {
         try {
             action.run();
         } catch (StatusException e) {
@@ -52,5 +54,10 @@ public abstract class FXMLController {
             showPopup("Exception Error", e.toString());
             System.err.println(e);
         }
+    }
+
+    protected void handle(ThrowingRunnable action , ThrowingRunnable finallyAction) {
+        handle(action);
+        handle(finallyAction);
     }
 }

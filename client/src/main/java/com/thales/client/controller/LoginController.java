@@ -31,26 +31,26 @@ public class LoginController extends FXMLController {
     // ===================================
 
     @FXML private void HandleLoginButton(ActionEvent event){
-        runWithPopup(() -> {
+        handle(() -> {
             clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
             SceneController.switchTo(event, "/voting.fxml");
         });
     }
 
     @FXML private void HandleRegisterButton(ActionEvent event){
-        runWithPopup(() -> {
+        handle(() -> {
             clientService.requestRegister(new User(usernameField.getText(), passwordField.getText()));
         });
     }
 
     @FXML private void HandleConnectButton(ActionEvent event){
-        runWithPopup(() -> {
+        handle(() -> {
             clientService.connect(IPField.getText(), Integer.parseInt(portField.getText()));
         });
     }
 
     @FXML private void HandleDisconnectButton(ActionEvent event){
-        runWithPopup(() -> {
+        handle(() -> {
         clientService.close();
         });
     }

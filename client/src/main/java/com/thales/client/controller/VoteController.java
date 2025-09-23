@@ -10,10 +10,10 @@ public class VoteController extends FXMLController {
     protected void onInitialize(){ }
 
     @FXML private void HandleLogoutButton(ActionEvent event){
-        runWithPopup(() -> {
-            clientService.requestLogout();
-            SceneController.switchTo(event, "/login.fxml");
-        });
+        handle(
+            () -> clientService.requestLogout(), 
+            () -> SceneController.switchTo(event, "/login.fxml")
+        );
     }
 
 }
