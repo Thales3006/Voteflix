@@ -3,20 +3,18 @@ package com.thales.client.controller;
 import java.io.IOException;
 
 import com.thales.common.model.User;
-import com.thales.client.network.ClientSocket;
-import com.thales.client.service.ClientService;
+import com.google.gson.JsonObject;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-public class AppController {
-
-    private ClientSocket clientSocket;
-    private ClientService clientService;
+@Getter
+@Setter
+public class LoginController extends Controller {
 
     @FXML private Button loginButton;
     @FXML private Button registerButton;
@@ -27,13 +25,9 @@ public class AppController {
     @FXML private Button connectButton;
     @FXML private Button disconnectButton;
 
-    @FXML private void initialize() {
-        clientSocket = new ClientSocket();
-        clientService = new ClientService(clientSocket, this); 
-        clientSocket.setClientService(clientService);
-
-        connectButton.disableProperty().bind(clientSocket.getRunning());
-        disconnectButton.disableProperty().bind(clientSocket.getRunning().not());
+    @Override protected void onInitialize() {
+        connectButton.disableProperty().bind(clientService.getSocket().getRunning());
+        disconnectButton.disableProperty().bind(clientService.getSocket().getRunning().not());
     }
     
     public void showPopup(String title, String message) {
@@ -46,13 +40,17 @@ public class AppController {
         });
     }
 
+    public void handleMessage(JsonObject json){
+        registerButton.setText(json.toString());
+    }
+
     // ===================================
     //  UI interaction handlers
     // ===================================
 
     @FXML private void HandleLoginButton(){
         try {
-        clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
+            clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
         } catch (IOException e) {
             showPopup("Request Error", e.toString());
         }
@@ -64,7 +62,7 @@ public class AppController {
 
     @FXML private void HandleConnectButton(){
         try{
-            clientSocket.connect(IPField.getText(), Integer.parseInt(portField.getText()));
+            clientService.connect(IPField.getText(), Integer.parseInt(portField.getText()));
         } catch (IOException e) {
             showPopup("Connection Error", e.toString());
             System.err.println(e);
@@ -75,7 +73,7 @@ public class AppController {
     }
 
     @FXML private void HandleDisconnectButton(){
-        clientSocket.close();
+        clientService.close();
     }
 
 }

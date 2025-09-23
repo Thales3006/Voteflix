@@ -1,6 +1,6 @@
 package com.thales.client;
 
-import com.thales.client.controller.AppController;
+import com.thales.client.service.ClientService;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -25,8 +25,7 @@ public class Main extends Application {
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                AppController controller = loader.getController();
-                controller.getClientSocket().close();
+                ClientService.getInstance().close();
                 Platform.exit();
                 System.exit(0);
             }

@@ -16,12 +16,10 @@ import lombok.Data;
 @Data
 public class ClientSocket {
 
-    private ClientService clientService;
-
+    private static final ClientService clientService = ClientService.getInstance();
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-
     private BooleanProperty running;
 
     public ClientSocket(){
