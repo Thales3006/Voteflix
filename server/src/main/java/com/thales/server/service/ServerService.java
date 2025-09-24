@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.thales.common.model.JsonSchemaValidator;
 import com.thales.common.model.User;
 import com.thales.server.controller.AppController;
 import com.thales.server.network.ClientHandler;
@@ -47,17 +48,12 @@ public class ServerService {
     }
 
     public void handleMessage(String message, ClientHandler client){
+        JsonSchemaValidator validator = new JsonSchemaValidator("/operacao-field-schema.json");
+        validator.validate(message);
         JsonObject jsonObject = gson.fromJson(message, com.google.gson.JsonObject.class);
-        String operacao = jsonObject.has("operacao") ? jsonObject.get("operacao").getAsString() : null;
-        if (operacao == null) {
-            JsonObject response = new JsonObject();
-            response.addProperty("status", "400");
-            client.sendMessage(gson.toJson(response));
-            return;
-        }
 
         String response;
-        switch (operacao) {
+        switch (jsonObject.get("operacao").getAsString()) {
         case "LOGIN":
             response = handleLogin(jsonObject, client);
             break;
