@@ -5,21 +5,21 @@ import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-public class JsonSchemaValidator {
+public class JsonSchema {
     private final Schema schema;
 
-    public JsonSchemaValidator(String schemaJson) {
+    public JsonSchema(String schemaJson) {
         JSONObject rawSchema = new JSONObject(new JSONTokener(schemaJson));
         this.schema = SchemaLoader.load(rawSchema);
     }
 
-    public JsonSchemaValidator loadFromResource(String resourcePath) {
+    public JsonSchema loadFromResource(String resourcePath) {
         try (java.io.InputStream is = getClass().getResourceAsStream(resourcePath)) {
             if (is == null) {
                 throw new IllegalArgumentException("Resource not found: " + resourcePath);
             }
             JSONObject rawSchema = new JSONObject(new JSONTokener(is));
-            return new JsonSchemaValidator(rawSchema.toString());
+            return new JsonSchema(rawSchema.toString());
         } catch (java.io.IOException e) {
             throw new RuntimeException("Failed to load schema from resource: " + resourcePath, e);
         }
