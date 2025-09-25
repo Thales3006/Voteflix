@@ -3,6 +3,7 @@ package com.thales.common.model;
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
 import org.everit.json.schema.loader.SchemaLoader;
+import org.everit.json.schema.loader.SchemaClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -23,7 +24,14 @@ public class JsonSchema {
                 throw new IllegalArgumentException("Resource not found: " + resourcePath);
             }
             JSONObject rawSchema = new JSONObject(new JSONTokener(is));
-            Schema schema = SchemaLoader.load(rawSchema);
+            String baseDir = resourcePath.substring(0, resourcePath.lastIndexOf('/') + 1);
+            String resolutionScope = "classpath://" + baseDir;
+            SchemaLoader loader = SchemaLoader.builder()
+                .schemaJson(rawSchema)
+                .resolutionScope(resolutionScope)
+                .schemaClient(SchemaClient.classPathAwareClient())
+                .build();
+            Schema schema = loader.load().build();
             return new JsonSchema(schema);
         } catch (java.io.IOException e) {
             throw new RuntimeException("Failed to load schema from resource: " + resourcePath, e);

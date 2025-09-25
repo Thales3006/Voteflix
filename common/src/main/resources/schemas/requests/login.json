@@ -4,8 +4,8 @@
   "type": "object",
   "properties": {
     "operacao": { "type": "string", "const": "LOGIN" },
-    "usuario": { "type": "string", "pattern": "^[A-Za-z0-9]+$" },
-    "senha": { "type": "string", "pattern": "^[A-Za-z0-9]+$" }
+    "usuario": { "$ref": "../components/base_string.json" },
+    "senha": { "$ref": "../components/base_string.json" }
   },
   "required": ["operacao", "usuario", "senha"],
   "additionalProperties": false

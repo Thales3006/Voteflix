@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Base String",
+  "type": "string",
+  "pattern": "^[A-Za-z0-9_]+$",
+  "minLength": 3,
+  "maxLength": 20
+}

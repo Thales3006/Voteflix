@@ -10,7 +10,7 @@
         "type": "object",
         "properties": {
           "id": { "type": "string" },
-          "nome": { "type": "string" }
+          "nome": { "$ref": "../components/base_string.json" }
         },
         "required": ["id", "nome"],
         "additionalProperties": false

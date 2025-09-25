@@ -5,7 +5,7 @@
   "properties": {
     "operacao": { "type": "string", "const": "EDITAR_PROPRIO_USUARIO" },
     "usuario": { "type": "object", "properties": {
-      "senha": { "type": "string", "pattern": "^[A-Za-z0-9]+$" }
+      "senha": { "$ref": "../components/base_string.json" }
       },
       "required": ["senha"],
       "additionalProperties": false

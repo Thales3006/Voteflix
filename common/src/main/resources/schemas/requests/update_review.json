@@ -4,17 +4,7 @@
   "type": "object",
   "properties": {
     "operacao": { "type": "string", "const": "EDITAR_REVIEW" },
-    "review": {
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "titulo": { "type": "string" },
-        "descricao": { "type": "string" },
-        "nota": { "type": "string", "pattern": "^[0-9]+$" }
-      },
-      "required": ["id", "titulo", "descricao", "nota"],
-      "additionalProperties": false
-    },
+    "review": { "$ref": "../components/review_id.json" },
     "token": { "type": "string" }
   },
   "required": ["operacao", "review", "token"],

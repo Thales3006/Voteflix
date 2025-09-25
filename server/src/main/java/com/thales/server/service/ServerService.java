@@ -75,6 +75,7 @@ public class ServerService {
             client.sendMessage(response);
         } catch (ValidationException e){
             System.err.println(e.toString());
+            e.printStackTrace();;
 
             JsonObject response = new JsonObject();
             response.addProperty("status", "400");

@@ -5,8 +5,8 @@
   "properties": {
     "operacao": { "type": "string", "const": "CRIAR_USUARIO" },
     "usuario": { "type": "object", "properties": {
-      "nome": { "type": "string" },
-      "senha": { "type": "string" }
+      "nome": { "$ref": "../components/base_string.json" },
+      "senha": { "$ref": "../components/base_string.json" }
       },
       "required": ["nome", "senha"],
       "additionalProperties": false

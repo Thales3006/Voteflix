@@ -1,0 +1,16 @@
+{ 
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Movie",    
+  "type": "object", 
+  "properties": {
+    "titulo": { "type": "string" },
+    "diretor": { "type": "string" },
+    "ano": { "type": "string", "pattern": "^[0-9]{4}$" },
+    "genero": { "type": "array", "items": { "type": "string" } },
+    "nota": { "type": "string" },
+    "qtd_avaliacoes": { "type": "string" },
+    "sinopse": { "type": "string" , "maxLength": 250 }
+  },
+  "required": ["titulo", "diretor", "ano", "genero", "nota", "qtd_avaliacoes", "sinopse"],
+  "additionalProperties": false
+}

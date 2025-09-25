@@ -4,19 +4,8 @@
   "type": "object",
   "properties": {
     "status": { "type": "string", "const": "200" },
-    "filmes": { "type": "array", "items": { "type": "object", "properties": {
-      "id": { "type": "string" },
-      "titulo": { "type": "string" },
-      "diretor": { "type": "string" },
-      "ano": { "type": "string", "pattern": "^[0-9]{4}$" },
-      "generos": { "type": "array","items": { "type": "string" } },
-      "nota": { "type": "string" },
-      "qtd_avaliacoes": { "type": "string" },
-      "sinopse": { "type": "string" }
-      },
-      "required": ["id", "titulo", "diretor", "ano", "generos", "nota", "qtd_avaliacoes", "sinopse"],
-      "additionalProperties": false
-      }
+    "filmes": { "type": "array",
+      "items": { "$ref": "../components/movie_id.json" }
     }
   },
   "required": ["status", "filmes"],
