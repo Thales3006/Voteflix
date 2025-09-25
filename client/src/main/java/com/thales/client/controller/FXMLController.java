@@ -2,7 +2,7 @@ package com.thales.client.controller;
 
 import com.thales.client.model.StatusException;
 import com.thales.client.service.ClientService;
-import com.thales.common.model.ErrorTable;
+import com.thales.common.utils.ErrorTable;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;

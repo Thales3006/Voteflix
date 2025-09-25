@@ -1,4 +1,4 @@
-package com.thales.common.model;
+package com.thales.common.utils;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;

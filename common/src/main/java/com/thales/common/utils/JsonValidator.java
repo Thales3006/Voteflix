@@ -1,4 +1,4 @@
-package com.thales.common.model;
+package com.thales.common.utils;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -6,6 +6,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.everit.json.schema.ValidationException;
+
+import com.thales.common.model.Request;
+import com.thales.common.model.Response;
 
 public class JsonValidator {
 

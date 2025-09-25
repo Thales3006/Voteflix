@@ -8,9 +8,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.thales.common.model.JsonValidator;
 import com.thales.common.model.Request;
 import com.thales.common.model.User;
+import com.thales.common.utils.JsonValidator;
 import com.thales.server.controller.AppController;
 import com.thales.server.network.ClientHandler;
 

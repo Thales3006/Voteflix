@@ -1,4 +1,4 @@
-package com.thales.common.model;
+package com.thales.common.utils;
 
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.ValidationException;
