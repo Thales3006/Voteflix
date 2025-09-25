@@ -67,12 +67,15 @@ public class ServerService {
     
             JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
 
-            String response = switch (op) {
+            client.sendMessage(switch (op) {
             case LOGIN -> handleLogin(jsonObject, client);
             case LOGOUT -> handleLogout(jsonObject, client);
             default -> throw new RuntimeException("Unknown Operation");
-            };
-            client.sendMessage(response);
+            });
+            
+            if(op == Request.LOGOUT){
+                client.close();
+            }
         } catch (ValidationException e){
             System.err.println(e.toString());
             e.printStackTrace();;

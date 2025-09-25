@@ -99,5 +99,6 @@ public class ClientService {
             throw new StatusException(getStatus(json));
         }
         token = null;
+        socket.close();
     }
 }
