@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LoginRequest",
+  "type": "object",
+  "properties": {
+    "operacao": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]+$"
+    },
+    "usuario": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]+$"
+    },
+    "senha": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]+$"
+    }
+  },
+  "required": ["operacao", "usuario", "senha"],
+  "additionalProperties": false
+}

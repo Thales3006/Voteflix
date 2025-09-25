@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CreateUserRequest",
+  "type": "object",
+  "properties": {
+    "operacao": {
+      "type": "string",
+      "const": "CRIAR_USUARIO"
+    },
+    "usuario": {
+      "type": "object",
+      "properties": {
+        "nome": {
+          "type": "string"
+        },
+        "senha": {
+          "type": "string"
+        }
+      },
+      "required": ["nome", "senha"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["operacao", "usuario"],
+  "additionalProperties": false
+}

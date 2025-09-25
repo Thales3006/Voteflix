@@ -4,7 +4,8 @@
   "type": "object",
   "properties": {
     "operacao": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_]+$"
     }
   },
   "required": ["operacao"],

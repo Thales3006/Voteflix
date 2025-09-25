@@ -6,7 +6,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.thales.common.model.JsonSchemaValidator;
+import com.thales.common.model.JsonValidator;
+import com.thales.common.model.Operation;
 import com.thales.common.model.User;
 import com.thales.server.controller.AppController;
 import com.thales.server.network.ClientHandler;
@@ -22,6 +23,7 @@ public class ServerService {
     private final Gson gson = new Gson();
     private final Object usersLock = new Object();
     private ObservableMap<String, User> users = FXCollections.observableHashMap();
+    private JsonValidator validator = JsonValidator.getInstance();
 
     public ServerService(AppController appController){
         this.appController = appController;
@@ -29,6 +31,12 @@ public class ServerService {
         users.addListener((MapChangeListener<String, User>) _ -> {
             Platform.runLater(() -> appController.updateUserList(users));
         });
+        try{
+            validator.loadSchemas();
+        } catch(Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public void log(String message){
@@ -47,27 +55,35 @@ public class ServerService {
             .sign(algorithm);
     }
 
-    public void handleMessage(String message, ClientHandler client){
-        JsonSchemaValidator validator = new JsonSchemaValidator("/operacao-field-schema.json");
-        validator.validate(message);
-        JsonObject jsonObject = gson.fromJson(message, com.google.gson.JsonObject.class);
+    // ===================================
+    //  Main Handler
+    // ===================================
 
-        String response;
-        switch (jsonObject.get("operacao").getAsString()) {
-        case "LOGIN":
-            response = handleLogin(jsonObject, client);
-            break;
-        case "LOGOUT":
-            response = handleLogout(jsonObject, client);
-            break;
-        default:
-            JsonObject res = new JsonObject();
-            res.addProperty("status", "400");
-            response = gson.toJson(res);
-            break;
+    public void handleMessage(String message, ClientHandler client){
+        try{
+            Operation op = validator.getOperation(message);
+            validator.validate(message, op);
+    
+            JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
+            String response;
+            switch (op) {
+            case LOGIN:
+                response = handleLogin(jsonObject, client);
+                break;
+            case LOGOUT:
+                response = handleLogout(jsonObject, client);
+                break;
+            default:
+                throw new RuntimeException("Unknown Operation");
+            }
+            client.sendMessage(response);
+        } catch (Exception e){
+            System.err.println(e.toString());
+
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "400");
+            client.sendMessage(response.toString());
         }
-        client.sendMessage(response);
-        
     }
 
     // ===================================

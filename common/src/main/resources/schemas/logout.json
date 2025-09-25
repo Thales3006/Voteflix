@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LogoutRequest",
+  "type": "object",
+  "properties": {
+    "operacao": {
+      "type": "string",
+      "const": "LOGOUT"
+    },
+    "token": {
+        "type": "string"
+    }
+  },
+  "required": ["operacao", "token"],
+  "additionalProperties": false
+}
