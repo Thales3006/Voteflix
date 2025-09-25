@@ -3,19 +3,10 @@
   "title": "CreateUserRequest",
   "type": "object",
   "properties": {
-    "operacao": {
-      "type": "string",
-      "const": "CRIAR_USUARIO"
-    },
-    "usuario": {
-      "type": "object",
-      "properties": {
-        "nome": {
-          "type": "string"
-        },
-        "senha": {
-          "type": "string"
-        }
+    "operacao": { "type": "string", "const": "CRIAR_USUARIO" },
+    "usuario": { "type": "object", "properties": {
+      "nome": { "type": "string" },
+      "senha": { "type": "string" }
       },
       "required": ["nome", "senha"],
       "additionalProperties": false

@@ -1,5 +1,7 @@
 package com.thales.server.service;
 
+import org.everit.json.schema.ValidationException;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -7,7 +9,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.thales.common.model.JsonValidator;
-import com.thales.common.model.Operation;
+import com.thales.common.model.Request;
 import com.thales.common.model.User;
 import com.thales.server.controller.AppController;
 import com.thales.server.network.ClientHandler;
@@ -61,23 +63,17 @@ public class ServerService {
 
     public void handleMessage(String message, ClientHandler client){
         try{
-            Operation op = validator.getOperation(message);
-            validator.validate(message, op);
+            Request op = validator.getRequest(message);
     
             JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
-            String response;
-            switch (op) {
-            case LOGIN:
-                response = handleLogin(jsonObject, client);
-                break;
-            case LOGOUT:
-                response = handleLogout(jsonObject, client);
-                break;
-            default:
-                throw new RuntimeException("Unknown Operation");
-            }
+
+            String response = switch (op) {
+            case LOGIN -> handleLogin(jsonObject, client);
+            case LOGOUT -> handleLogout(jsonObject, client);
+            default -> throw new RuntimeException("Unknown Operation");
+            };
             client.sendMessage(response);
-        } catch (Exception e){
+        } catch (ValidationException e){
             System.err.println(e.toString());
 
             JsonObject response = new JsonObject();

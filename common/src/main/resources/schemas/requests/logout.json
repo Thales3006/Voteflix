@@ -3,13 +3,8 @@
   "title": "LogoutRequest",
   "type": "object",
   "properties": {
-    "operacao": {
-      "type": "string",
-      "const": "LOGOUT"
-    },
-    "token": {
-        "type": "string"
-    }
+    "operacao": { "type": "string", "const": "LOGOUT" },
+    "token": { "type": "string" }
   },
   "required": ["operacao", "token"],
   "additionalProperties": false

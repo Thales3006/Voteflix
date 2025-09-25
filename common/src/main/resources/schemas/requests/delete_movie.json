@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExcluirFilme",
+  "type": "object",
+  "properties": {
+    "operacao": { "type": "string", "const": "EXCLUIR_FILME" },
+    "id": { "type": "string" },
+    "token": { "type": "string" }
+  },
+  "required": ["operacao", "id", "token"],
+  "additionalProperties": false
+}

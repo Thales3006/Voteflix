@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AdminExcluirUsuario",
+  "type": "object",
+  "properties": {
+    "operacao": { "type": "string", "const": "ADMIN_EXCLUIR_USUARIO" },
+    "id": { "type": "string" },
+    "token": { "type": "string" }
+  },
+  "required": ["operacao", "id", "token"],
+  "additionalProperties": false
+}

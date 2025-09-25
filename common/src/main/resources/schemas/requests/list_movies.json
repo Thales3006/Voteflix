@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ListarFilmes",
+  "type": "object",
+  "properties": {
+    "operacao": { "type": "string", "const": "LISTAR_FILMES" }
+  },
+  "required": ["operacao"],
+  "additionalProperties": false
+}

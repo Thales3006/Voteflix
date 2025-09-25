@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MovieWithReviewsResponse",
+  "type": "object",
+  "properties": {
+    "status": { "type": "string", "const": "200" },
+    "filme": { "type": "object", "properties": {
+      "id": { "type": "string" },
+      "titulo": { "type": "string" },
+      "diretor": { "type": "string" },
+      "ano": { "type": "string", "pattern": "^[0-9]{4}$" },
+      "genero": { "type": "array", "items": { "type": "string" } },
+      "nota": { "type": "string" },
+      "qtd_avaliacoes": { "type": "string" },
+      "sinopse": { "type": "string" }
+      },
+      "required": ["id", "titulo", "diretor", "ano", "genero", "nota", "qtd_avaliacoes", "sinopse"],
+      "additionalProperties": false
+    },
+    "reviews": { "type": "array", "items": { "type": "object", "properties": {
+      "id": { "type": "string" },
+      "id_filme": { "type": "string" },
+      "nome_usuario": { "type": "string" },
+      "nota": { "type": "string" },
+      "titulo": { "type": "string" },
+      "descricao": { "type": "string" },
+      "data": { "type": "string" }
+      },
+      "required": ["id", "id_filme", "nome_usuario", "nota", "titulo", "descricao", "data"],
+      "additionalProperties": false
+      }
+    }
+  },
+  "required": ["status", "filme", "reviews"],
+  "additionalProperties": false
+}

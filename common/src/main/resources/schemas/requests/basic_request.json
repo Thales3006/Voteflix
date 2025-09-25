@@ -3,10 +3,7 @@
   "title": "OperationFieldOnly",
   "type": "object",
   "properties": {
-    "operacao": {
-      "type": "string",
-      "pattern": "^[A-Za-z0-9_]+$"
-    }
+    "operacao": { "type": "string", "pattern": "^[A-Za-z0-9_]+$" }
   },
   "required": ["operacao"],
   "additionalProperties": true

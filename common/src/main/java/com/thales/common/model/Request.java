@@ -1,6 +1,6 @@
 package com.thales.common.model;
 
-public enum Operation {
+public enum Request {
     LOGIN,
     LOGOUT,
 
@@ -19,5 +19,5 @@ public enum Operation {
     CREATE_REVIEW,
     UPDATE_REVIEW,
     LIST_REVIEWS,
-    DELETE_REVIEW;
+    DELETE_REVIEW,
 }

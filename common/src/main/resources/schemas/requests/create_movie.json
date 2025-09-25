@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CriarFilme",
+  "type": "object",
+  "properties": {
+    "operacao": { "type": "string", "const": "CRIAR_FILME" },
+    "filme": { "type": "object", "properties": {
+      "titulo": { "type": "string" },
+      "diretor": { "type": "string" },
+      "ano": { "type": "string", "pattern": "^[0-9]{4}$" },
+      "genero": { "type": "array", "items": { "type": "string" } },
+      "sinopse": { "type": "string" }
+      },
+      "required": ["titulo", "diretor", "ano", "genero", "sinopse"],
+      "additionalProperties": false
+    },
+    "token": { "type": "string" }
+  },
+  "required": ["operacao", "filme", "token"],
+  "additionalProperties": false
+}

@@ -3,10 +3,7 @@
   "title": "StatusFieldOnly",
   "type": "object",
   "properties": {
-    "status": {
-      "type": "string",
-      "pattern": "^[A-Za-z0-9_]+$"
-    }
+    "status": { "type": "string","pattern": "^([3-9]|[0-1])[0-9]+$" }
   },
   "required": ["status"],
   "additionalProperties": true

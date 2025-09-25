@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AdminEditarUsuario",
+  "type": "object",
+  "properties": {
+    "operacao": { "type": "string", "const": "ADMIN_EDITAR_USUARIO" },
+    "usuario": { "type": "object", "properties": {
+        "senha": { "type": "string" }
+      },
+      "required": ["senha"],
+      "additionalProperties": false
+    },
+    "token": { "type": "string" },
+    "id": { "type": "string" }
+  },
+  "required": ["operacao", "usuario", "token", "id"],
+  "additionalProperties": false
+}

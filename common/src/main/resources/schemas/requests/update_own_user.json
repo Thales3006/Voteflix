@@ -3,24 +3,14 @@
   "title": "EditUserRequest",
   "type": "object",
   "properties": {
-    "operacao": {
-      "type": "string",
-      "const": "EDITAR_PROPRIO_USUARIO"
-    },
-    "usuario": {
-      "type": "object",
-      "properties": {
-        "senha": {
-          "type": "string",
-          "pattern": "^[A-Za-z0-9]+$"
-        }
+    "operacao": { "type": "string", "const": "EDITAR_PROPRIO_USUARIO" },
+    "usuario": { "type": "object", "properties": {
+      "senha": { "type": "string", "pattern": "^[A-Za-z0-9]+$" }
       },
       "required": ["senha"],
       "additionalProperties": false
     },
-    "token": {
-      "type": "string"
-    }
+    "token": { "type": "string" }
   },
   "required": ["operacao", "usuario", "token"],
   "additionalProperties": false
