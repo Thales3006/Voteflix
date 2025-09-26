@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class LoginController extends FXMLController {
+public class LoginController extends SceneController {
 
     @FXML private Button loginButton;
     @FXML private Button registerButton;
@@ -21,7 +21,7 @@ public class LoginController extends FXMLController {
     @FXML private Button connectButton;
     @FXML private Button disconnectButton;
 
-    @Override protected void onInitialize() {
+    @FXML protected void initialize() {
         connectButton.disableProperty().bind(clientService.getSocket().getRunning());
         disconnectButton.disableProperty().bind(clientService.getSocket().getRunning().not());
     }
@@ -33,7 +33,7 @@ public class LoginController extends FXMLController {
     @FXML private void HandleLoginButton(ActionEvent event){
         handle(() -> {
             clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
-            SceneController.switchTo(event, "/voting.fxml");
+            SceneController.switchPage(event, "/main_page.fxml");
         });
     }
 

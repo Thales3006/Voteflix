@@ -8,7 +8,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.thales.common.model.User;
 
-import com.thales.client.controller.FXMLController;
 import com.thales.client.model.StatusException;
 import com.thales.client.network.ClientSocket;
 
@@ -19,7 +18,6 @@ public class ClientService {
 
     private static ClientService instance;
     private ClientSocket socket;
-    private FXMLController activeController;
     private String token;
     private final Gson gson = new Gson(); 
 

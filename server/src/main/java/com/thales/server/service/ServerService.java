@@ -70,9 +70,14 @@ public class ServerService {
             client.sendMessage(switch (op) {
             case LOGIN -> handleLogin(jsonObject, client);
             case LOGOUT -> handleLogout(jsonObject, client);
+            case CREATE_USER -> handleLogin(jsonObject, client);
+            case LIST_USERS -> handleLogout(jsonObject, client);
+            case UPDATE_OWN_USER -> handleLogout(jsonObject, client);
+            case UPDATE_USER -> handleLogin(jsonObject, client);
+            
             default -> throw new RuntimeException("Unknown Operation");
             });
-            
+
             if(op == Request.LOGOUT){
                 client.close();
             }
