@@ -30,11 +30,11 @@ public class MainPageController extends SceneController {
     }
 
     @FXML private void HandleMovieButton(ActionEvent event){
-
+        handle(() -> switchContent(mainContent, "/movies_page.fxml"));
     }
 
     @FXML private void HandleReviewButton(ActionEvent event){
-
+        handle(() -> switchContent(mainContent, "/reviews_page.fxml"));
     }
 
 }
