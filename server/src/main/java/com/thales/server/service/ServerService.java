@@ -1,5 +1,7 @@
 package com.thales.server.service;
 
+import java.sql.SQLException;
+
 import org.everit.json.schema.ValidationException;
 
 import com.auth0.jwt.JWT;
@@ -26,6 +28,7 @@ public class ServerService {
     private final Object usersLock = new Object();
     private ObservableMap<String, User> users = FXCollections.observableHashMap();
     private JsonValidator validator = JsonValidator.getInstance();
+    private DatabaseService database = new DatabaseService();
 
     public ServerService(AppController appController){
         this.appController = appController;
@@ -47,14 +50,21 @@ public class ServerService {
         Platform.runLater(() -> appController.appendToLog("[" + time + "] " + message));
     }
 
-    private String generateToken(String username, String password){
+    private String generateToken(int id, String username, String password){
         String secretKey = "256-bit-secret-key-placeholder"; 
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
         return com.auth0.jwt.JWT.create()
             .withSubject(username)
+            .withClaim("id", id)
             .withClaim("username", username)
             .withClaim("password", password)
             .sign(algorithm);
+    }
+
+    private JsonObject createStatus(String status) {
+        JsonObject json = new JsonObject();
+        json.addProperty("status", status);
+        return json;
     }
 
     // ===================================
@@ -83,11 +93,8 @@ public class ServerService {
             }
         } catch (ValidationException e){
             System.err.println(e.toString());
-            e.printStackTrace();;
-
-            JsonObject response = new JsonObject();
-            response.addProperty("status", "400");
-            client.sendMessage(response.toString());
+            e.printStackTrace();
+            client.sendMessage(createStatus("400").toString());
         }
     }
 
@@ -99,20 +106,29 @@ public class ServerService {
         String username = jsonObject.has("usuario") ? jsonObject.get("usuario").getAsString() : null;
         String password = jsonObject.has("senha") ? jsonObject.get("senha").getAsString() : null;
 
-        String status = "200";
         synchronized (usersLock) {
             if(users.containsKey(username)){
-                status = "401";
+                return createStatus("401").toString();
             }
             users.put(username, new User(username, password));
         }
         client.setUsername(username);
 
-        JsonObject json = new JsonObject();
-        json.addProperty("status", "200");
-        if(status.equals("200")){
-            json.addProperty("token", generateToken(username, password));
+        String token = null;
+        try{
+            if(!database.checkUser(username, password)){
+                return createStatus("401").toString();
+            }
+            int id = database.getUserId(username);
+            token = generateToken(id,username, password);
+        } catch (SQLException e){
+            log(e.toString());
+            return createStatus("500").toString();
         }
+
+        JsonObject json = new JsonObject();  
+        json.addProperty("status", "200");
+        json.addProperty("token", token);
         
         return json.toString();
     }
