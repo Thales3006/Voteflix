@@ -10,6 +10,6 @@
     "descricao": { "type": "string" , "maxLength": 250 },
     "data": { "type": "string" }
     },
-  "required": ["id", "id_filme", "nome_usuario", "nota", "titulo", "descricao", "data"],
+  "required": ["id_filme", "nome_usuario", "nota", "titulo", "descricao", "data"],
   "additionalProperties": false
 }
