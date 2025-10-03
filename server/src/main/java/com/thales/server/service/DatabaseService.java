@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import com.thales.common.model.Movie;
 import com.thales.common.model.User;
 
 public class DatabaseService {
@@ -110,5 +111,40 @@ public class DatabaseService {
             int result = pstmt.executeUpdate();
             return result > 0;
         }
+    }
+
+    private String[] getGenres(Connection conn, int id) throws SQLException{
+        String genreSql = "SELECT g.name as genre FROM movie_genres mg JOIN genres g ON mg.genre_id = g.id WHERE mg.movie_id = ?";
+        ArrayList<String> genres = new ArrayList<>();
+        try (PreparedStatement genreStmt = conn.prepareStatement(genreSql)) {
+            genreStmt.setInt(1, id);
+            ResultSet genreRs = genreStmt.executeQuery();
+            while (genreRs.next()) {
+                genres.add(genreRs.getString("genre"));
+            }
+        }
+        return genres.toArray(new String[0]);
+    }
+
+    public ArrayList<Movie> getMovies() throws SQLException {
+        String sql = "SELECT id, title, director, year, rating, rating_amount, synopsis FROM movies";
+        ArrayList<Movie> movies = new ArrayList<>();
+        try (Connection conn = connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                movies.add(new Movie(
+                    rs.getInt("id"),
+                    rs.getString("title"),
+                    rs.getString("director"),
+                    getGenres(conn, rs.getInt("id")),
+                    rs.getInt("year"),
+                    rs.getFloat("rating"),
+                    rs.getInt("rating_amount"),
+                    rs.getString("synopsis")
+                ));
+            }
+        }
+        return movies;
     }
 }

@@ -87,6 +87,7 @@ public class ServerService {
             case UPDATE_USER -> handleUpdateUser(jsonObject, client);
             case DELETE_OWN_USER -> handleDeleteOwnUser(jsonObject, client);
             case DELETE_USER -> handleDeleteUser(jsonObject, client);
+            case LIST_MOVIES -> handleListMovies(jsonObject, client);
             
             default -> throw new RuntimeException("Unknown Operation");
             });
@@ -280,6 +281,33 @@ public class ServerService {
             return createStatus("200").toString();
             }
             return createStatus("404").toString();
+        } catch (Exception e) {
+            log(e.toString());
+            return createStatus("401").toString();
+        }
+    }
+
+    private String handleListMovies(JsonObject jsonObject, ClientHandler client){
+        try {
+            JsonObject json = new JsonObject();
+            json.addProperty("status", "200");
+            json.add("filmes", gson.toJsonTree(database.getMovies().stream()
+                .map(movie -> {
+                    JsonObject movieObj = new JsonObject();
+                    movieObj.addProperty("id", movie.getID().toString());
+                    movieObj.addProperty("titulo", movie.getTitle());
+                    movieObj.addProperty("diretor", movie.getDirector());
+                    movieObj.addProperty("ano", movie.getYear().toString());
+                    movieObj.addProperty("nota", movie.getRating().toString());
+                    movieObj.addProperty("qtd_avaliacoes", movie.getRatingAmount().toString());
+                    movieObj.addProperty("sinopse", movie.getTitle());
+                    movieObj.add("genero", gson.toJsonTree(movie.getGenre()));
+
+                    return movieObj;
+                })
+                .toList()));
+            return json.toString();
+            
         } catch (Exception e) {
             log(e.toString());
             return createStatus("401").toString();

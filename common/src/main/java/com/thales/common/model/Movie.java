@@ -4,13 +4,13 @@ import lombok.Data;
 
 @Data
 public class Movie {
-    private int ID;
+    private Integer ID;
     private String title;
     private String director;
     private String[] genre;
-    private int year;
-    private float rating;
-    private int ratingAmount;
+    private Integer year;
+    private Float rating;
+    private Integer ratingAmount;
     private String synopsis;
 
     public Movie(int ID, String title, String director, String[] genre, int year, float rating, int ratingAmount, String synopsis) {

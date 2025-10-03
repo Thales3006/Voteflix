@@ -7,12 +7,12 @@ CREATE TABLE users (
 
 CREATE TABLE movies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    titulo TEXT NOT NULL,
-    diretor TEXT NOT NULL,
-    ano INTEGER NOT NULL, 
-    nota INTEGER NOT NULL, 
-    qtd_avaliacoes INTEGER NOT NULL,
-    sinopse TEXT NOT NULL
+    title TEXT NOT NULL,
+    director TEXT NOT NULL,
+    year INTEGER NOT NULL, 
+    rating INTEGER NOT NULL, 
+    rating_amount INTEGER NOT NULL,
+    synopsis TEXT NOT NULL
 );
 
 CREATE TABLE genres (
@@ -30,12 +30,12 @@ CREATE TABLE movie_genres (
 
 CREATE TABLE reviews (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_filme INTEGER NOT NULL,
-    nome_usuario TEXT NOT NULL,
-    nota INTEGER NOT NULL CHECK(nota BETWEEN 1 AND 5),
-    titulo TEXT NOT NULL,
-    descricao TEXT NOT NULL,
-    data TEXT NOT NULL,
-    FOREIGN KEY (id_filme) REFERENCES movies(id),
-    FOREIGN KEY (nome_usuario) REFERENCES users(username)
+    movie_id INTEGER NOT NULL,
+    username TEXT NOT NULL,
+    rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    date DATE NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES movies(id),
+    FOREIGN KEY (username) REFERENCES users(username)
 );

@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.thales.common.model.Movie;
 import com.thales.common.model.User;
 import java.util.ArrayList;
 
@@ -179,5 +180,35 @@ public class ClientService {
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
         verifyStatus(response);
+    }
+
+    public ArrayList<Movie> requestMovieList() throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "LISTAR_FILMES");
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        verifyStatus(response);
+        ArrayList<Movie> movies = new ArrayList<>();
+        JsonElement filmesElement = response.get("filmes");
+        if (filmesElement != null && filmesElement.isJsonArray()) {
+            for (JsonElement element : filmesElement.getAsJsonArray()) {
+                JsonObject obj = element.getAsJsonObject();
+                int id = Integer.parseInt(obj.get("id").getAsString());
+                String title = obj.get("titulo").getAsString();
+                String diretor = obj.get("diretor").getAsString();
+                int year = Integer.parseInt(obj.get("ano").getAsString());
+                String[] genres = new String[obj.get("genero").getAsJsonArray().size()];
+                int i = 0;
+                for (JsonElement genreElement : obj.get("genero").getAsJsonArray()) {
+                    genres[i++] = genreElement.getAsString();
+                }
+                String synopsis = obj.get("sinopse").getAsString();
+                float rating = Float.parseFloat(obj.get("nota").getAsString());
+                int ratingAmount = Integer.parseInt(obj.get("qtd_avaliacoes").getAsString());
+                movies.add(new Movie(id, title, diretor, genres, year, rating, ratingAmount, synopsis));
+            }
+        }
+        return movies;
     }
 }
