@@ -4,11 +4,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
 
 public class MainPageController extends SceneController {
 
-    @FXML private Pane currentPage;
+    @FXML private BorderPane currentPage;
     @FXML private TextField IPField;
     @FXML private TextField portField;
     @FXML private Button connectButton;

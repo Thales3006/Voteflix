@@ -3,14 +3,14 @@ package com.thales.client.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
 
 public class MenuController extends SceneController {
     @FXML Button logoutButton;
     @FXML Button userButton;
     @FXML Button movieButton;
     @FXML Button reviewButton;
-    @FXML Pane mainContent;
+    @FXML BorderPane mainContent;
 
     // ===================================
     //  UI interaction handlers
