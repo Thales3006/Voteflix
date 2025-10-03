@@ -38,8 +38,8 @@ public class UserController extends SceneController {
                     setGraphic(null);
                 } else {
                     VBox vbox = new VBox(
-                        new Label("ID: " + user.getId()),
-                        new Label("Username: " + user.getUsername())
+                        new Label("Username: " + user.getUsername()),
+                        new Label("ID: " + user.getId())
                     );
                     setGraphic(vbox);
                 }
@@ -87,7 +87,6 @@ public class UserController extends SceneController {
         handle(
             () -> {
                 ArrayList<User> users = clientService.requestUserList();
-                System.out.println(users);
                 userListView.getItems().clear();
                 for(User user : users){
                     userListView.getItems().add(user);
