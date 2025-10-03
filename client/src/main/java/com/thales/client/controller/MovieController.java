@@ -64,7 +64,7 @@ public class MovieController extends SceneController {
                 titleField.setText(movie.getTitle());
                 directorField.setText(movie.getDirector());
                 yearField.setText(String.valueOf(movie.getYear()));
-                genresField.setText(movie.getGenre().toString());
+                genresField.setText(String.join(", ", movie.getGenre()));
                 synopsisField.setText(movie.getSynopsis());
                 ratingLabel.setText(String.valueOf(movie.getRating()));
                 reviewAmountLabel.setText(String.valueOf(movie.getRatingAmount()));
@@ -93,13 +93,10 @@ public class MovieController extends SceneController {
                 new Label("Director: " + movie.getDirector()),
                 new Label("Year: " + movie.getYear())
             );
-            movieBox.setStyle("-fx-padding: 10; -fx-border-color: gray; -fx-border-radius: 5;");
+            movieBox.getStyleClass().add("movie-view");
             movieTilePane.getChildren().add(movieBox);
 
-            movieBox.setOnMouseClicked(_ -> {
-                currentMovie.set(movie);
-                System.out.println("filme: "+ currentMovie);
-            });
+            movieBox.setOnMouseClicked(_ -> currentMovie.set(movie));
         }
     }
 
