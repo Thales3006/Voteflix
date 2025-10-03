@@ -12,7 +12,6 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-
 <BorderPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.client.controller.UserController">
    <center>
       <VBox alignment="CENTER" fillWidth="false" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
@@ -31,7 +30,7 @@
                   <Label text="Username:" />
                   <Label text="Password:" GridPane.rowIndex="1" />
                   <TextField fx:id="passwordField" promptText="Password" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label text="Username" GridPane.columnIndex="1" />
+                  <Label fx:id="usernameLabel" text="Username" GridPane.columnIndex="1" />
                </children>
             </GridPane>
             <HBox alignment="TOP_RIGHT" prefHeight="46.0" prefWidth="309.0" spacing="10.0">
@@ -47,11 +46,15 @@
       </VBox>
    </center>
    <left>
-      <VBox fx:id="usersVbox" alignment="CENTER" prefHeight="554.0" prefWidth="228.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="usersVbox" alignment="CENTER" disable="true" prefHeight="554.0" prefWidth="228.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
             <Label text="Users" />
             <ListView fx:id="userListView" onMouseClicked="#HandleSelectUser" prefHeight="571.0" prefWidth="235.0" />
+            <Button fx:id="refreshUsersButton" mnemonicParsing="false" onAction="#HandleRefreshUsersButton" text="Refresh" />
          </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
       </VBox>
    </left>
 </BorderPane>

@@ -177,7 +177,28 @@ public class ServerService {
     }
 
     private String handleListUsers(JsonObject jsonObject, ClientHandler client){
-        return createStatus("200").toString();
+        String token = jsonObject.get("token").getAsString();
+
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+            verifier.verify(token);
+            
+            JsonObject json = new JsonObject();
+            json.addProperty("status", "200");
+            json.add("usuarios", gson.toJsonTree(database.getUsers().stream()
+                .map(user -> {
+                    JsonObject userObj = new JsonObject();
+                    userObj.addProperty("id", user.getId());
+                    userObj.addProperty("nome", user.getUsername());
+                    return userObj;
+                })
+                .toList()));
+            return json.toString();
+            
+        } catch (Exception e) {
+            log(e.toString());
+            return createStatus("401").toString();
+        }
     }
 
     private String handleUpdateOwnUser(JsonObject jsonObject, ClientHandler client){

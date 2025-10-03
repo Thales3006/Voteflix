@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.thales.common.model.User;
+import java.util.ArrayList;
 
 import com.thales.client.model.StatusException;
 import com.thales.client.network.ClientSocket;
@@ -19,7 +20,8 @@ public class ClientService {
     private static ClientService instance;
     private ClientSocket socket;
     private String token;
-    private boolean isAdmin;
+    private boolean isAdmin = false;
+    private String username;
     private final Gson gson = new Gson(); 
 
 
@@ -89,6 +91,10 @@ public class ClientService {
         
         JsonElement token = response.get("token");
         this.token = token.getAsString();
+
+        username = user.getUsername();
+        isAdmin = "admin".equals(username);
+        
     }
 
     public void requestLogout() throws Exception {
@@ -101,6 +107,8 @@ public class ClientService {
         verifyStatus(response);
         
         token = null;
+        username = null;
+        isAdmin = false;
         socket.close();
     }
 
@@ -129,6 +137,27 @@ public class ClientService {
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
         verifyStatus(response);
+    }
+
+    public ArrayList<User> requestUserList() throws Exception{
+            JsonObject json = new JsonObject();
+            json.addProperty("operacao", "LISTAR_USUARIOS");
+            json.addProperty("token", token);
+            socket.sendMessage(json.toString());
+
+            JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+            verifyStatus(response);
+            ArrayList<User> users = new ArrayList<>();
+            JsonElement usuariosElement = response.get("usuarios");
+            if (usuariosElement != null && usuariosElement.isJsonArray()) {
+                for (JsonElement element : usuariosElement.getAsJsonArray()) {
+                    JsonObject obj = element.getAsJsonObject();
+                    Integer id = Integer.parseInt(obj.get("id").getAsString());
+                    String username = obj.get("nome").getAsString();
+                    users.add(new User(id, username));
+                }
+            }
+            return users;
     }
 
     public void requestDeleteOwnUser() throws Exception {
