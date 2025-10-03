@@ -1,5 +1,7 @@
 package com.thales.client.controller;
 
+import com.thales.common.model.User;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -23,13 +25,13 @@ public class UserController extends SceneController {
 
     @FXML void HandleUpdateUserButton(ActionEvent event){
         handle(
-            () -> {System.out.println(passwordField.getText());}
+            () -> clientService.requestUpdateOwnUser(new User("", passwordField.getText()))
         );
     }
 
     @FXML void HandleDeleteUserButton(ActionEvent event){
         handle(
-            () -> {System.out.println(passwordField.getText());}
+            () -> clientService.requestDeleteOwnUser()
         );
     }
 

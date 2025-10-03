@@ -3,38 +3,33 @@ package com.thales.client.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
 
 public class MainPageController extends SceneController {
-    @FXML Button logoutButton;
-    @FXML Button userButton;
-    @FXML Button movieButton;
-    @FXML Button reviewButton;
-    @FXML AnchorPane mainContent;
 
-    @FXML protected void initialize(){ }
+    @FXML private Pane currentPage;
+    @FXML private TextField IPField;
+    @FXML private TextField portField;
+    @FXML private Button connectButton;
+    @FXML private Button disconnectButton;
+
+    @FXML protected void initialize() {
+        handle(() -> switchContent(currentPage, "/login_page.fxml"));
+
+        connectButton.disableProperty().bind(clientService.getSocket().getRunning());
+        disconnectButton.disableProperty().bind(clientService.getSocket().getRunning().not());
+    }
 
     // ===================================
     //  UI interaction handlers
     // ===================================
 
-    @FXML private void HandleLogoutButton(ActionEvent event){
-        handle(
-            () -> clientService.requestLogout(), 
-            () -> SceneController.switchPage(event, "/login_page.fxml")
-        );
+    @FXML private void HandleConnectButton(ActionEvent event){
+        handle(() -> clientService.connect(IPField.getText(), Integer.parseInt(portField.getText())));
     }
 
-    @FXML private void HandleUserButton(ActionEvent event){
-        handle(() -> switchContent(mainContent, "/user_page.fxml"));
+    @FXML private void HandleDisconnectButton(ActionEvent event){
+        handle(() -> clientService.close());
     }
-
-    @FXML private void HandleMovieButton(ActionEvent event){
-        handle(() -> switchContent(mainContent, "/movies_page.fxml"));
-    }
-
-    @FXML private void HandleReviewButton(ActionEvent event){
-        handle(() -> switchContent(mainContent, "/reviews_page.fxml"));
-    }
-
 }

@@ -10,91 +10,79 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane stylesheets="@style.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.client.controller.LoginController">
-   <top>
-      <VBox alignment="CENTER" prefHeight="63.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
-         <children>
-             <Text text="Welcome" textAlignment="CENTER" wrappingWidth="164.046875">
-               <font>
-                  <Font name="Cascadia Mono Regular" size="30.0" />
-               </font>
-            </Text>
-            <Separator prefWidth="200.0" />
-         </children>
-      </VBox>
-   </top>
-   <bottom>
-      <HBox prefHeight="42.0" prefWidth="1000.0" spacing="10.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label alignment="CENTER" prefHeight="56.0" prefWidth="32.0" text="IPv4" />
-            <TextField fx:id="IPField" promptText="000.000.000.000" text="localhost" />
-            <Label alignment="CENTER" prefHeight="34.0" prefWidth="32.0" text="Port" />
-            <TextField fx:id="portField" promptText="0000" text="20737" />
-            <Button fx:id="connectButton" mnemonicParsing="false" onAction="#HandleConnectButton" prefWidth="110.0" text="Connect" />
-            <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" onAction="#HandleDisconnectButton" prefHeight="43.0" prefWidth="110.0" text="Disconnect" />
-         </children>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </HBox>
-   </bottom>
-   <center>
-      <VBox alignment="CENTER" fillWidth="false" prefHeight="600.0" prefWidth="1000.0" spacing="10.0" BorderPane.alignment="TOP_LEFT">
-         <children>
-            <Text text="Enter" textAlignment="CENTER" wrappingWidth="164.046875">
-               <font>
-                  <Font size="20.0" />
-               </font>
-            </Text>
-            <GridPane hgap="10.0" prefHeight="70.0" prefWidth="322.0" vgap="10.0">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="192.0" minWidth="10.0" prefWidth="91.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="294.0" minWidth="10.0" prefWidth="221.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
+
+<Pane xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.client.controller.LoginController">
+   <children>
+      <BorderPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@style.css">
+         <top>
+            <VBox alignment="CENTER" BorderPane.alignment="CENTER">
                <children>
-                
-                                     <Label prefHeight="18.0" prefWidth="81.0" text="Username:">
-                     <GridPane.margin>
+                   <Text text="Welcome" textAlignment="CENTER" wrappingWidth="164.046875">
+                     <font>
+                        <Font name="Cascadia Mono Regular" size="30.0" />
+                     </font>
+                  </Text>
+                  <Separator />
+               </children>
+            </VBox>
+         </top>
+         <center>
+            <VBox alignment="CENTER" fillWidth="false" spacing="10.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Text text="Enter" textAlignment="CENTER" wrappingWidth="164.046875">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Text>
+                  <GridPane hgap="10.0" prefHeight="70.0" prefWidth="322.0" vgap="10.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="192.0" minWidth="10.0" prefWidth="91.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="294.0" minWidth="10.0" prefWidth="221.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                      
+                                                                         <Label prefHeight="18.0" prefWidth="81.0" text="Username:">
+                           <GridPane.margin>
+                              <Insets />
+                           </GridPane.margin>
+                        </Label>
+                      
+                                                                         <Label prefHeight="18.0" prefWidth="88.0" text="Password:" GridPane.rowIndex="1" />
+                      
+                                                                         <TextField fx:id="usernameField" prefHeight="26.0" prefWidth="149.0" text="admin" GridPane.columnIndex="1" />
+                      
+                                                                         <PasswordField fx:id="passwordField" prefHeight="26.0" prefWidth="398.0" text="admin" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                     </children>
+                  </GridPane>
+                  <HBox spacing="10.0">
+                     <children>
+                        <Button fx:id="loginButton" mnemonicParsing="false" onAction="#HandleLoginButton" prefHeight="26.0" prefWidth="110.0" text="Login" />
+                        <Label alignment="CENTER" prefHeight="26.0" prefWidth="22.0" text="or" />
+                        <Button fx:id="registerButton" mnemonicParsing="false" onAction="#HandleRegisterButton" prefHeight="26.0" prefWidth="110.0" text="Register" />
+                     </children>
+                     <VBox.margin>
                         <Insets />
-                     </GridPane.margin>
-                  </Label>
-                
-                                     <Label prefHeight="18.0" prefWidth="88.0" text="Password:" GridPane.rowIndex="1" />
-                
-                                     <TextField fx:id="usernameField" prefHeight="26.0" prefWidth="149.0" text="admin" GridPane.columnIndex="1" />
-                
-                                     <PasswordField fx:id="passwordField" prefHeight="26.0" prefWidth="398.0" text="admin" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                     </VBox.margin>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </HBox>
                </children>
-            </GridPane>
-            <HBox spacing="10.0">
-               <children>
-                  <Button fx:id="loginButton" mnemonicParsing="false" onAction="#HandleLoginButton" prefHeight="26.0" prefWidth="110.0" text="Login" />
-                  <Label alignment="CENTER" prefHeight="26.0" prefWidth="22.0" text="or" />
-                  <Button fx:id="registerButton" mnemonicParsing="false" onAction="#HandleRegisterButton" prefHeight="26.0" prefWidth="110.0" text="Register" />
-               </children>
-               <VBox.margin>
-                  <Insets />
-               </VBox.margin>
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
-            </HBox>
-         </children>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </VBox>
-   </center>
-</BorderPane>
+            </VBox>
+         </center>
+      </BorderPane>
+   </children>
+</Pane>

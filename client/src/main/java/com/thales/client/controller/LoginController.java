@@ -16,15 +16,6 @@ public class LoginController extends SceneController {
     @FXML private Button registerButton;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
-    @FXML private TextField IPField;
-    @FXML private TextField portField;
-    @FXML private Button connectButton;
-    @FXML private Button disconnectButton;
-
-    @FXML protected void initialize() {
-        connectButton.disableProperty().bind(clientService.getSocket().getRunning());
-        disconnectButton.disableProperty().bind(clientService.getSocket().getRunning().not());
-    }
 
     // ===================================
     //  UI interaction handlers
@@ -33,26 +24,12 @@ public class LoginController extends SceneController {
     @FXML private void HandleLoginButton(ActionEvent event){
         handle(() -> {
             clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
-            SceneController.switchPage(event, "/main_page.fxml");
+            SceneController.switchPage(event, "/menu_page.fxml");
         });
     }
 
     @FXML private void HandleRegisterButton(ActionEvent event){
-        handle(() -> {
-            clientService.requestRegister(new User(usernameField.getText(), passwordField.getText()));
-        });
-    }
-
-    @FXML private void HandleConnectButton(ActionEvent event){
-        handle(() -> {
-            clientService.connect(IPField.getText(), Integer.parseInt(portField.getText()));
-        });
-    }
-
-    @FXML private void HandleDisconnectButton(ActionEvent event){
-        handle(() -> {
-        clientService.close();
-        });
+        handle(() -> clientService.requestRegister(new User(usernameField.getText(), passwordField.getText())));
     }
 
 }

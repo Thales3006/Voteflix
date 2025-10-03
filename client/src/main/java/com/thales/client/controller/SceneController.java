@@ -10,12 +10,9 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 import lombok.Data;
 
 @Data
@@ -74,15 +71,22 @@ public abstract class SceneController {
     // ===================================
 
     protected static void switchPage(ActionEvent event, String fxmlPath) throws IOException {
-        Parent root = FXMLLoader.load(SceneController.class.getResource(fxmlPath));
-        Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
+        FXMLLoader loader = new FXMLLoader(SceneController.class.getResource(fxmlPath));
+        Parent root = loader.load();
+
+        Node node = (Node) event.getSource();
+        while (node != null) {
+            if (node instanceof Pane && "currentPage".equals(node.getId())) {
+                ((Pane) node).getChildren().setAll(root);
+                System.err.println("achou");
+                return;
+            }
+            node = node.getParent();
+        }
     }
 
-    protected void switchContent(Pane parent, String fxmlPath) throws IOException {
-        AnchorPane pane = FXMLLoader.load(getClass().getResource(fxmlPath));
+    protected static void switchContent(Pane parent, String fxmlPath) throws IOException {
+        Pane pane = FXMLLoader.load(SceneController.class.getResource(fxmlPath));
         parent.getChildren().setAll(pane);
     }
 }
