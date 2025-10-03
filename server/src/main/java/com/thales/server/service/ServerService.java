@@ -26,6 +26,7 @@ public class ServerService {
     private AppController appController;
     private final Gson gson = new Gson();
     private final Object usersLock = new Object();
+    private final String secretKey = "256-bit-secret-key-placeholder";
     private ObservableMap<String, User> users = FXCollections.observableHashMap();
     private JsonValidator validator = JsonValidator.getInstance();
     private DatabaseService database = new DatabaseService();
@@ -80,15 +81,17 @@ public class ServerService {
             client.sendMessage(switch (op) {
             case LOGIN -> handleLogin(jsonObject, client);
             case LOGOUT -> handleLogout(jsonObject, client);
-            case CREATE_USER -> handleLogin(jsonObject, client);
-            case LIST_USERS -> handleLogout(jsonObject, client);
-            case UPDATE_OWN_USER -> handleLogout(jsonObject, client);
-            case UPDATE_USER -> handleLogin(jsonObject, client);
+            case CREATE_USER -> handleRegister(jsonObject, client);
+            case LIST_USERS -> handleListUsers(jsonObject, client);
+            case UPDATE_OWN_USER -> handleUpdateOwnUser(jsonObject, client);
+            case UPDATE_USER -> handleUpdateUser(jsonObject, client);
+            case DELETE_OWN_USER -> handleDeleteOwnUser(jsonObject, client);
+            case DELETE_USER -> handleDeleteUser(jsonObject, client);
             
             default -> throw new RuntimeException("Unknown Operation");
             });
 
-            if(op == Request.LOGOUT){
+            if(op == Request.LOGOUT || op == Request.DELETE_OWN_USER){
                 client.close();
             }
         } catch (ValidationException e){
@@ -103,8 +106,8 @@ public class ServerService {
     // ===================================
 
     private String handleLogin(JsonObject jsonObject, ClientHandler client){
-        String username = jsonObject.has("usuario") ? jsonObject.get("usuario").getAsString() : null;
-        String password = jsonObject.has("senha") ? jsonObject.get("senha").getAsString() : null;
+        String username = jsonObject.get("usuario").getAsString();
+        String password = jsonObject.get("senha").getAsString();
 
         synchronized (usersLock) {
             if(users.containsKey(username)){
@@ -117,6 +120,7 @@ public class ServerService {
         String token = null;
         try{
             if(!database.checkUser(username, password)){
+                log("asdasds");
                 return createStatus("401").toString();
             }
             int id = database.getUserId(username);
@@ -134,10 +138,9 @@ public class ServerService {
     }
 
     private String handleLogout(JsonObject jsonObject, ClientHandler client){
-        String token = jsonObject.has("token") ? jsonObject.get("token").getAsString() : null;
+        String token = jsonObject.get("token").getAsString();
 
         JsonObject json = new JsonObject();
-        String secretKey = "256-bit-secret-key-placeholder";
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
             DecodedJWT jwt = verifier.verify(token);
@@ -151,10 +154,115 @@ public class ServerService {
 
             json.addProperty("status", "200");
         } catch (Exception e) {
-            json.addProperty("status", "401");
+            return createStatus("401").toString();
         }
         
         return json.toString();
+    }
+
+    private String handleRegister(JsonObject jsonObject, ClientHandler client){
+        JsonObject user = jsonObject.get("usuario").getAsJsonObject();
+        String username = user.get("nome").getAsString();
+        String password = user.get("senha").getAsString();
+
+        try {
+            if (database.createUser(username, password)) {
+                return createStatus("200").toString();
+            }
+            return createStatus("409").toString();
+        } catch (SQLException e) {
+            log(e.toString());
+            return createStatus("500").toString();
+        }
+    }
+
+    private String handleListUsers(JsonObject jsonObject, ClientHandler client){
+        return createStatus("200").toString();
+    }
+
+    private String handleUpdateOwnUser(JsonObject jsonObject, ClientHandler client){
+        String token = jsonObject.get("token").getAsString();
+        JsonObject usuario = jsonObject.get("usuario").getAsJsonObject();
+        String newPassword = usuario.get("senha").getAsString();
+
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+            DecodedJWT jwt = verifier.verify(token);
+            
+            int id = jwt.getClaim("id").asInt();
+
+            if (database.updateUser(id, newPassword)) {
+                return createStatus("200").toString();
+            }
+            return createStatus("404").toString();
+        } catch (Exception e) {
+            log(e.toString());
+            return createStatus("401").toString();
+        }
+    }
+
+    private String handleUpdateUser(JsonObject jsonObject, ClientHandler client){
+        String token = jsonObject.get("token").getAsString();
+        JsonObject usuario = jsonObject.get("usuario").getAsJsonObject();
+        String newPassword = usuario.get("senha").getAsString();
+        int id = Integer.parseInt(jsonObject.get("id").getAsString());
+
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+            DecodedJWT jwt = verifier.verify(token);
+            int tokenId = jwt.getClaim("id").asInt();
+            if(!database.isAdmin(tokenId)){
+                return createStatus("401").toString();
+            }
+
+            if (database.updateUser(id, newPassword)) {
+                return createStatus("200").toString();
+            }
+            return createStatus("404").toString();
+        } catch (Exception e) {
+            log(e.toString());
+            return createStatus("401").toString();
+        }
+    }
+
+    private String handleDeleteOwnUser(JsonObject jsonObject, ClientHandler client){
+        String token = jsonObject.get("token").getAsString();
+
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+            DecodedJWT jwt = verifier.verify(token);
+            
+            int id = jwt.getClaim("id").asInt();
+
+            if (database.deleteUser(id)) {
+                return createStatus("200").toString();
+            }
+            return createStatus("404").toString();
+        } catch (Exception e) {
+            log(e.toString());
+            return createStatus("401").toString();
+        }
+    }
+
+    private String handleDeleteUser(JsonObject jsonObject, ClientHandler client){
+        String token = jsonObject.get("token").getAsString();
+        int userId = Integer.parseInt(jsonObject.get("id").getAsString());
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+            DecodedJWT jwt = verifier.verify(token);
+            int tokenId = jwt.getClaim("id").asInt();
+            if(!database.isAdmin(tokenId)){
+                return createStatus("401").toString();
+            }
+            
+            if (database.deleteUser(userId)) {
+            return createStatus("200").toString();
+            }
+            return createStatus("404").toString();
+        } catch (Exception e) {
+            log(e.toString());
+            return createStatus("401").toString();
+        }
     }
 
     public void handleClosed(ClientHandler client) {
