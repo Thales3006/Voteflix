@@ -1,4 +1,4 @@
-package com.thales.client.model;
+package com.thales.common.model;
 
 import lombok.Getter;
 

@@ -7,10 +7,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.thales.common.model.Movie;
+import com.thales.common.model.Response;
 import com.thales.common.model.User;
+import com.thales.common.utils.JsonValidator;
+
 import java.util.ArrayList;
 
-import com.thales.client.model.StatusException;
 import com.thales.client.network.ClientSocket;
 
 import lombok.Data;
@@ -21,13 +23,23 @@ public class ClientService {
     private static ClientService instance;
     private ClientSocket socket;
     private String token;
-    private boolean isAdmin = false;
+    private boolean isAdmin;
     private String username;
-    private final Gson gson = new Gson(); 
+    private final Gson gson; 
+    private JsonValidator validator;
 
 
     private ClientService(){
         this.socket = new ClientSocket();
+        this.isAdmin = false;
+        this.gson = new Gson();
+        this.validator = JsonValidator.getInstance();
+        try{
+            validator.loadSchemas();
+        } catch(Exception e){
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public static ClientService getInstance(){
@@ -45,24 +57,6 @@ public class ClientService {
         socket.close();
     }
 
-    private static boolean statusOk(JsonObject json){
-        String status = getStatus(json);
-        if (status == null) {
-            return false;
-        }
-        return status.equals("200") || status.equals("201");
-    }
-
-    private static String getStatus(JsonObject json){
-        return json.has("status")? json.get("status").getAsString() : null;
-    }
-
-    private void verifyStatus(JsonObject json) throws StatusException {
-        if(!statusOk(json)){
-            throw new StatusException(getStatus(json));
-        }
-    }
-
     // ===================================
     //  Requests
     // ===================================
@@ -77,7 +71,7 @@ public class ClientService {
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        verifyStatus(response);
+        validator.validateResponce(response, Response.OK);
     }
 
     public void requestLogin(User user) throws Exception {
@@ -88,7 +82,7 @@ public class ClientService {
         socket.sendMessage(json.toString());
         
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        verifyStatus(response);
+        validator.validateResponce(response, Response.LOGIN);
         
         JsonElement token = response.get("token");
         this.token = token.getAsString();
@@ -105,7 +99,7 @@ public class ClientService {
         socket.sendMessage(json.toString());
         
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        verifyStatus(response);
+        validator.validateResponce(response, Response.OK);
         
         token = null;
         username = null;
@@ -123,7 +117,7 @@ public class ClientService {
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        verifyStatus(response);
+        validator.validateResponce(response, Response.OK);
     }
 
     public void requestUpdateUser(User user, Integer id) throws Exception {
@@ -137,7 +131,7 @@ public class ClientService {
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        verifyStatus(response);
+        validator.validateResponce(response, Response.OK);
     }
 
     public ArrayList<User> requestUserList() throws Exception{
@@ -147,16 +141,15 @@ public class ClientService {
             socket.sendMessage(json.toString());
 
             JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-            verifyStatus(response);
+            validator.validateResponce(response, Response.USER_LIST);
+
             ArrayList<User> users = new ArrayList<>();
             JsonElement usuariosElement = response.get("usuarios");
-            if (usuariosElement != null && usuariosElement.isJsonArray()) {
-                for (JsonElement element : usuariosElement.getAsJsonArray()) {
-                    JsonObject obj = element.getAsJsonObject();
-                    Integer id = Integer.parseInt(obj.get("id").getAsString());
-                    String username = obj.get("nome").getAsString();
-                    users.add(new User(id, username));
-                }
+            for (JsonElement element : usuariosElement.getAsJsonArray()) {
+                JsonObject obj = element.getAsJsonObject();
+                Integer id = Integer.parseInt(obj.get("id").getAsString());
+                String username = obj.get("nome").getAsString();
+                users.add(new User(id, username));
             }
             return users;
     }
@@ -168,7 +161,7 @@ public class ClientService {
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        verifyStatus(response);
+        validator.validateResponce(response, Response.OK);
     }
 
     public void requestDeleteUser(Integer id) throws Exception {
@@ -179,7 +172,7 @@ public class ClientService {
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        verifyStatus(response);
+        validator.validateResponce(response, Response.OK);
     }
 
     public ArrayList<Movie> requestMovieList() throws Exception {
@@ -188,26 +181,12 @@ public class ClientService {
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        verifyStatus(response);
+        validator.validateResponce(response, Response.MOVIE_LIST);
+
         ArrayList<Movie> movies = new ArrayList<>();
         JsonElement filmesElement = response.get("filmes");
-        if (filmesElement != null && filmesElement.isJsonArray()) {
-            for (JsonElement element : filmesElement.getAsJsonArray()) {
-                JsonObject obj = element.getAsJsonObject();
-                int id = Integer.parseInt(obj.get("id").getAsString());
-                String title = obj.get("titulo").getAsString();
-                String diretor = obj.get("diretor").getAsString();
-                int year = Integer.parseInt(obj.get("ano").getAsString());
-                String[] genres = new String[obj.get("genero").getAsJsonArray().size()];
-                int i = 0;
-                for (JsonElement genreElement : obj.get("genero").getAsJsonArray()) {
-                    genres[i++] = genreElement.getAsString();
-                }
-                String synopsis = obj.get("sinopse").getAsString();
-                float rating = Float.parseFloat(obj.get("nota").getAsString());
-                int ratingAmount = Integer.parseInt(obj.get("qtd_avaliacoes").getAsString());
-                movies.add(new Movie(id, title, diretor, genres, year, rating, ratingAmount, synopsis));
-            }
+        for (JsonElement element : filmesElement.getAsJsonArray()) {
+            movies.add(Movie.fromJson(element.getAsJsonObject()));
         }
         return movies;
     }

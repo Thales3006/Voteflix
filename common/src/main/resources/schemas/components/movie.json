@@ -12,5 +12,5 @@
     "sinopse": { "type": "string" , "maxLength": 250 }
   },
   "required": ["titulo", "diretor", "ano", "genero", "nota", "qtd_avaliacoes", "sinopse"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

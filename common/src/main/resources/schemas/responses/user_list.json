@@ -5,10 +5,7 @@
   "properties": {
     "status": { "type": "string", "const": "200" },
     "usuarios": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
+      "type": "array", "items": { "type": "object", "properties": {
           "id": { "type": "string" },
           "nome": { "$ref": "../components/base_string.json" }
         },

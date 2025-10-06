@@ -7,8 +7,10 @@ import java.util.stream.Collectors;
 
 import org.everit.json.schema.ValidationException;
 
+import com.google.gson.JsonObject;
 import com.thales.common.model.Request;
 import com.thales.common.model.Response;
+import com.thales.common.model.StatusException;
 
 public class JsonValidator {
 
@@ -47,6 +49,19 @@ public class JsonValidator {
         }
     }
 
+    public void validateResponce(JsonObject json, Response response) throws IllegalStateException, StatusException {
+        try{
+        responseSchemas.get(response).validate(json.toString());
+        } catch ( Exception e ) {
+            try{
+                responseSchemas.get(Response.ERROR).validate(json.toString());
+                throw new StatusException(json.get("status").getAsString());
+            } catch ( Exception ee ) {
+                throw e;
+            }
+        }
+    }
+
     public Response getResponce(final String message) throws ValidationException {
         basicResponseSchema.validate(message);
 
@@ -62,6 +77,10 @@ public class JsonValidator {
             "status",
             basicResponseSchema.getSchema().getSchemaLocation()
         );
+    }
+
+    public void validateResquest(JsonObject json, Request request) throws ValidationException {
+        requestSchemas.get(request).validate(json.toString());
     }
 
     public Request getRequest(final String message) throws ValidationException {

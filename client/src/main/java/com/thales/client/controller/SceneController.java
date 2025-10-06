@@ -2,8 +2,10 @@ package com.thales.client.controller;
 
 import java.io.IOException;
 
-import com.thales.client.model.StatusException;
+import org.everit.json.schema.ValidationException;
+
 import com.thales.client.service.ClientService;
+import com.thales.common.model.StatusException;
 import com.thales.common.utils.ErrorTable;
 
 import javafx.event.ActionEvent;
@@ -20,6 +22,10 @@ public abstract class SceneController {
 
     protected static final ClientService clientService = ClientService.getInstance();
 
+    // ===================================
+    //  PopUps
+    // ===================================
+
     protected void showPopup(String title, String message) {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
@@ -27,10 +33,6 @@ public abstract class SceneController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-    // ===================================
-    //  PopUps
-    // ===================================
 
     protected void showStatusError(String status){
         String errorMessage = ErrorTable.getInstance().get(status);
@@ -55,10 +57,17 @@ public abstract class SceneController {
             action.run();
         } catch (StatusException e) {
             showStatusError(e.getStatus());
-        } catch (Exception e) {
-            showPopup("Exception Error", e.toString());
+        } catch (ValidationException e) {
             System.err.println(e);
-        }
+            for (ValidationException ve : e.getCausingExceptions()) {
+                System.out.println(ve.getMessage());
+            }
+            System.out.println(e.toJSON().toString(2));
+            showPopup("Validation Error", e.toString());
+        } catch (Exception e) {
+            System.err.println(e);
+            showPopup("Exception Error", e.toString());
+        } 
     }
 
     protected void handle(ThrowingRunnable action, ThrowingRunnable finallyAction) {

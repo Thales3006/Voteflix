@@ -111,10 +111,9 @@ public class ServerService {
         String password = jsonObject.get("senha").getAsString();
 
         synchronized (usersLock) {
-            if(users.containsKey(username)){
-                return createStatus("401").toString();
+            if(!users.containsKey(username)){
+                users.put(username, new User(username, password));
             }
-            users.put(username, new User(username, password));
         }
         client.setUsername(username);
 
@@ -139,25 +138,9 @@ public class ServerService {
     }
 
     private String handleLogout(JsonObject jsonObject, ClientHandler client){
-        String token = jsonObject.get("token").getAsString();
-
         JsonObject json = new JsonObject();
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-            DecodedJWT jwt = verifier.verify(token);
-            String username = jwt.getClaim("username").asString();
-
-            synchronized (usersLock){
-                if (users.remove(username) == null) {
-                    throw new NullPointerException("User not logged");
-                }
-            }
-
-            json.addProperty("status", "200");
-        } catch (Exception e) {
-            return createStatus("401").toString();
-        }
-        
+        json.addProperty("status", "200");
+    
         return json.toString();
     }
 
@@ -189,7 +172,7 @@ public class ServerService {
             json.add("usuarios", gson.toJsonTree(database.getUsers().stream()
                 .map(user -> {
                     JsonObject userObj = new JsonObject();
-                    userObj.addProperty("id", user.getId());
+                    userObj.addProperty("id", user.getId().toString());
                     userObj.addProperty("nome", user.getUsername());
                     return userObj;
                 })
@@ -292,22 +275,9 @@ public class ServerService {
             JsonObject json = new JsonObject();
             json.addProperty("status", "200");
             json.add("filmes", gson.toJsonTree(database.getMovies().stream()
-                .map(movie -> {
-                    JsonObject movieObj = new JsonObject();
-                    movieObj.addProperty("id", movie.getID().toString());
-                    movieObj.addProperty("titulo", movie.getTitle());
-                    movieObj.addProperty("diretor", movie.getDirector());
-                    movieObj.addProperty("ano", movie.getYear().toString());
-                    movieObj.addProperty("nota", movie.getRating().toString());
-                    movieObj.addProperty("qtd_avaliacoes", movie.getRatingAmount().toString());
-                    movieObj.addProperty("sinopse", movie.getTitle());
-                    movieObj.add("genero", gson.toJsonTree(movie.getGenre()));
-
-                    return movieObj;
-                })
+                .map(movie -> movie.toJson())
                 .toList()));
             return json.toString();
-            
         } catch (Exception e) {
             log(e.toString());
             return createStatus("401").toString();
@@ -318,7 +288,7 @@ public class ServerService {
         String username = client.getUsername();
         if (username != null) {
             synchronized (usersLock){
-            users.remove(username);
+                users.remove(username);
             }
         }
     }
