@@ -1,5 +1,7 @@
 package com.thales.common.model;
 
+import java.util.Optional;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -16,7 +18,7 @@ public class Movie {
     private Integer ratingAmount;
     private String synopsis;
 
-    public Movie(int ID, String title, String director, String[] genre, int year, float rating, int ratingAmount, String synopsis) {
+    public Movie(Integer ID, String title, String director, String[] genre, Integer year, Float rating, Integer ratingAmount, String synopsis) {
         this.ID = ID;
         this.title = title;
         this.director = director;
@@ -51,19 +53,41 @@ public class Movie {
     }
 
     public static Movie fromJson(JsonObject json) {
-        Integer id = Integer.parseInt(json.get("id").getAsString());
-        String title = json.get("titulo").getAsString();
-        String director = json.get("diretor").getAsString();
-        Integer year = Integer.parseInt(json.get("ano").getAsString());
-        Float rating = Float.parseFloat(json.get("nota").getAsString());
-        Integer ratingAmount = Integer.parseInt(json.get("qtd_avaliacoes").getAsString());
-        String synopsis = json.get("sinopse").getAsString();
+        Integer id = Optional.ofNullable(json.get("id"))
+                    .map(element -> element.getAsString())
+                    .map(Integer::parseInt)
+                    .orElse(null);
+        String title = Optional.ofNullable(json.get("titulo"))
+                    .map(element -> element.getAsString())
+                    .orElse(null);
+        String director = Optional.ofNullable(json.get("diretor"))
+                    .map(element -> element.getAsString())
+                    .orElse(null);
+        Integer year = Optional.ofNullable(json.get("ano"))
+                    .map(element -> element.getAsString())
+                    .map(Integer::parseInt)
+                    .orElse(null);
+        Float rating = Optional.ofNullable(json.get("nota"))
+                    .map(element -> element.getAsString())
+                    .map(Float::parseFloat)
+                    .orElse(null);
+        Integer ratingAmount = Optional.ofNullable(json.get("qtd_avaliacoes"))
+                    .map(element -> element.getAsString())
+                    .map(Integer::parseInt)
+                    .orElse(null);
+        String synopsis = Optional.ofNullable(json.get("sinopse"))
+                    .map(element -> element.getAsString())
+                    .orElse(null);
         
-        JsonArray genreArray = json.getAsJsonArray("genero");
-        String[] genre = new String[genreArray.size()];
-        for (int i = 0; i < genreArray.size(); i++) {
-            genre[i] = genreArray.get(i).getAsString();
-        }
+        String[] genre = Optional.ofNullable(json.getAsJsonArray("genero"))
+                    .map(array -> {
+                    String[] g = new String[array.size()];
+                    for (int i = 0; i < array.size(); i++) {
+                        g[i] = array.get(i).getAsString();
+                    }
+                    return g;
+                    })
+                    .orElse(null);
         
         return new Movie(id, title, director, genre, year, rating, ratingAmount, synopsis);
     }

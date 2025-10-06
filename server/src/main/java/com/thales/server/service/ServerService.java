@@ -10,6 +10,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.thales.common.model.Movie;
 import com.thales.common.model.Request;
 import com.thales.common.model.User;
 import com.thales.common.utils.JsonValidator;
@@ -87,7 +88,10 @@ public class ServerService {
             case UPDATE_USER -> handleUpdateUser(jsonObject, client);
             case DELETE_OWN_USER -> handleDeleteOwnUser(jsonObject, client);
             case DELETE_USER -> handleDeleteUser(jsonObject, client);
+            case CREATE_MOVIE -> handleCreateMovie(jsonObject, client);
             case LIST_MOVIES -> handleListMovies(jsonObject, client);
+            case UPDATE_MOVIE -> handleUpdateMovie(jsonObject, client);
+            case DELETE_MOVIE -> handleDeleteMovie(jsonObject, client);
             
             default -> throw new RuntimeException("Unknown Operation");
             });
@@ -270,6 +274,29 @@ public class ServerService {
         }
     }
 
+    private String handleCreateMovie(JsonObject jsonObject, ClientHandler client) {
+        String token = jsonObject.get("token").getAsString();
+        Movie movie = Movie.fromJson(jsonObject.get("filme").getAsJsonObject());
+
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+            DecodedJWT jwt = verifier.verify(token);
+            int tokenId = jwt.getClaim("id").asInt();
+            
+            if (!database.isAdmin(tokenId)) {
+                return createStatus("401").toString();
+            }
+
+            if (database.createMovie(movie)) {
+                return createStatus("200").toString();
+            }
+            return createStatus("409").toString();
+        } catch (Exception e) {
+            log(e.toString());
+            return createStatus("500").toString();
+        }
+    }
+
     private String handleListMovies(JsonObject jsonObject, ClientHandler client){
         try {
             JsonObject json = new JsonObject();
@@ -280,9 +307,56 @@ public class ServerService {
             return json.toString();
         } catch (Exception e) {
             log(e.toString());
-            return createStatus("401").toString();
+            return createStatus("500").toString();
         }
     }
+
+    private String handleUpdateMovie(JsonObject jsonObject, ClientHandler client) {
+        String token = jsonObject.get("token").getAsString();
+        Movie movie = Movie.fromJson(jsonObject.get("filme").getAsJsonObject());
+
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+            DecodedJWT jwt = verifier.verify(token);
+            int tokenId = jwt.getClaim("id").asInt();
+            
+            if (!database.isAdmin(tokenId)) {
+                return createStatus("401").toString();
+            }
+
+            if (database.updateMovie(movie)) {
+                return createStatus("200").toString();
+            }
+            return createStatus("404").toString();
+        } catch (Exception e) {
+            log(e.toString());
+            return createStatus("500").toString();
+        }
+    }
+
+    private String handleDeleteMovie(JsonObject jsonObject, ClientHandler client) {
+        String token = jsonObject.get("token").getAsString();
+        int movieId = Integer.parseInt(jsonObject.get("id").getAsString());
+
+        try {
+            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+            DecodedJWT jwt = verifier.verify(token);
+            int tokenId = jwt.getClaim("id").asInt();
+            
+            if (!database.isAdmin(tokenId)) {
+                return createStatus("401").toString();
+            }
+
+            if (database.deleteMovie(movieId)) {
+                return createStatus("200").toString();
+            }
+            return createStatus("404").toString();
+        } catch (Exception e) {
+            log(e.toString());
+            return createStatus("500").toString();
+        }
+    }
+ 
 
     public void handleClosed(ClientHandler client) {
         String username = client.getUsername();

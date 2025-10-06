@@ -7,10 +7,8 @@
     "diretor": { "type": "string" },
     "ano": { "type": "string", "pattern": "^[0-9]{4}$" },
     "genero": { "type": "array", "items": { "type": "string" } },
-    "nota": { "type": "string" },
-    "qtd_avaliacoes": { "type": "string" },
     "sinopse": { "type": "string" , "maxLength": 250 }
   },
-  "required": ["titulo", "diretor", "ano", "genero", "nota", "qtd_avaliacoes", "sinopse"],
+  "required": ["titulo", "diretor", "ano", "genero", "sinopse"],
   "additionalProperties": true
 }

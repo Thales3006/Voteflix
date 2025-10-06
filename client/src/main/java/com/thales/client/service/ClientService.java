@@ -120,11 +120,11 @@ public class ClientService {
         validator.validateResponce(response, Response.OK);
     }
 
-    public void requestUpdateUser(User user, Integer id) throws Exception {
+    public void requestUpdateUser(User user, int id) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "ADMIN_EDITAR_USUARIO");
         json.addProperty("token", token);
-        json.addProperty("id", id.toString());
+        json.addProperty("id", Integer.toString(id));
         JsonObject usuario = new JsonObject();
         usuario.addProperty("senha", user.getPassword());
         json.add("usuario", usuario);
@@ -164,11 +164,23 @@ public class ClientService {
         validator.validateResponce(response, Response.OK);
     }
 
-    public void requestDeleteUser(Integer id) throws Exception {
+    public void requestDeleteUser(int id) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "ADMIN_EXCLUIR_USUARIO");
         json.addProperty("token", token);
-        json.addProperty("id", id.toString());
+        json.addProperty("id", Integer.toString(id));
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        validator.validateResponce(response, Response.OK);
+    }
+
+    public void requestCreateMovie(Movie movie) throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "CRIAR_FILME");
+        json.addProperty("token", token);
+        JsonObject filme = movie.toJson();
+        json.add("filme", filme);
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
@@ -189,5 +201,28 @@ public class ClientService {
             movies.add(Movie.fromJson(element.getAsJsonObject()));
         }
         return movies;
+    }
+
+    public void requestUpdateMovie(Movie movie) throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "EDITAR_FILME");
+        json.addProperty("token", token);
+        JsonObject filme = movie.toJson();
+        json.add("filme", filme);
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        validator.validateResponce(response, Response.OK);
+    }
+
+    public void requestDeleteMovie(int id) throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "EXCLUIR_FILME");
+        json.addProperty("token", token);
+        json.addProperty("id", Integer.toString(id));
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        validator.validateResponce(response, Response.OK);
     }
 }

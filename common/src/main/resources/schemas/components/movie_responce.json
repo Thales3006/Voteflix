@@ -2,14 +2,14 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Movie with ID",
   "allOf": [
-    { "$ref": "movie.json" },
+    { "$ref": "movie_id.json" },
     {
       "type": "object",
       "properties": {
-        "id": { "type": "string" }
+        "nota": { "type": "string" },
+        "qtd_avaliacoes": { "type": "string" }
       },
-      "required": ["id"],
-      "additionalProperties": true
+      "required": ["nota", "qtd_avaliacoes"]
     }
   ]
 }

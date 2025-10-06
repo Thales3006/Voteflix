@@ -126,6 +126,14 @@ public class DatabaseService {
         return genres.toArray(new String[0]);
     }
 
+    private boolean deleteUnusedGenres(Connection conn) throws SQLException {
+        String sql = "DELETE FROM genres WHERE id NOT IN (SELECT DISTINCT genre_id FROM movie_genres)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            int result = pstmt.executeUpdate();
+            return result > 0;
+        }
+    }
+
     public ArrayList<Movie> getMovies() throws SQLException {
         String sql = "SELECT id, title, director, year, rating, rating_amount, synopsis FROM movies";
         ArrayList<Movie> movies = new ArrayList<>();
@@ -146,5 +154,145 @@ public class DatabaseService {
             }
         }
         return movies;
+    }
+
+    public boolean createMovie(Movie movie) throws SQLException {
+        String movieSql = "INSERT INTO movies(title, director, year, rating, rating_amount, synopsis) VALUES(?, ?, ?, 0, 0, ?)";
+        String checkGenreSql = "SELECT id FROM genres WHERE name = ?";
+        String createGenreSql = "INSERT INTO genres(name) VALUES(?)";
+        String genreSql = "INSERT INTO movie_genres(movie_id, genre_id) VALUES(?, ?)";
+        
+        try (Connection conn = connect()) {
+            conn.setAutoCommit(false);
+            try {
+                PreparedStatement movieStmt = conn.prepareStatement(movieSql, PreparedStatement.RETURN_GENERATED_KEYS);
+                movieStmt.setString(1, movie.getTitle());
+                movieStmt.setString(2, movie.getDirector());
+                movieStmt.setInt(3, movie.getYear());
+                movieStmt.setString(4, movie.getSynopsis());
+                movieStmt.executeUpdate();
+
+                ResultSet rs = movieStmt.getGeneratedKeys();
+                if (rs.next()) {
+                    int movieId = rs.getInt(1);
+                    PreparedStatement checkGenreStmt = conn.prepareStatement(checkGenreSql);
+                    PreparedStatement createGenreStmt = conn.prepareStatement(createGenreSql, PreparedStatement.RETURN_GENERATED_KEYS);
+                    PreparedStatement genreStmt = conn.prepareStatement(genreSql);
+                    
+                    for (String genre : movie.getGenre()) {
+                        checkGenreStmt.setString(1, genre);
+                        ResultSet genreRs = checkGenreStmt.executeQuery();
+                        
+                        int genreId;
+                        if (!genreRs.next()) {
+                            createGenreStmt.setString(1, genre);
+                            createGenreStmt.executeUpdate();
+                            ResultSet newGenreRs = createGenreStmt.getGeneratedKeys();
+                            newGenreRs.next();
+                            genreId = newGenreRs.getInt(1);
+                        } else {
+                            genreId = genreRs.getInt("id");
+                        }
+                        
+                        genreStmt.setInt(1, movieId);
+                        genreStmt.setInt(2, genreId);
+                        genreStmt.executeUpdate();
+                    }
+                    
+                    conn.commit();
+                    return true;
+                }
+                conn.rollback();
+                return false;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        }
+    }
+
+    public boolean updateMovie(Movie movie) throws SQLException {
+        String movieSql = "UPDATE movies SET title = ?, director = ?, year = ?, synopsis = ? WHERE id = ?";
+        String deleteGenresSql = "DELETE FROM movie_genres WHERE movie_id = ?";
+        String checkGenreSql = "SELECT id FROM genres WHERE name = ?";
+        String createGenreSql = "INSERT INTO genres(name) VALUES(?)";
+        String genreSql = "INSERT INTO movie_genres(movie_id, genre_id) VALUES(?, ?)";
+
+        try (Connection conn = connect()) {
+            conn.setAutoCommit(false);
+            try {
+                PreparedStatement movieStmt = conn.prepareStatement(movieSql);
+                movieStmt.setString(1, movie.getTitle());
+                movieStmt.setString(2, movie.getDirector());
+                movieStmt.setInt(3, movie.getYear());
+                movieStmt.setString(4, movie.getSynopsis());
+                movieStmt.setInt(5, movie.getID());
+                int result = movieStmt.executeUpdate();
+
+                if (result > 0) {
+                    PreparedStatement deleteGenresStmt = conn.prepareStatement(deleteGenresSql);
+                    deleteGenresStmt.setInt(1, movie.getID());
+                    deleteGenresStmt.executeUpdate();
+
+                    PreparedStatement checkGenreStmt = conn.prepareStatement(checkGenreSql);
+                    PreparedStatement createGenreStmt = conn.prepareStatement(createGenreSql, PreparedStatement.RETURN_GENERATED_KEYS);
+                    PreparedStatement genreStmt = conn.prepareStatement(genreSql);
+
+                    for (String genre : movie.getGenre()) {
+                        checkGenreStmt.setString(1, genre);
+                        ResultSet genreRs = checkGenreStmt.executeQuery();
+
+                        int genreId;
+                        if (!genreRs.next()) {
+                            createGenreStmt.setString(1, genre);
+                            createGenreStmt.executeUpdate();
+                            ResultSet newGenreRs = createGenreStmt.getGeneratedKeys();
+                            newGenreRs.next();
+                            genreId = newGenreRs.getInt(1);
+                        } else {
+                            genreId = genreRs.getInt("id");
+                        }
+
+                        genreStmt.setInt(1, movie.getID());
+                        genreStmt.setInt(2, genreId);
+                        genreStmt.executeUpdate();
+                    }
+
+                    deleteUnusedGenres(conn);
+                    conn.commit();
+                    return true;
+                }
+                conn.rollback();
+                return false;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        }
+    }
+
+    public boolean deleteMovie(int id) throws SQLException {
+        String movieSql = "DELETE FROM movies WHERE id = ?";
+        String genresSql = "DELETE FROM movie_genres WHERE movie_id = ?";
+        
+        try (Connection conn = connect()) {
+            conn.setAutoCommit(false);
+            try {
+                PreparedStatement genresStmt = conn.prepareStatement(genresSql);
+                genresStmt.setInt(1, id);
+                genresStmt.executeUpdate();
+
+                PreparedStatement movieStmt = conn.prepareStatement(movieSql);
+                movieStmt.setInt(1, id);
+                int result = movieStmt.executeUpdate();
+
+                deleteUnusedGenres(conn);
+                conn.commit();
+                return result > 0;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        }
     }
 }

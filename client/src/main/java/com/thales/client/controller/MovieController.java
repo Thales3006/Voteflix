@@ -35,6 +35,7 @@ public class MovieController extends SceneController {
     @FXML private VBox movieInfoPane;
     @FXML private HBox movieButtonHbox;
     @FXML private TilePane movieTilePane;
+    @FXML private VBox reviewVbox;
 
     private final SimpleObjectProperty<Movie> currentMovie = new SimpleObjectProperty<>();
 
@@ -88,6 +89,7 @@ public class MovieController extends SceneController {
 
         for (Movie movie : movies) {
             VBox movieBox = new VBox();
+            movieBox.prefWidthProperty().bind(movieTilePane.widthProperty().divide(2.2));
             movieBox.getChildren().addAll(
                 new Label("Title: " + movie.getTitle()),
                 new Label("Director: " + movie.getDirector()),
@@ -102,15 +104,48 @@ public class MovieController extends SceneController {
 
 
     @FXML private void HandleCreateMovieButton(ActionEvent event){
-        handle(() -> { throw new Exception("movie creation not implemented yet"); });
+        handle(() -> { 
+            Movie movie = new Movie(
+                null,
+                titleField.getText().trim(), 
+                directorField.getText().trim(), 
+                java.util.Arrays.stream(genresField.getText().trim().split(",\\s*"))
+                    .map(String::trim)
+                    .toArray(String[]::new),
+                Integer.parseInt(yearField.getText()), 
+                null,
+                null,
+                synopsisField.getText().trim()
+            );
+            clientService.requestCreateMovie(movie); 
+            loadMovies();
+        });
     }
 
     @FXML private void HandleUpdateMovieButton(ActionEvent event){
-        handle(() -> { throw new Exception("movie update not implemented yet"); });
+        handle(() -> { 
+            Movie movie = new Movie(
+                currentMovie.get().getID(),
+                titleField.getText(), 
+                directorField.getText(), 
+                java.util.Arrays.stream(genresField.getText().trim().split(",\\s*"))
+                    .map(String::trim)
+                    .toArray(String[]::new),
+                Integer.parseInt(yearField.getText()), 
+                null,
+                null,
+                synopsisField.getText()
+            );
+            clientService.requestUpdateMovie(movie);
+            loadMovies();
+        });
     }
 
     @FXML private void HandleDeleteMovieButton(ActionEvent event){
-        handle(() -> { throw new Exception("movie deletion not implemented yet"); });
+        handle(() -> { 
+            clientService.requestDeleteMovie(currentMovie.get().getID()); 
+            SceneController.switchPage(event, "/movies_page.fxml");
+        });
     }
 
     @FXML private void HandleCreateReviewButton(ActionEvent event){

@@ -5,7 +5,7 @@
   "properties": {
     "status": { "type": "string", "const": "200" },
     "filmes": { "type": "array",
-      "items": { "$ref": "../components/movie_id.json" }
+      "items": { "$ref": "../components/movie_responce.json" }
     }
   },
   "required": ["status", "filmes"],

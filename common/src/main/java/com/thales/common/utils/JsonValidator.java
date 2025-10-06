@@ -49,17 +49,17 @@ public class JsonValidator {
         }
     }
 
-    public void validateResponce(JsonObject json, Response response) throws IllegalStateException, StatusException {
-        try{
-        responseSchemas.get(response).validate(json.toString());
-        } catch ( Exception e ) {
-            try{
-                responseSchemas.get(Response.ERROR).validate(json.toString());
-                throw new StatusException(json.get("status").getAsString());
-            } catch ( Exception ee ) {
-                throw e;
-            }
+    public void validateResponce(JsonObject json, Response expectedResponse) throws IllegalStateException, ValidationException, StatusException {
+        if (!json.has("status")) {
+            throw new IllegalStateException("Missing status field");
         }
+
+        String status = json.get("status").getAsString();
+        if(status.equals("200") || status.equals("201")){
+            responseSchemas.get(expectedResponse).validate(json.toString());
+            return;
+        }
+        throw new StatusException(status);
     }
 
     public Response getResponce(final String message) throws ValidationException {
@@ -79,8 +79,8 @@ public class JsonValidator {
         );
     }
 
-    public void validateResquest(JsonObject json, Request request) throws ValidationException {
-        requestSchemas.get(request).validate(json.toString());
+    public void validateResquest(JsonObject json, Request expectedRequest) throws ValidationException {
+        requestSchemas.get(expectedRequest).validate(json.toString());
     }
 
     public Request getRequest(final String message) throws ValidationException {
