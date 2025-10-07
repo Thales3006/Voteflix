@@ -317,12 +317,34 @@ public class DatabaseService {
         }
     }
 
-    public ArrayList<Review> getReviews(int movieID) throws SQLException {
+    public ArrayList<Review> getMovieReviews(int movieID) throws SQLException {
         String sql = "SELECT * FROM reviews WHERE movie_id = ?";
         ArrayList<Review> reviews = new ArrayList<>();
         try (Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, movieID);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+               reviews.add(new Review(
+                  rs.getInt("id"),
+                  rs.getInt("movie_id"),
+                  rs.getInt("user_id"),
+                  rs.getInt("rating"),
+                  rs.getString("title"),
+                  rs.getString("description"),
+                  rs.getDate("date").toLocalDate()
+               ));
+            }
+        }
+        return reviews;
+    }
+
+    public ArrayList<Review> getUserReviews(int userID) throws SQLException {
+        String sql = "SELECT * FROM reviews WHERE user_id = ?";
+        ArrayList<Review> reviews = new ArrayList<>();
+        try (Connection conn = connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userID);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                reviews.add(new Review(
