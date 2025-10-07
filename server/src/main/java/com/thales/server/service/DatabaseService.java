@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.thales.common.model.Movie;
+import com.thales.common.model.Review;
 import com.thales.common.model.User;
 
 public class DatabaseService {
@@ -274,10 +275,15 @@ public class DatabaseService {
     public boolean deleteMovie(int id) throws SQLException {
         String movieSql = "DELETE FROM movies WHERE id = ?";
         String genresSql = "DELETE FROM movie_genres WHERE movie_id = ?";
+        String reviewsSql = "DELETE FROM reviews WHERE movie_id = ?";
         
         try (Connection conn = connect()) {
             conn.setAutoCommit(false);
             try {
+                PreparedStatement reviewsStmt = conn.prepareStatement(reviewsSql);
+                reviewsStmt.setInt(1, id);
+                reviewsStmt.executeUpdate();
+
                 PreparedStatement genresStmt = conn.prepareStatement(genresSql);
                 genresStmt.setInt(1, id);
                 genresStmt.executeUpdate();
@@ -293,6 +299,66 @@ public class DatabaseService {
                 conn.rollback();
                 throw e;
             }
+        }
+    }
+
+    public boolean createReview(Review review) throws SQLException {
+        String sql = "INSERT INTO reviews(movie_id, user_id, rating, title, description) VALUES(?, ?, ?, ?, ?)";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, review.getMovieID());
+            pstmt.setInt(2, review.getUserID());
+            pstmt.setInt(3, review.getRating());
+            pstmt.setString(4, review.getTitle());
+            pstmt.setString(5, review.getDescription());
+            
+            int result = pstmt.executeUpdate();
+            return result > 0;
+        }
+    }
+
+    public ArrayList<Review> getReviews(int movieID) throws SQLException {
+        String sql = "SELECT * FROM reviews WHERE movie_id = ?";
+        ArrayList<Review> reviews = new ArrayList<>();
+        try (Connection conn = connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, movieID);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+               reviews.add(new Review(
+                  rs.getInt("id"),
+                  rs.getInt("movie_id"),
+                  rs.getInt("user_id"),
+                  rs.getInt("rating"),
+                  rs.getString("title"),
+                  rs.getString("description"),
+                  rs.getDate("date").toLocalDate()
+               ));
+            }
+        }
+        return reviews;
+    }
+
+    public boolean updateReview(Review review) throws SQLException {
+        String sql = "UPDATE reviews SET rating = ?, title = ?, description = ? WHERE id = ?";
+        try (Connection conn = connect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, review.getRating());
+            pstmt.setString(2, review.getTitle());
+            pstmt.setString(3, review.getDescription());
+            pstmt.setInt(4, review.getID());
+            int result = pstmt.executeUpdate();
+            return result > 0;
+        }
+    }
+
+    public boolean deleteReview(int id) throws SQLException {
+        String sql = "DELETE FROM reviews WHERE id = ?";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            int result = pstmt.executeUpdate();
+            return result > 0;
         }
     }
 }

@@ -31,11 +31,11 @@ CREATE TABLE movie_genres (
 CREATE TABLE reviews (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     movie_id INTEGER NOT NULL,
-    username TEXT NOT NULL,
-    rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+    user_id INTEGER NOT NULL,
+    rating INTEGER NOT NULL,
     title TEXT NOT NULL,
-    description TEXT NOT NULL,
-    date DATE NOT NULL,
+    description TEXT,
+    date DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (movie_id) REFERENCES movies(id),
-    FOREIGN KEY (username) REFERENCES users(username)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
