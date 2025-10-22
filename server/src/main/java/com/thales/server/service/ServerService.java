@@ -1,7 +1,5 @@
 package com.thales.server.service;
 
-import java.sql.SQLException;
-
 import org.everit.json.schema.ValidationException;
 
 import com.auth0.jwt.JWT;
@@ -12,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.thales.common.model.Movie;
 import com.thales.common.model.Request;
+import com.thales.common.model.StatusException;
 import com.thales.common.model.User;
 import com.thales.common.utils.JsonValidator;
 import com.thales.server.controller.AppController;
@@ -103,6 +102,10 @@ public class ServerService {
             System.err.println(e.toString());
             e.printStackTrace();
             client.sendMessage(createStatus("400").toString());
+        } catch (StatusException e){
+            System.err.println(e.toString());
+            e.printStackTrace();
+            client.sendMessage(e.getStatus().toString());
         }
     }
 
@@ -110,7 +113,7 @@ public class ServerService {
     //  Client Interaction Handlers
     // ===================================
 
-    private String handleLogin(JsonObject jsonObject, ClientHandler client){
+    private String handleLogin(JsonObject jsonObject, ClientHandler client) throws StatusException {
         String username = jsonObject.get("usuario").getAsString();
         String password = jsonObject.get("senha").getAsString();
 
@@ -122,17 +125,11 @@ public class ServerService {
         client.setUsername(username);
 
         String token = null;
-        try{
-            if(!database.checkUser(username, password)){
-                log("asdasds");
-                return createStatus("401").toString();
-            }
-            int id = database.getUserId(username);
-            token = generateToken(id,username, password);
-        } catch (SQLException e){
-            log(e.toString());
-            return createStatus("500").toString();
+        if(!database.checkUser(username, password)){
+            return createStatus("401").toString();
         }
+        int id = database.getUserId(username);
+        token = generateToken(id,username, password);
 
         JsonObject json = new JsonObject();  
         json.addProperty("status", "200");
@@ -141,220 +138,162 @@ public class ServerService {
         return json.toString();
     }
 
-    private String handleLogout(JsonObject jsonObject, ClientHandler client){
+    private String handleLogout(JsonObject jsonObject, ClientHandler client) throws StatusException {
         JsonObject json = new JsonObject();
         json.addProperty("status", "200");
     
         return json.toString();
     }
 
-    private String handleRegister(JsonObject jsonObject, ClientHandler client){
+    private String handleRegister(JsonObject jsonObject, ClientHandler client) throws StatusException {
         JsonObject user = jsonObject.get("usuario").getAsJsonObject();
         String username = user.get("nome").getAsString();
         String password = user.get("senha").getAsString();
 
-        try {
-            if (database.createUser(username, password)) {
-                return createStatus("200").toString();
-            }
-            return createStatus("409").toString();
-        } catch (SQLException e) {
-            log(e.toString());
-            return createStatus("500").toString();
+        if (database.createUser(username, password)) {
+            return createStatus("200").toString();
         }
+        return createStatus("409").toString();
+
     }
 
-    private String handleListUsers(JsonObject jsonObject, ClientHandler client){
+    private String handleListUsers(JsonObject jsonObject, ClientHandler client) throws StatusException {
         String token = jsonObject.get("token").getAsString();
-
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-            verifier.verify(token);
-            
-            JsonObject json = new JsonObject();
-            json.addProperty("status", "200");
-            json.add("usuarios", gson.toJsonTree(database.getUsers().stream()
-                .map(user -> {
-                    JsonObject userObj = new JsonObject();
-                    userObj.addProperty("id", user.getId().toString());
-                    userObj.addProperty("nome", user.getUsername());
-                    return userObj;
-                })
-                .toList()));
-            return json.toString();
-            
-        } catch (Exception e) {
-            log(e.toString());
-            return createStatus("401").toString();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+        if(!database.isAdmin(tokenId)){
+            return createStatus("403").toString();
         }
+        
+        JsonObject json = new JsonObject();
+        json.addProperty("status", "200");
+        json.add("usuarios", gson.toJsonTree(database.getUsers().stream()
+            .map(user -> {
+                JsonObject userObj = new JsonObject();
+                userObj.addProperty("id", user.getId().toString());
+                userObj.addProperty("nome", user.getUsername());
+                return userObj;
+            })
+            .toList()));
+        return json.toString();
     }
 
-    private String handleUpdateOwnUser(JsonObject jsonObject, ClientHandler client){
+    private String handleUpdateOwnUser(JsonObject jsonObject, ClientHandler client) throws StatusException {
         String token = jsonObject.get("token").getAsString();
         JsonObject usuario = jsonObject.get("usuario").getAsJsonObject();
         String newPassword = usuario.get("senha").getAsString();
 
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-            DecodedJWT jwt = verifier.verify(token);
-            
-            int id = jwt.getClaim("id").asInt();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        
+        int id = jwt.getClaim("id").asInt();
 
-            if (database.updateUser(id, newPassword)) {
-                return createStatus("200").toString();
-            }
-            return createStatus("404").toString();
-        } catch (Exception e) {
-            log(e.toString());
-            return createStatus("401").toString();
-        }
+        database.updateUser(id, newPassword);
+        return createStatus("200").toString();
     }
 
-    private String handleUpdateUser(JsonObject jsonObject, ClientHandler client){
+    private String handleUpdateUser(JsonObject jsonObject, ClientHandler client) throws StatusException {
         String token = jsonObject.get("token").getAsString();
         JsonObject usuario = jsonObject.get("usuario").getAsJsonObject();
         String newPassword = usuario.get("senha").getAsString();
         int id = Integer.parseInt(jsonObject.get("id").getAsString());
 
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-            DecodedJWT jwt = verifier.verify(token);
-            int tokenId = jwt.getClaim("id").asInt();
-            if(!database.isAdmin(tokenId)){
-                return createStatus("401").toString();
-            }
-
-            if (database.updateUser(id, newPassword)) {
-                return createStatus("200").toString();
-            }
-            return createStatus("404").toString();
-        } catch (Exception e) {
-            log(e.toString());
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+        if(!database.isAdmin(tokenId)){
             return createStatus("401").toString();
         }
+
+        database.updateUser(id, newPassword);
+        return createStatus("200").toString();
     }
 
-    private String handleDeleteOwnUser(JsonObject jsonObject, ClientHandler client){
+    private String handleDeleteOwnUser(JsonObject jsonObject, ClientHandler client) throws StatusException {
         String token = jsonObject.get("token").getAsString();
 
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-            DecodedJWT jwt = verifier.verify(token);
-            
-            int id = jwt.getClaim("id").asInt();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        
+        int id = jwt.getClaim("id").asInt();
 
-            if (database.deleteUser(id)) {
-                return createStatus("200").toString();
-            }
-            return createStatus("404").toString();
-        } catch (Exception e) {
-            log(e.toString());
-            return createStatus("401").toString();
-        }
+        database.deleteUser(id);
+        return createStatus("200").toString();
     }
 
-    private String handleDeleteUser(JsonObject jsonObject, ClientHandler client){
+    private String handleDeleteUser(JsonObject jsonObject, ClientHandler client) throws StatusException {
         String token = jsonObject.get("token").getAsString();
         int userId = Integer.parseInt(jsonObject.get("id").getAsString());
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-            DecodedJWT jwt = verifier.verify(token);
-            int tokenId = jwt.getClaim("id").asInt();
-            if(!database.isAdmin(tokenId)){
-                return createStatus("401").toString();
-            }
-            
-            if (database.deleteUser(userId)) {
-            return createStatus("200").toString();
-            }
-            return createStatus("404").toString();
-        } catch (Exception e) {
-            log(e.toString());
-            return createStatus("401").toString();
+
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+        if(!database.isAdmin(tokenId)){
+            return createStatus("403").toString();
         }
+        
+        database.deleteUser(userId);
+        return createStatus("200").toString();
     }
 
-    private String handleCreateMovie(JsonObject jsonObject, ClientHandler client) {
+    private String handleCreateMovie(JsonObject jsonObject, ClientHandler client) throws StatusException {
         String token = jsonObject.get("token").getAsString();
         Movie movie = Movie.fromJson(jsonObject.get("filme").getAsJsonObject());
 
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-            DecodedJWT jwt = verifier.verify(token);
-            int tokenId = jwt.getClaim("id").asInt();
-            
-            if (!database.isAdmin(tokenId)) {
-                return createStatus("401").toString();
-            }
-
-            if (database.createMovie(movie)) {
-                return createStatus("200").toString();
-            }
-            return createStatus("409").toString();
-        } catch (Exception e) {
-            log(e.toString());
-            return createStatus("500").toString();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+        
+        if (!database.isAdmin(tokenId)) {
+            return createStatus("403").toString();
         }
+
+        database.createMovie(movie);
+        return createStatus("200").toString();
     }
 
-    private String handleListMovies(JsonObject jsonObject, ClientHandler client){
-        try {
-            JsonObject json = new JsonObject();
-            json.addProperty("status", "200");
-            json.add("filmes", gson.toJsonTree(database.getMovies().stream()
-                .map(movie -> movie.toJson())
-                .toList()));
-            return json.toString();
-        } catch (Exception e) {
-            log(e.toString());
-            return createStatus("500").toString();
-        }
+    private String handleListMovies(JsonObject jsonObject, ClientHandler client) throws StatusException {
+        JsonObject json = new JsonObject();
+        json.addProperty("status", "200");
+        json.add("filmes", gson.toJsonTree(database.getMovies().stream()
+            .map(movie -> movie.toJson())
+            .toList()));
+        return json.toString();
+
     }
 
-    private String handleUpdateMovie(JsonObject jsonObject, ClientHandler client) {
+    private String handleUpdateMovie(JsonObject jsonObject, ClientHandler client) throws StatusException {
         String token = jsonObject.get("token").getAsString();
         Movie movie = Movie.fromJson(jsonObject.get("filme").getAsJsonObject());
 
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-            DecodedJWT jwt = verifier.verify(token);
-            int tokenId = jwt.getClaim("id").asInt();
-            
-            if (!database.isAdmin(tokenId)) {
-                return createStatus("401").toString();
-            }
-
-            if (database.updateMovie(movie)) {
-                return createStatus("200").toString();
-            }
-            return createStatus("404").toString();
-        } catch (Exception e) {
-            log(e.toString());
-            return createStatus("500").toString();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+        
+        if (!database.isAdmin(tokenId)) {
+            return createStatus("403").toString();
         }
+
+        database.updateMovie(movie);
+        return createStatus("200").toString();
+
     }
 
-    private String handleDeleteMovie(JsonObject jsonObject, ClientHandler client) {
+    private String handleDeleteMovie(JsonObject jsonObject, ClientHandler client) throws StatusException {
         String token = jsonObject.get("token").getAsString();
         int movieId = Integer.parseInt(jsonObject.get("id").getAsString());
 
-        try {
-            JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-            DecodedJWT jwt = verifier.verify(token);
-            int tokenId = jwt.getClaim("id").asInt();
-            
-            if (!database.isAdmin(tokenId)) {
-                return createStatus("401").toString();
-            }
-
-            if (database.deleteMovie(movieId)) {
-                return createStatus("200").toString();
-            }
-            return createStatus("404").toString();
-        } catch (Exception e) {
-            log(e.toString());
-            return createStatus("500").toString();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+        
+        if (!database.isAdmin(tokenId)) {
+            return createStatus("403").toString();
         }
+
+        database.deleteMovie(movieId);
+        return createStatus("200").toString();
     }
  
 
