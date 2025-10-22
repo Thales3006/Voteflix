@@ -30,7 +30,7 @@ public class ClientSocket {
         }
         
         socket = new Socket(serverIP, serverPort);
-        //socket.setSoTimeout(2000);
+        socket.setSoTimeout(2000);
         out = new PrintWriter(socket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         running.set(true);

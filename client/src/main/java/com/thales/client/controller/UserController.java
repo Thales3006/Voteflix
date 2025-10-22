@@ -1,5 +1,6 @@
 package com.thales.client.controller;
 
+import com.thales.client.service.ClientService;
 import com.thales.common.model.User;
 
 import java.util.ArrayList;
@@ -33,18 +34,21 @@ public class UserController extends SceneController {
         userListView.setCellFactory(_ -> new ListCell<User>() {
             @Override
             protected void updateItem(User user, boolean empty) {
-                super.updateItem(user, empty);
-                if (empty || user == null) {
-                    setGraphic(null);
-                } else {
-                    VBox vbox = new VBox(
-                        new Label("Username: " + user.getUsername()),
-                        new Label("ID: " + user.getId())
-                    );
-                    setGraphic(vbox);
-                }
+            super.updateItem(user, empty);
+            if (empty || user == null) {
+                setGraphic(null);
+            } else {
+                VBox vbox = new VBox(
+                new Label("Username: " + user.getUsername()),
+                new Label("ID: " + user.getId())
+                );
+                setGraphic(vbox);
+            }
             }
         });
+        usernameLabel.setText(ClientService.getInstance().getUsername());
+        selectedUser.setUsername(ClientService.getInstance().getUsername());
+
     }
 
     // ===================================
@@ -54,7 +58,7 @@ public class UserController extends SceneController {
     @FXML void HandleUpdateUserButton(ActionEvent event){
         handle(
             () -> {
-                if(selectedUser.getUsername() == clientService.getUsername()){
+                if(!clientService.getUsername().equals("admin")){
                     clientService
                         .requestUpdateOwnUser(new User("", passwordField.getText()));
                     return;
@@ -67,7 +71,7 @@ public class UserController extends SceneController {
     @FXML void HandleDeleteUserButton(ActionEvent event){
         handle(
             () -> {
-                if(selectedUser.getUsername() == clientService.getUsername()){
+                if(!clientService.getUsername().equals("admin")){
                     clientService.requestDeleteOwnUser();
                     return;
                 }
