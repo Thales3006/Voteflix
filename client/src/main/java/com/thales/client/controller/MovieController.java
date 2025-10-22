@@ -144,7 +144,7 @@ public class MovieController extends SceneController {
     @FXML private void HandleDeleteMovieButton(ActionEvent event){
         handle(() -> { 
             clientService.requestDeleteMovie(currentMovie.get().getID()); 
-            SceneController.switchPage(event, "/movies_page.fxml");
+            loadMovies();
         });
     }
 

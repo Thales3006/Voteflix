@@ -1,5 +1,6 @@
 package com.thales.common.utils;
 
+import org.apache.commons.math3.util.Pair;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -12,10 +13,10 @@ import java.util.HashMap;
 public class ErrorTable {
     private static ErrorTable instance;
 
-    private final HashMap<String,String> table;
+    private final HashMap<String,Pair<String,String>> table;
 
     private ErrorTable(){
-        HashMap<String,String> table = new HashMap<>();
+        HashMap<String,Pair<String,String>> table = new HashMap<>();
         try (
             InputStream fis = ErrorTable.class.getResourceAsStream("/Protocolo de Troca de Mensagens.xlsx");
             Workbook workbook = new XSSFWorkbook(fis);
@@ -31,12 +32,13 @@ public class ErrorTable {
 
                     Cell keyCell = row.getCell(colIndex);
                     Cell valueCell = row.getCell(colIndex+1);
+                    Cell descriptonCell = row.getCell(colIndex+2);
                     if (keyCell == null || valueCell == null){
                         continue;
                     }
                     table.put(
-                        formatter.formatCellValue(keyCell), 
-                        formatter.formatCellValue(valueCell)
+                        formatter.formatCellValue(keyCell),
+                        new Pair<String,String>(formatter.formatCellValue(valueCell), formatter.formatCellValue(descriptonCell))
                     );
                 }
             }
@@ -53,7 +55,7 @@ public class ErrorTable {
         return instance;
     }
 
-    public String get(String key){
+    public Pair<String,String> get(String key){
         return instance.table.get(key);
     }
 }

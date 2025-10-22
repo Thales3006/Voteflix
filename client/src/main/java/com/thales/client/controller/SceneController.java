@@ -35,12 +35,13 @@ public abstract class SceneController {
     }
 
     protected void showStatusError(String status){
-        String errorMessage = ErrorTable.getInstance().get(status);
+        String errorMessage = ErrorTable.getInstance().get(status).getFirst();
+        String errorDescription = ErrorTable.getInstance().get(status).getSecond();
         if(errorMessage == null){
-            showPopup("Status Error", "Unknown Status return:" + status);
+            showPopup("Status Error", "Unknown Status return: " + status);
             return;
         }
-        showPopup("Status Error", errorMessage);
+        showPopup("Status Error: " + status + ". " + errorMessage, errorDescription);
     }
 
     // ===================================

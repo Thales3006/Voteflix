@@ -100,12 +100,10 @@ public class ServerService {
             }
         } catch (ValidationException e){
             System.err.println(e.toString());
-            e.printStackTrace();
             client.sendMessage(createStatus("400").toString());
         } catch (StatusException e){
             System.err.println(e.toString());
-            e.printStackTrace();
-            client.sendMessage(e.getStatus().toString());
+            client.sendMessage(createStatus(e.getStatus()).toString());
         }
     }
 
