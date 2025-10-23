@@ -134,6 +134,19 @@ public class ClientService {
         validator.validateResponce(response, Response.OK);
     }
 
+    public User requestOwnUser() throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "LISTAR_PROPRIO_USUARIO");
+        json.addProperty("token", token);
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        validator.validateResponce(response, Response.USER_INFO);
+
+        String username = response.get("usuario").getAsString();
+        return new User(null, username, null);
+    }
+
     public ArrayList<User> requestUserList() throws Exception{
             JsonObject json = new JsonObject();
             json.addProperty("operacao", "LISTAR_USUARIOS");

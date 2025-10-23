@@ -161,6 +161,8 @@ public class ServerService {
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
         DecodedJWT jwt = verifier.verify(token);
         String username = jwt.getClaim("username").asString();
+
+        System.out.println("USUARIO:" + username);
         
         JsonObject json = new JsonObject();
         json.addProperty("status", "200");

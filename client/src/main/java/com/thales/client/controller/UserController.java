@@ -24,7 +24,10 @@ public class UserController extends SceneController {
 
     private User selectedUser;
 
-    @FXML protected void initialize(){ 
+    @FXML protected void initialize(){
+        handle(() ->{selectedUser = clientService.requestOwnUser();});
+        usernameLabel.setText(ClientService.getInstance().getUsername());
+        
         if(!clientService.isAdmin()){
             return;
         }
@@ -46,7 +49,6 @@ public class UserController extends SceneController {
             }
             }
         });
-        usernameLabel.setText(ClientService.getInstance().getUsername());
     }
 
     // ===================================
