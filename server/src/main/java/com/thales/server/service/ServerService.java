@@ -82,6 +82,7 @@ public class ServerService {
             case LOGIN -> handleLogin(jsonObject, client);
             case LOGOUT -> handleLogout(jsonObject, client);
             case CREATE_USER -> handleRegister(jsonObject, client);
+            case LIST_OWN_USER -> handleListOwnUser(jsonObject, client);
             case LIST_USERS -> handleListUsers(jsonObject, client);
             case UPDATE_OWN_USER -> handleUpdateOwnUser(jsonObject, client);
             case UPDATE_USER -> handleUpdateUser(jsonObject, client);
@@ -153,6 +154,18 @@ public class ServerService {
         }
         return createStatus("409").toString();
 
+    }
+
+    private String handleListOwnUser(JsonObject jsonObject, ClientHandler client) throws StatusException {
+        String token = jsonObject.get("token").getAsString();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        String username = jwt.getClaim("username").asString();
+        
+        JsonObject json = new JsonObject();
+        json.addProperty("status", "200");
+        json.addProperty("usuario", username);
+        return json.toString();
     }
 
     private String handleListUsers(JsonObject jsonObject, ClientHandler client) throws StatusException {

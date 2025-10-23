@@ -7,4 +7,5 @@ public enum Response {
     MOVIE_LIST,
     REVIEW_LIST,
     USER_LIST,
+    USER_INFO,
 }

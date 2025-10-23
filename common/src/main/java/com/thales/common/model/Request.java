@@ -7,6 +7,7 @@ public enum Request {
     CREATE_USER,
     UPDATE_OWN_USER,
     UPDATE_USER,
+    LIST_OWN_USER,
     LIST_USERS,
     DELETE_OWN_USER,
     DELETE_USER,
