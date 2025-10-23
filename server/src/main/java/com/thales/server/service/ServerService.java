@@ -101,7 +101,7 @@ public class ServerService {
             }
         } catch (ValidationException e){
             System.err.println(e.toString());
-            client.sendMessage(createStatus("400").toString());
+            client.sendMessage(createStatus("422").toString());
         } catch (StatusException e){
             System.err.println(e.toString());
             client.sendMessage(createStatus(e.getStatus()).toString());
@@ -149,8 +149,12 @@ public class ServerService {
         String username = user.get("nome").getAsString();
         String password = user.get("senha").getAsString();
 
+        if(database.getUserId(username) != -1){
+            return createStatus("409").toString();
+        }
+
         if (database.createUser(username, password)) {
-            return createStatus("200").toString();
+            return createStatus("201").toString();
         }
         return createStatus("409").toString();
 
