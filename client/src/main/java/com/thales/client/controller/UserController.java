@@ -47,8 +47,6 @@ public class UserController extends SceneController {
             }
         });
         usernameLabel.setText(ClientService.getInstance().getUsername());
-        selectedUser.setUsername(ClientService.getInstance().getUsername());
-
     }
 
     // ===================================
