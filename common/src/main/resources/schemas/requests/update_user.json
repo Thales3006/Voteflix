@@ -8,11 +8,11 @@
         "senha": { "$ref": "../components/base_string.json" }
       },
       "required": ["senha"],
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "token": { "type": "string" },
     "id": { "type": "string" }
   },
   "required": ["operacao", "usuario", "token", "id"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

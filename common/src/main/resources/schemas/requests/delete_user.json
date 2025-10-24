@@ -8,5 +8,5 @@
     "token": { "type": "string" }
   },
   "required": ["operacao", "id", "token"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

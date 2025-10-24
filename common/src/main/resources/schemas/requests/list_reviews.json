@@ -7,5 +7,5 @@
     "id_filme": { "type": "string" }
   },
   "required": ["operacao", "id_filme"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

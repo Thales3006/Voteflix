@@ -11,5 +11,5 @@
     "data": { "type": "string" }
     },
   "required": ["id_filme", "nome_usuario", "nota", "titulo", "descricao", "data"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

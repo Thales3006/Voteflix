@@ -6,5 +6,5 @@
     "operacao": { "type": "string", "const": "LISTAR_FILMES" }
   },
   "required": ["operacao"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

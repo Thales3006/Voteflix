@@ -8,5 +8,5 @@
     "senha": { "$ref": "../components/base_string.json" }
   },
   "required": ["operacao", "usuario", "senha"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

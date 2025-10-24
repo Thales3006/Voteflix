@@ -8,5 +8,5 @@
     "token": { "type": "string" }
   },
   "required": ["operacao", "filme", "token"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

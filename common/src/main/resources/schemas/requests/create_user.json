@@ -9,9 +9,9 @@
       "senha": { "$ref": "../components/base_string.json" }
       },
       "required": ["nome", "senha"],
-      "additionalProperties": false
+      "additionalProperties": true
     }
   },
   "required": ["operacao", "usuario"],
-  "additionalProperties": false
+  "additionalProperties": true
 }
