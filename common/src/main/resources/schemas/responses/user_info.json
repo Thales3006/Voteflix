@@ -7,5 +7,5 @@
     "usuario": { "type": "string" }
   },
   "required": ["status", "usuario"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

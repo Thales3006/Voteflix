@@ -10,10 +10,10 @@
           "nome": { "$ref": "../components/base_string.json" }
         },
         "required": ["id", "nome"],
-        "additionalProperties": false
+        "additionalProperties": true
       }
     }
   },
   "required": ["status", "usuarios"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

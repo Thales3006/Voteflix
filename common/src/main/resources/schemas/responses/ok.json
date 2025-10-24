@@ -6,5 +6,5 @@
     "status": { "type": "string", "pattern": "^2[0-9]+$" }
   },
   "required": ["status"],
-  "additionalProperties": false
+  "additionalProperties": true
 }

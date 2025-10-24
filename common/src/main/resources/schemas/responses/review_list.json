@@ -10,5 +10,5 @@
     }
   },
   "required": ["status", "filme", "reviews"],
-  "additionalProperties": false
+  "additionalProperties": true
 }
