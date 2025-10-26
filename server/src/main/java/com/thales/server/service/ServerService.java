@@ -14,6 +14,7 @@ import com.thales.common.model.Movie;
 import com.thales.common.model.Request;
 import com.thales.common.model.StatusException;
 import com.thales.common.model.User;
+import com.thales.common.utils.ErrorTable;
 import com.thales.common.utils.JsonValidator;
 import com.thales.server.controller.AppController;
 import com.thales.server.network.ClientHandler;
@@ -67,8 +68,7 @@ public class ServerService {
     private JsonObject createStatus(ErrorStatus status) {
         JsonObject json = new JsonObject();
         json.addProperty("status", status.getCode());
-        //json.addProperty("mensagem", ErrorTable.getInstance().get(status).getSecond());
-        json.addProperty("mensagem", "aaa");
+        json.addProperty("mensagem", ErrorTable.getInstance().get(status).getSecond());
         return json;
     }
 
