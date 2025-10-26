@@ -26,26 +26,41 @@ public class ErrorTable {
 
             Sheet sheet = workbook.getSheetAt(2);
             for (int rowIndex = 2; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
-                Row row = sheet.getRow(rowIndex);
-                if (row == null) continue;
+            Row row = sheet.getRow(rowIndex);
+            if (row == null) continue;
 
-                for (int colIndex = 0; colIndex <= row.getLastCellNum(); colIndex+=4){
-                    DataFormatter formatter = new DataFormatter();
+            int colIndex = 0;
+            boolean first = true;
+            while (colIndex <= row.getLastCellNum()) {
+                DataFormatter formatter = new DataFormatter();
 
-                    Cell keyCell = row.getCell(colIndex);
-                    Cell valueCell = row.getCell(colIndex+1);
-                    Cell descriptonCell = row.getCell(colIndex+2);
-                    if (keyCell == null || valueCell == null){
-                        continue;
-                    }
-                    table.put(
-                        ErrorStatus.valueOf(formatter.formatCellValue(keyCell)),
-                        new Pair<String,String>(formatter.formatCellValue(valueCell), formatter.formatCellValue(descriptonCell))
-                    );
+                Cell keyCell = row.getCell(colIndex);
+                Cell nameCell = row.getCell(colIndex+1);
+                Cell descriptonCell = row.getCell(colIndex+2);
+                if (keyCell == null || nameCell == null){
+                if (first) {
+                    colIndex += 4;
+                    first = false;
+                } else {
+                    colIndex += 3;
+                }
+                continue;
+                }
+                table.put(
+                ErrorStatus.fromCode(formatter.formatCellValue(keyCell)),
+                new Pair<String,String>(formatter.formatCellValue(nameCell), formatter.formatCellValue(descriptonCell))
+                );
+                if (first) {
+                colIndex += 4;
+                first = false;
+                } else {
+                colIndex += 3;
                 }
             }
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Failed to load .xlsx file");
         }
         this.table = table;
     }

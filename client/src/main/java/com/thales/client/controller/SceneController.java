@@ -42,7 +42,7 @@ public abstract class SceneController {
             showPopup("Status Error", "Unknown Status return: " + status);
             return;
         }
-        showPopup("Status Error: " + status + ". " + errorMessage, errorDescription);
+        showPopup("Status Error: " + errorMessage, errorDescription);
     }
 
     // ===================================
@@ -68,6 +68,7 @@ public abstract class SceneController {
             showPopup("Validation Error", e.toString());
         } catch (Exception e) {
             System.err.println(e);
+            e.printStackTrace();
             showPopup("Exception Error", e.toString());
         } 
     }

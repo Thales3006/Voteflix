@@ -14,7 +14,6 @@ import com.thales.common.model.Movie;
 import com.thales.common.model.Request;
 import com.thales.common.model.StatusException;
 import com.thales.common.model.User;
-import com.thales.common.utils.ErrorTable;
 import com.thales.common.utils.JsonValidator;
 import com.thales.server.controller.AppController;
 import com.thales.server.network.ClientHandler;
@@ -23,7 +22,6 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
-import lombok.val;
 
 public class ServerService {
 

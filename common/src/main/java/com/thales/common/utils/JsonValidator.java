@@ -60,7 +60,7 @@ public class JsonValidator {
             responseSchemas.get(expectedResponse).validate(json.toString());
             return;
         }
-        throw new StatusException(ErrorStatus.valueOf(status));
+        throw new StatusException(ErrorStatus.fromCode(status));
     }
 
     public Response getResponce(final String message) throws ValidationException {
