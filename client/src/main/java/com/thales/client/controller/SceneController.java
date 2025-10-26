@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.everit.json.schema.ValidationException;
 
 import com.thales.client.service.ClientService;
+import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.StatusException;
 import com.thales.common.utils.ErrorTable;
 
@@ -34,7 +35,7 @@ public abstract class SceneController {
         alert.showAndWait();
     }
 
-    protected void showStatusError(String status){
+    protected void showStatusError(ErrorStatus status){
         String errorMessage = ErrorTable.getInstance().get(status).getFirst();
         String errorDescription = ErrorTable.getInstance().get(status).getSecond();
         if(errorMessage == null){

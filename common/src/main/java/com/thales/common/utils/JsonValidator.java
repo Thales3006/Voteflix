@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.everit.json.schema.ValidationException;
 
 import com.google.gson.JsonObject;
+import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.Request;
 import com.thales.common.model.Response;
 import com.thales.common.model.StatusException;
@@ -59,7 +60,7 @@ public class JsonValidator {
             responseSchemas.get(expectedResponse).validate(json.toString());
             return;
         }
-        throw new StatusException(status);
+        throw new StatusException(ErrorStatus.valueOf(status));
     }
 
     public Response getResponce(final String message) throws ValidationException {
@@ -79,25 +80,17 @@ public class JsonValidator {
         );
     }
 
-    public void validateResquest(JsonObject json, Request expectedRequest) throws ValidationException {
-        requestSchemas.get(expectedRequest).validate(json.toString());
+    public void validateRequest(JsonObject json, Request expectedRequest) throws ValidationException {
+        if(expectedRequest != Request.UNKNOWN){
+            requestSchemas.get(expectedRequest).validate(json.toString());
+        }
     }
 
     public Request getRequest(final String message) throws ValidationException {
         basicRequestSchema.validate(message);
-
-        for (Map.Entry<Request, JsonSchema> entry : requestSchemas.entrySet()) {
-            try {
-            entry.getValue().validate(message);
-            return entry.getKey();
-            } catch (ValidationException e) { }
-        }
-        throw new ValidationException(
-            basicResponseSchema.getSchema(),
-            "No matching response schema found",
-            "status",
-            basicResponseSchema.getSchema().getSchemaLocation()
-        );
+        JsonObject json = new com.google.gson.Gson().fromJson(message, JsonObject.class);
+        String operacao = json.get("operacao").getAsString();
+        return Request.fromCode(operacao);
     }
 
 }

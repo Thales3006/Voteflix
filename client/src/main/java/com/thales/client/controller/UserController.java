@@ -1,6 +1,5 @@
 package com.thales.client.controller;
 
-import com.thales.client.service.ClientService;
 import com.thales.common.model.User;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class UserController extends SceneController {
 
     @FXML protected void initialize(){
         handle(() ->{selectedUser = clientService.requestOwnUser();});
-        usernameLabel.setText(ClientService.getInstance().getUsername());
+        usernameLabel.setText(selectedUser.getUsername());
         
         if(!clientService.isAdmin()){
             return;

@@ -4,6 +4,8 @@ import org.apache.commons.math3.util.Pair;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.thales.common.model.ErrorStatus;
+
 import lombok.Data;
 
 import java.io.InputStream;
@@ -13,10 +15,10 @@ import java.util.HashMap;
 public class ErrorTable {
     private static ErrorTable instance;
 
-    private final HashMap<String,Pair<String,String>> table;
+    private final HashMap<ErrorStatus,Pair<String,String>> table;
 
     private ErrorTable(){
-        HashMap<String,Pair<String,String>> table = new HashMap<>();
+        HashMap<ErrorStatus,Pair<String,String>> table = new HashMap<>();
         try (
             InputStream fis = ErrorTable.class.getResourceAsStream("/Protocolo de Troca de Mensagens.xlsx");
             Workbook workbook = new XSSFWorkbook(fis);
@@ -37,7 +39,7 @@ public class ErrorTable {
                         continue;
                     }
                     table.put(
-                        formatter.formatCellValue(keyCell),
+                        ErrorStatus.valueOf(formatter.formatCellValue(keyCell)),
                         new Pair<String,String>(formatter.formatCellValue(valueCell), formatter.formatCellValue(descriptonCell))
                     );
                 }
@@ -55,7 +57,15 @@ public class ErrorTable {
         return instance;
     }
 
-    public Pair<String,String> get(String key){
+    public Pair<String,String> get(ErrorStatus key){
         return instance.table.get(key);
     }
+/* 
+    public Pair<String,String> get(String key){
+        try {
+            return instance.table.get(ErrorType.valueOf(key));
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
+        }
+    }*/
 }

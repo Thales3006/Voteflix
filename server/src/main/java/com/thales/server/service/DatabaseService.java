@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.Movie;
 import com.thales.common.model.Review;
 import com.thales.common.model.StatusException;
@@ -28,7 +29,7 @@ public class DatabaseService {
             ResultSet rs = pstmt.executeQuery();
             return rs.next();
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 
@@ -40,24 +41,31 @@ public class DatabaseService {
             ResultSet rs = pstmt.executeQuery();
             return rs.next() && rs.getBoolean("is_admin");
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 
-    public boolean createUser(String username, String password) throws StatusException {
-        String sql = "INSERT INTO users(username, password) VALUES(?, ?)";
+    public void createUser(String username, String password) throws StatusException {
+        String checkSql = "SELECT id FROM users WHERE username = ?";
+        String insertSql = "INSERT INTO users(username, password) VALUES(?, ?)";
         try (Connection conn = connect();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);
-            int result = pstmt.executeUpdate();
-            return result > 0;
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            checkStmt.setString(1, username);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next()) {
+                throw new StatusException(ErrorStatus.ALREADY_EXISTS);
+            }
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setString(1, username);
+                insertStmt.setString(2, password);
+                insertStmt.executeUpdate();
+            }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 
-    public int getUserId(String username) throws StatusException {
+    public Integer getUserId(String username) throws StatusException {
         String sql = "SELECT id FROM users WHERE username = ?";
         try (Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -67,9 +75,9 @@ public class DatabaseService {
                 return rs.getInt("id");
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
-        return -1;
+        return null;
     }
 
     public String getUsername(int id) throws StatusException {
@@ -82,7 +90,7 @@ public class DatabaseService {
                 return rs.getString("username");
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
         return null;
     }
@@ -98,7 +106,7 @@ public class DatabaseService {
                 users.add(new User(rs.getInt("id"), rs.getString("username")));
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
         
         return users;
@@ -113,7 +121,7 @@ public class DatabaseService {
             int result = pstmt.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 
@@ -125,7 +133,7 @@ public class DatabaseService {
             int result = pstmt.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 
@@ -139,7 +147,7 @@ public class DatabaseService {
                 genres.add(genreRs.getString("genre"));
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
         return genres.toArray(new String[0]);
     }
@@ -150,7 +158,7 @@ public class DatabaseService {
             int result = pstmt.executeUpdate();
             return result > 0;
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 
@@ -173,7 +181,7 @@ public class DatabaseService {
                 ));
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
         return movies;
     }
@@ -197,7 +205,7 @@ public class DatabaseService {
                 ResultSet rs = movieStmt.getGeneratedKeys();
                 if (!rs.next()) {
                     conn.rollback();
-                    throw new StatusException("404");
+                    throw new StatusException(ErrorStatus.NOT_FOUND);
                 }
                 int movieId = rs.getInt(1);
                 PreparedStatement checkGenreStmt = conn.prepareStatement(checkGenreSql);
@@ -230,7 +238,7 @@ public class DatabaseService {
                 throw e;
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -254,7 +262,7 @@ public class DatabaseService {
 
                 if (result == 0) {
                     conn.rollback();
-                    throw new StatusException("404");
+                    throw new StatusException(ErrorStatus.NOT_FOUND);
                 }
                 PreparedStatement deleteGenresStmt = conn.prepareStatement(deleteGenresSql);
                 deleteGenresStmt.setInt(1, movie.getID());
@@ -291,7 +299,7 @@ public class DatabaseService {
                 throw e;
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -318,14 +326,14 @@ public class DatabaseService {
                 deleteUnusedGenres(conn);
                 conn.commit();
                 if(result == 0){
-                    throw new StatusException("404");
+                    throw new StatusException(ErrorStatus.NOT_FOUND);
                 }
             } catch (SQLException e) {
                 conn.rollback();
                 throw e;
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -341,10 +349,10 @@ public class DatabaseService {
             
             int result = pstmt.executeUpdate();
             if(result == 0){
-                throw new StatusException("404");
+                throw new StatusException(ErrorStatus.NOT_FOUND);
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 
@@ -367,7 +375,7 @@ public class DatabaseService {
                ));
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
         return reviews;
     }
@@ -391,7 +399,7 @@ public class DatabaseService {
                ));
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
         return reviews;
     }
@@ -406,10 +414,10 @@ public class DatabaseService {
             pstmt.setInt(4, review.getID());
             int result = pstmt.executeUpdate();
             if(result == 0){
-                throw new StatusException("404");
+                throw new StatusException(ErrorStatus.NOT_FOUND);
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 
@@ -420,10 +428,10 @@ public class DatabaseService {
             pstmt.setInt(1, id);
             int result = pstmt.executeUpdate();
             if(result == 0){
-                throw new StatusException("404");
+                throw new StatusException(ErrorStatus.NOT_FOUND);
             }
         } catch (SQLException e) {
-            throw new StatusException("500");
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 }

@@ -3,8 +3,9 @@
   "title": "ListarFilmes",
   "type": "object",
   "properties": {
-    "operacao": { "type": "string", "const": "LISTAR_FILMES" }
+    "operacao": { "type": "string", "const": "LISTAR_FILMES" },
+    "token": { "type": "string" }
   },
-  "required": ["operacao"],
+  "required": ["operacao", "token"],
   "additionalProperties": true
 }

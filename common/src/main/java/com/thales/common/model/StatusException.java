@@ -4,12 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class StatusException extends Exception {
-    private String status;
+    private ErrorStatus status;
 
-    public StatusException(String status){
-        if(status == null){
-            status = "Null";
-        }
+    public StatusException(ErrorStatus status){
         this.status = status;
     }
 }

@@ -4,6 +4,7 @@
   "type": "object",
   "properties": {
     "status": { "type": "string", "const": "200" },
+    "mensagem": { "type": "string" },
     "token": { "type": "string" }
   },
   "required": ["status", "token"],

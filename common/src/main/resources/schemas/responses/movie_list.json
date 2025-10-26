@@ -4,6 +4,7 @@
   "type": "object",
   "properties": {
     "status": { "type": "string", "const": "200" },
+    "mensagem": { "type": "string" },
     "filmes": { "type": "array",
       "items": { "$ref": "../components/movie_responce.json" }
     }

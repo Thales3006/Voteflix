@@ -4,6 +4,7 @@
   "type": "object",
   "properties": {
     "status": { "type": "string", "const": "200" },
+    "mensagem": { "type": "string" },
     "usuarios": {
       "type": "array", "items": { "type": "object", "properties": {
           "id": { "type": "string" },

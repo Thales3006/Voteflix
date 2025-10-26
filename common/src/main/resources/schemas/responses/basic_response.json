@@ -3,7 +3,8 @@
   "title": "StatusFieldOnly",
   "type": "object",
   "properties": {
-    "status": { "type": "string","pattern": "^[0-9]+$" }
+    "status": { "type": "string","pattern": "^[0-9]+$" },
+    "mensagem": { "type": "string" }
   },
   "required": ["status"],
   "additionalProperties": true
