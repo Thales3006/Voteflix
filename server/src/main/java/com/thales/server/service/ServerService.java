@@ -154,7 +154,10 @@ public class ServerService {
     private String handleLogout(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException  {
         String token = jsonObject.get("token").getAsString();
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-        verifier.verify(token);
+        DecodedJWT jwt = verifier.verify(token);
+        int id = jwt.getClaim("id").asInt();
+
+        database.getUsername(id);
         JsonObject json = createStatus(ErrorStatus.OK);  
     
         return json.toString();
@@ -174,8 +177,9 @@ public class ServerService {
         String token = jsonObject.get("token").getAsString();
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
         DecodedJWT jwt = verifier.verify(token);
-        String username = jwt.getClaim("username").asString();
+        int id = jwt.getClaim("id").asInt();
 
+        String username = database.getUsername(id);
         JsonObject json = createStatus(ErrorStatus.OK);
         json.addProperty("usuario", username);
         return json.toString();

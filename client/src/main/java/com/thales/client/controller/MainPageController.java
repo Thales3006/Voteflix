@@ -27,9 +27,11 @@ public class MainPageController extends SceneController {
 
     @FXML private void HandleConnectButton(ActionEvent event){
         handle(() -> clientService.connect(IPField.getText(), Integer.parseInt(portField.getText())));
+        feedback("You have been connected");
     }
 
     @FXML private void HandleDisconnectButton(ActionEvent event){
         handle(() -> clientService.close());
+        feedback("You were disconnected");
     }
 }

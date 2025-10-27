@@ -13,6 +13,8 @@ import com.thales.common.utils.JsonValidator;
 
 import java.util.ArrayList;
 
+import org.apache.commons.math3.util.Pair;
+
 import com.thales.client.network.ClientSocket;
 
 import lombok.Data;
@@ -61,7 +63,7 @@ public class ClientService {
     //  Requests
     // ===================================
 
-    public void requestRegister(User user) throws Exception {
+    public String requestRegister(User user) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "CRIAR_USUARIO");
         JsonObject usuario = new JsonObject();
@@ -71,10 +73,12 @@ public class ClientService {
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
+        validator.validateResponce(response, Response.CREATED);
+
+        return response.get("mensagem").getAsString();
     }
 
-    public void requestLogin(User user) throws Exception {
+    public String requestLogin(User user) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "LOGIN");
         json.addProperty("usuario", user.getUsername());
@@ -90,9 +94,10 @@ public class ClientService {
         username = user.getUsername();
         isAdmin = "admin".equals(username);
         
+        return response.get("mensagem").getAsString();
     }
 
-    public void requestLogout() throws Exception {
+    public String requestLogout() throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "LOGOUT");
         json.addProperty("token", token);
@@ -105,9 +110,11 @@ public class ClientService {
         username = null;
         isAdmin = false;
         socket.close();
+        
+        return response.get("mensagem").getAsString();
     }
 
-    public void requestUpdateOwnUser(User user) throws Exception {
+    public String requestUpdateOwnUser(User user) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "EDITAR_PROPRIO_USUARIO");
         json.addProperty("token", token);
@@ -118,9 +125,11 @@ public class ClientService {
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
         validator.validateResponce(response, Response.OK);
+
+        return response.get("mensagem").getAsString();
     }
 
-    public void requestUpdateUser(User user, int id) throws Exception {
+    public String requestUpdateUser(User user, int id) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "ADMIN_EDITAR_USUARIO");
         json.addProperty("token", token);
@@ -132,9 +141,11 @@ public class ClientService {
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
         validator.validateResponce(response, Response.OK);
+
+        return response.get("mensagem").getAsString();
     }
 
-    public User requestOwnUser() throws Exception {
+    public Pair<String,User> requestOwnUser() throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "LISTAR_PROPRIO_USUARIO");
         json.addProperty("token", token);
@@ -144,10 +155,10 @@ public class ClientService {
         validator.validateResponce(response, Response.USER_INFO);
 
         String username = response.get("usuario").getAsString();
-        return new User(null, username, null);
+        return new Pair<>(response.get("mensagem").getAsString(), new User(null, username, null));
     }
 
-    public ArrayList<User> requestUserList() throws Exception{
+    public Pair<String,ArrayList<User>> requestUserList() throws Exception{
             JsonObject json = new JsonObject();
             json.addProperty("operacao", "LISTAR_USUARIOS");
             json.addProperty("token", token);
@@ -164,10 +175,10 @@ public class ClientService {
                 String username = obj.get("nome").getAsString();
                 users.add(new User(id, username));
             }
-            return users;
+            return new Pair<>(response.get("mensagem").getAsString(),users);
     }
 
-    public void requestDeleteOwnUser() throws Exception {
+    public String requestDeleteOwnUser() throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "EXCLUIR_PROPRIO_USUARIO");
         json.addProperty("token", token);
@@ -175,9 +186,11 @@ public class ClientService {
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
         validator.validateResponce(response, Response.OK);
+
+        return response.get("mensagem").getAsString();
     }
 
-    public void requestDeleteUser(int id) throws Exception {
+    public String requestDeleteUser(int id) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "ADMIN_EXCLUIR_USUARIO");
         json.addProperty("token", token);
@@ -186,9 +199,11 @@ public class ClientService {
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
         validator.validateResponce(response, Response.OK);
+
+        return response.get("mensagem").getAsString();
     }
 
-    public void requestCreateMovie(Movie movie) throws Exception {
+    public String requestCreateMovie(Movie movie) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "CRIAR_FILME");
         json.addProperty("token", token);
@@ -197,12 +212,15 @@ public class ClientService {
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
+        validator.validateResponce(response, Response.CREATED);
+
+        return response.get("mensagem").getAsString();
     }
 
-    public ArrayList<Movie> requestMovieList() throws Exception {
+    public Pair<String,ArrayList<Movie>> requestMovieList() throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "LISTAR_FILMES");
+        json.addProperty("token", token);
         socket.sendMessage(json.toString());
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
@@ -213,10 +231,10 @@ public class ClientService {
         for (JsonElement element : filmesElement.getAsJsonArray()) {
             movies.add(Movie.fromJson(element.getAsJsonObject()));
         }
-        return movies;
+        return new Pair<>(response.get("mensagem").getAsString(),movies);
     }
 
-    public void requestUpdateMovie(Movie movie) throws Exception {
+    public String requestUpdateMovie(Movie movie) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "EDITAR_FILME");
         json.addProperty("token", token);
@@ -226,9 +244,11 @@ public class ClientService {
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
         validator.validateResponce(response, Response.OK);
+
+        return response.get("mensagem").getAsString();
     }
 
-    public void requestDeleteMovie(int id) throws Exception {
+    public String requestDeleteMovie(int id) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "EXCLUIR_FILME");
         json.addProperty("token", token);
@@ -237,5 +257,7 @@ public class ClientService {
 
         JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
         validator.validateResponce(response, Response.OK);
+
+        return response.get("mensagem").getAsString();
     }
 }

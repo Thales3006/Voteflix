@@ -40,8 +40,6 @@ public class MovieController extends SceneController {
     private final SimpleObjectProperty<Movie> currentMovie = new SimpleObjectProperty<>();
 
     @FXML private void initialize(){
-        handle(() -> loadMovies());
-
         yearField.textProperty().addListener((_, _, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 yearField.setText(newValue.replaceAll("[^\\d]", ""));
@@ -84,7 +82,8 @@ public class MovieController extends SceneController {
     }
 
     private void loadMovies() throws Exception {
-        ArrayList<Movie> movies = clientService.requestMovieList();
+        var request = clientService.requestMovieList();
+        ArrayList<Movie> movies = request.getSecond();
         movieTilePane.getChildren().clear();
 
         for (Movie movie : movies) {
@@ -100,6 +99,7 @@ public class MovieController extends SceneController {
 
             movieBox.setOnMouseClicked(_ -> currentMovie.set(movie));
         }
+        feedback(request.getFirst());
     }
 
 
@@ -117,8 +117,8 @@ public class MovieController extends SceneController {
                 null,
                 synopsisField.getText().trim()
             );
-            clientService.requestCreateMovie(movie); 
-            loadMovies();
+            String request = clientService.requestCreateMovie(movie); 
+            feedback(request);
         });
     }
 
@@ -136,14 +136,15 @@ public class MovieController extends SceneController {
                 null,
                 synopsisField.getText()
             );
-            clientService.requestUpdateMovie(movie);
-            loadMovies();
+            String request = clientService.requestUpdateMovie(movie);
+            feedback(request);
         });
     }
 
     @FXML private void HandleDeleteMovieButton(ActionEvent event){
         handle(() -> { 
-            clientService.requestDeleteMovie(currentMovie.get().getID()); 
+            String request = clientService.requestDeleteMovie(currentMovie.get().getID()); 
+            feedback(request);
             loadMovies();
         });
     }

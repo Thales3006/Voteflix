@@ -1,8 +1,9 @@
 package com.thales.client.controller;
 
+import java.util.ArrayList;
+
 import com.thales.common.model.User;
 
-import java.util.ArrayList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -16,21 +17,20 @@ import javafx.scene.layout.VBox;
 public class UserController extends SceneController {
     @FXML private Button updateUserButton;
     @FXML private Button deleteUserButton;
+    @FXML private Button listUserButton;
     @FXML private TextField passwordField;
     @FXML private Label usernameLabel;
     @FXML private ListView<User> userListView;
     @FXML private VBox usersVbox;
 
-    private User selectedUser;
+    private User selectedUser = null;
 
     @FXML protected void initialize(){
-        handle(() ->{selectedUser = clientService.requestOwnUser();});
-        usernameLabel.setText(selectedUser.getUsername());
+        
         
         if(!clientService.isAdmin()){
             return;
         }
-        HandleRefreshUsersButton(null);
         usersVbox.setDisable(false);
 
         userListView.setCellFactory(_ -> new ListCell<User>() {
@@ -49,34 +49,59 @@ public class UserController extends SceneController {
             }
         });
     }
+    
+    private void refreshUsers() throws Exception {
+        var request = clientService.requestUserList();
+        ArrayList<User> users = request.getSecond();
+        userListView.getItems().clear();
+        for(User user : users){
+            userListView.getItems().add(user);
+        }
+        feedback(request.getFirst());
+    }
+
+    private void listOwnUser() throws Exception {
+        var request = clientService.requestOwnUser();
+        selectedUser = request.getSecond();
+        usernameLabel.setText(selectedUser.getUsername());
+        feedback(request.getFirst());
+        
+    }
 
     // ===================================
     //  UI interaction handlers
     // ===================================
 
+    @FXML void HandleListUserButton(){
+        handle( () -> listOwnUser());
+    }
+
     @FXML void HandleUpdateUserButton(ActionEvent event){
-        handle(
-            () -> {
-                if(!clientService.getUsername().equals("admin")){
-                    clientService
-                        .requestUpdateOwnUser(new User("", passwordField.getText()));
-                    return;
-                }
-                clientService
-                    .requestUpdateUser(new User("", passwordField.getText()), selectedUser.getId());
-            });
+        handle(() -> {
+            if (selectedUser == null){
+                showPopup("Error", "You should select someone to update");
+                return;
+            }
+            String request = clientService.getUsername().equals(selectedUser.getUsername())?
+                clientService.requestUpdateOwnUser(
+                    new User("", passwordField.getText())):
+                clientService.requestUpdateUser(
+                    new User("", passwordField.getText()), selectedUser.getId());
+            feedback(request);
+        });
     }
 
     @FXML void HandleDeleteUserButton(ActionEvent event){
-        handle(
-            () -> {
-                if(!clientService.getUsername().equals("admin")){
-                    clientService.requestDeleteOwnUser();
-                    return;
-                }
+        handle(() -> {
+            if (selectedUser == null){
+                showPopup("Error", "You should select someone to delete");
+                return;
+            }
+            String request = clientService.getUsername().equals(selectedUser.getUsername())?
+                clientService.requestDeleteOwnUser() :
                 clientService.requestDeleteUser(selectedUser.getId());
-                HandleRefreshUsersButton(event);
-            });
+            feedback(request);
+        });
     }
 
     @FXML void HandleSelectUser(MouseEvent event){
@@ -87,13 +112,6 @@ public class UserController extends SceneController {
     }
 
     @FXML void HandleRefreshUsersButton(ActionEvent event){
-        handle(
-            () -> {
-                ArrayList<User> users = clientService.requestUserList();
-                userListView.getItems().clear();
-                for(User user : users){
-                    userListView.getItems().add(user);
-                }
-        });
+        handle(() -> refreshUsers());
     }
 }

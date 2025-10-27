@@ -65,7 +65,7 @@ public class DatabaseService {
         } 
     }
 
-    public Integer getUserId(String username) throws StatusException {
+    public int getUserId(String username) throws StatusException {
         String sql = "SELECT id FROM users WHERE username = ?";
         try (Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -77,7 +77,7 @@ public class DatabaseService {
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
-        return null;
+        throw new StatusException(ErrorStatus.NOT_FOUND);
     }
 
     public String getUsername(int id) throws StatusException {
@@ -92,7 +92,7 @@ public class DatabaseService {
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
-        return null;
+        throw new StatusException(ErrorStatus.NOT_FOUND);
     }
 
 
@@ -112,26 +112,30 @@ public class DatabaseService {
         return users;
     }
 
-    public boolean updateUser(int id, String newPassword) throws StatusException {
+    public void updateUser(int id, String newPassword) throws StatusException {
         String sql = "UPDATE users SET password = ? WHERE id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, newPassword);
             pstmt.setInt(2, id);
             int result = pstmt.executeUpdate();
-            return result > 0;
+            if (result <= 0){
+                throw new StatusException(ErrorStatus.NOT_FOUND);
+            }
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 
     }
 
-    public boolean deleteUser(int id) throws StatusException {
+    public void deleteUser(int id) throws StatusException {
         String sql = "DELETE FROM users WHERE id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             int result = pstmt.executeUpdate();
-            return result > 0;
+            if (result <= 0){
+                throw new StatusException(ErrorStatus.NOT_FOUND);
+            }
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         } 

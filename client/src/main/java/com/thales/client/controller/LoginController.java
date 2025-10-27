@@ -23,13 +23,17 @@ public class LoginController extends SceneController {
 
     @FXML private void HandleLoginButton(ActionEvent event){
         handle(() -> {
-            clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
+            String request = clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
+            feedback(request);
             SceneController.switchPage(event, "/menu_page.fxml");
         });
     }
 
     @FXML private void HandleRegisterButton(ActionEvent event){
-        handle(() -> clientService.requestRegister(new User(usernameField.getText(), passwordField.getText())));
+        handle(() -> {
+            String request = clientService.requestRegister(new User(usernameField.getText(), passwordField.getText()));
+            feedback(request);
+        });
     }
 
 }

@@ -2,10 +2,10 @@ package com.thales.client.controller;
 
 import java.io.IOException;
 
+import org.apache.commons.math3.util.Pair;
 import org.everit.json.schema.ValidationException;
 
 import com.thales.client.service.ClientService;
-import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.StatusException;
 import com.thales.common.utils.ErrorTable;
 
@@ -35,14 +35,29 @@ public abstract class SceneController {
         alert.showAndWait();
     }
 
-    protected void showStatusError(ErrorStatus status){
-        String errorMessage = ErrorTable.getInstance().get(status).getFirst();
-        String errorDescription = ErrorTable.getInstance().get(status).getSecond();
+    protected void showStatusError(StatusException e){
+        Pair<String,String> errorPair = ErrorTable.getInstance().get(e.getStatus());
+        String errorMessage = e.getMessage();
+
         if(errorMessage == null){
-            showPopup("Status Error", "Unknown Status return: " + status);
+            showPopup("Invalid Error returned", "No message field returned");
             return;
         }
-        showPopup("Status Error: " + errorMessage, errorDescription);
+
+        if(errorPair == null){
+            showPopup("Invalid Error returned", "Invalid status returned");
+            return;
+        }
+        
+        showPopup("Status Error: " + errorPair.getFirst(), errorMessage);
+    }
+
+    protected void feedback(String message) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Action successful");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     // ===================================
@@ -58,17 +73,14 @@ public abstract class SceneController {
         try {
             action.run();
         } catch (StatusException e) {
-            showStatusError(e.getStatus());
+            showStatusError(e);
         } catch (ValidationException e) {
             System.err.println(e);
-            for (ValidationException ve : e.getCausingExceptions()) {
-                System.out.println(ve.getMessage());
-            }
             System.out.println(e.toJSON().toString(2));
             showPopup("Validation Error", e.toString());
         } catch (Exception e) {
-            System.err.println(e);
             e.printStackTrace();
+            System.err.println(e);
             showPopup("Exception Error", e.toString());
         } 
     }

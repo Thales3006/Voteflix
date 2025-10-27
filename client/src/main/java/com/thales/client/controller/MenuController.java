@@ -17,8 +17,10 @@ public class MenuController extends SceneController {
     // ===================================
 
     @FXML private void HandleLogoutButton(ActionEvent event){
-        handle(
-            () -> clientService.requestLogout(), 
+        handle(() -> {
+            String request = clientService.requestLogout(); 
+            feedback(request);
+        }, 
             () -> SceneController.switchPage(event, "/login_page.fxml")
         );
     }
