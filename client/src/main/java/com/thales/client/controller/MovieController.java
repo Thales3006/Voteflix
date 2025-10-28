@@ -104,7 +104,7 @@ public class MovieController extends SceneController {
 
 
     @FXML private void HandleCreateMovieButton(ActionEvent event){
-        handle(() -> { 
+        handle(event, () -> { 
             Movie movie = new Movie(
                 null,
                 titleField.getText().trim(), 
@@ -123,7 +123,7 @@ public class MovieController extends SceneController {
     }
 
     @FXML private void HandleUpdateMovieButton(ActionEvent event){
-        handle(() -> { 
+        handle(event, () -> { 
             Movie movie = new Movie(
                 currentMovie.get().getID(),
                 titleField.getText(), 
@@ -142,7 +142,7 @@ public class MovieController extends SceneController {
     }
 
     @FXML private void HandleDeleteMovieButton(ActionEvent event){
-        handle(() -> { 
+        handle(event, () -> { 
             String request = clientService.requestDeleteMovie(currentMovie.get().getID()); 
             feedback(request);
             loadMovies();
@@ -150,10 +150,10 @@ public class MovieController extends SceneController {
     }
 
     @FXML private void HandleCreateReviewButton(ActionEvent event){
-        handle(() -> { throw new Exception("review creation not implemented yet"); });
+        handle(event, () -> { throw new Exception("review creation not implemented yet"); });
     }
 
     @FXML private void HandleRefreshMovieButton(ActionEvent event){
-        handle(() -> loadMovies());
+        handle(event, () -> loadMovies());
     }
 }

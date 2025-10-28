@@ -6,6 +6,7 @@ import org.apache.commons.math3.util.Pair;
 import org.everit.json.schema.ValidationException;
 
 import com.thales.client.service.ClientService;
+import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.StatusException;
 import com.thales.common.utils.ErrorTable;
 
@@ -69,11 +70,16 @@ public abstract class SceneController {
         void run() throws Exception;
     }
 
-    protected void handle(ThrowingRunnable action) {
+    protected void handle(ActionEvent event, ThrowingRunnable action) {
         try {
             action.run();
         } catch (StatusException e) {
             showStatusError(e);
+            if (e.getStatus().equals(ErrorStatus.UNAUTHORIZED)) {
+                try{
+                switchPage(event, "/login_page.fxml");
+                } catch (Exception ee) { System.err.println(ee.toString());}
+            }
         } catch (ValidationException e) {
             System.err.println(e);
             System.out.println(e.toJSON().toString(2));
@@ -85,9 +91,9 @@ public abstract class SceneController {
         } 
     }
 
-    protected void handle(ThrowingRunnable action, ThrowingRunnable finallyAction) {
-        handle(action);
-        handle(finallyAction);
+    protected void handle(ActionEvent event, ThrowingRunnable action, ThrowingRunnable finallyAction) {
+        handle(event, action);
+        handle(event, finallyAction);
     }
 
     // ===================================

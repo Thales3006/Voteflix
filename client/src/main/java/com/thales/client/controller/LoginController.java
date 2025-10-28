@@ -22,7 +22,7 @@ public class LoginController extends SceneController {
     // ===================================
 
     @FXML private void HandleLoginButton(ActionEvent event){
-        handle(() -> {
+        handle(event, () -> {
             String request = clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
             feedback(request);
             SceneController.switchPage(event, "/menu_page.fxml");
@@ -30,7 +30,7 @@ public class LoginController extends SceneController {
     }
 
     @FXML private void HandleRegisterButton(ActionEvent event){
-        handle(() -> {
+        handle(event, () -> {
             String request = clientService.requestRegister(new User(usernameField.getText(), passwordField.getText()));
             feedback(request);
         });

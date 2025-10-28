@@ -17,7 +17,7 @@ public class MenuController extends SceneController {
     // ===================================
 
     @FXML private void HandleLogoutButton(ActionEvent event){
-        handle(() -> {
+        handle(event, () -> {
             String request = clientService.requestLogout(); 
             feedback(request);
         }, 
@@ -26,15 +26,15 @@ public class MenuController extends SceneController {
     }
 
     @FXML private void HandleUserButton(ActionEvent event){
-        handle(() -> switchContent(mainContent, "/user_page.fxml"));
+        handle(event, () -> switchContent(mainContent, "/user_page.fxml"));
     }
 
     @FXML private void HandleMovieButton(ActionEvent event){
-        handle(() -> switchContent(mainContent, "/movies_page.fxml"));
+        handle(event, () -> switchContent(mainContent, "/movies_page.fxml"));
     }
 
     @FXML private void HandleReviewButton(ActionEvent event){
-        handle(() -> switchContent(mainContent, "/reviews_page.fxml"));
+        handle(event, () -> switchContent(mainContent, "/reviews_page.fxml"));
     }
 
 }

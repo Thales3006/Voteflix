@@ -15,7 +15,7 @@ public class MainPageController extends SceneController {
     @FXML private Button disconnectButton;
 
     @FXML protected void initialize() {
-        handle(() -> switchContent(currentPage, "/login_page.fxml"));
+        handle(null, () -> switchContent(currentPage, "/login_page.fxml"));
 
         connectButton.disableProperty().bind(clientService.getSocket().getRunning());
         disconnectButton.disableProperty().bind(clientService.getSocket().getRunning().not());
@@ -26,12 +26,12 @@ public class MainPageController extends SceneController {
     // ===================================
 
     @FXML private void HandleConnectButton(ActionEvent event){
-        handle(() -> clientService.connect(IPField.getText(), Integer.parseInt(portField.getText())));
+        handle(event, () -> clientService.connect(IPField.getText(), Integer.parseInt(portField.getText())));
         feedback("You have been connected");
     }
 
     @FXML private void HandleDisconnectButton(ActionEvent event){
-        handle(() -> clientService.close());
+        handle(event, () -> clientService.close());
         feedback("You were disconnected");
     }
 }

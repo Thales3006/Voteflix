@@ -72,12 +72,12 @@ public class UserController extends SceneController {
     //  UI interaction handlers
     // ===================================
 
-    @FXML void HandleListUserButton(){
-        handle( () -> listOwnUser());
+    @FXML void HandleListUserButton(ActionEvent event){
+        handle(event, () -> listOwnUser());
     }
 
     @FXML void HandleUpdateUserButton(ActionEvent event){
-        handle(() -> {
+        handle(event, () -> {
             if (selectedUser == null){
                 showPopup("Error", "You should select someone to update");
                 return;
@@ -92,7 +92,7 @@ public class UserController extends SceneController {
     }
 
     @FXML void HandleDeleteUserButton(ActionEvent event){
-        handle(() -> {
+        handle(event, () -> {
             if (selectedUser == null){
                 showPopup("Error", "You should select someone to delete");
                 return;
@@ -105,13 +105,13 @@ public class UserController extends SceneController {
     }
 
     @FXML void HandleSelectUser(MouseEvent event){
-        handle(() -> {
+        handle(null, () -> {
             selectedUser = userListView.getSelectionModel().getSelectedItem();
             usernameLabel.setText(selectedUser.getUsername());
         });
     }
 
     @FXML void HandleRefreshUsersButton(ActionEvent event){
-        handle(() -> refreshUsers());
+        handle(event, () -> refreshUsers());
     }
 }
