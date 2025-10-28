@@ -5,6 +5,7 @@ import com.thales.server.network.ServerListener;
 import com.thales.server.service.ServerService;
 
 import javafx.collections.ObservableMap;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import lombok.Data;
@@ -17,10 +18,18 @@ public class AppController {
 
     @FXML private Accordion userList;
     @FXML private TextArea log_output;
+    @FXML private Button onButton;
+    @FXML private TextField portInput;
 
     @FXML public void initialize() {
-        serverService = new ServerService(this);
-        serverListener = new ServerListener(serverService, 20737);
+        TextFormatter<String> textFormatter = new TextFormatter<>(change -> {
+            if (change.getControlNewText().matches("\\d*")) {
+                return change;
+            } else {
+                return null;
+            }
+        });
+        portInput.setTextFormatter(textFormatter);
     }
 
     @FXML public void appendToLog(String message){
@@ -37,5 +46,14 @@ public class AppController {
             userList.getPanes().add(pane);
         }
     }
-    
+
+    @FXML void HandleOnButton(ActionEvent event){
+        this.serverService = new ServerService(this);
+        this.serverListener = new ServerListener(serverService, Integer.parseInt(portInput.getText()));
+
+        onButton.setDisable(true);
+        portInput.setDisable(true);
+
+
+    }
 }

@@ -28,6 +28,12 @@ public class ServerListener {
             System.exit(1);
         }
         serverService.log("Server Online!");
+        try {
+            String ip = java.net.InetAddress.getLocalHost().getHostAddress();
+            serverService.log("IP: " + ip + " Port: " + port);
+        } catch (Exception e) {
+            serverService.log("Port: " + port);
+        }
 
         new Thread(() -> listen()).start();
     }
