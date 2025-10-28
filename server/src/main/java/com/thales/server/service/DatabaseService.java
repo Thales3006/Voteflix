@@ -16,11 +16,11 @@ import com.thales.common.model.User;
 public class DatabaseService {
     private final String url = "jdbc:sqlite:data/voteflix.db";
 
-    private Connection connect() throws SQLException {
+    private synchronized Connection connect() throws SQLException {
         return DriverManager.getConnection(url);
     }
 
-    public boolean checkUser(String username, String password) throws StatusException {
+    public synchronized boolean checkUser(String username, String password) throws StatusException {
         String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -33,7 +33,7 @@ public class DatabaseService {
         } 
     }
 
-    public boolean isAdmin(int id) throws StatusException {
+    public synchronized boolean isAdmin(int id) throws StatusException {
             String sql = "SELECT is_admin FROM users WHERE id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -45,7 +45,7 @@ public class DatabaseService {
         } 
     }
 
-    public void createUser(String username, String password) throws StatusException {
+    public synchronized void createUser(String username, String password) throws StatusException {
         String checkSql = "SELECT id FROM users WHERE username = ?";
         String insertSql = "INSERT INTO users(username, password) VALUES(?, ?)";
         try (Connection conn = connect();
@@ -65,7 +65,7 @@ public class DatabaseService {
         } 
     }
 
-    public int getUserId(String username) throws StatusException {
+    public synchronized int getUserId(String username) throws StatusException {
         String sql = "SELECT id FROM users WHERE username = ?";
         try (Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -80,7 +80,7 @@ public class DatabaseService {
         throw new StatusException(ErrorStatus.NOT_FOUND);
     }
 
-    public String getUsername(int id) throws StatusException {
+    public synchronized String getUsername(int id) throws StatusException {
         String sql = "SELECT username FROM users WHERE id = ?";
         try (Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -96,7 +96,7 @@ public class DatabaseService {
     }
 
 
-    public ArrayList<User> getUsers() throws StatusException {
+    public synchronized ArrayList<User> getUsers() throws StatusException {
         String sql = "SELECT id, username FROM users";
         ArrayList<User> users = new ArrayList<>();
         try (Connection conn = connect();
@@ -112,7 +112,7 @@ public class DatabaseService {
         return users;
     }
 
-    public void updateUser(int id, String newPassword) throws StatusException {
+    public synchronized void updateUser(int id, String newPassword) throws StatusException {
         String sql = "UPDATE users SET password = ? WHERE id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -127,7 +127,7 @@ public class DatabaseService {
         } 
     }
 
-    public void deleteUser(int id) throws StatusException {
+    public synchronized void deleteUser(int id) throws StatusException {
         String sql = "DELETE FROM users WHERE id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -141,7 +141,7 @@ public class DatabaseService {
         } 
     }
 
-    private String[] getGenres(Connection conn, int id) throws StatusException{
+    private synchronized String[] getGenres(Connection conn, int id) throws StatusException{
         String genreSql = "SELECT g.name as genre FROM movie_genres mg JOIN genres g ON mg.genre_id = g.id WHERE mg.movie_id = ?";
         ArrayList<String> genres = new ArrayList<>();
         try (PreparedStatement genreStmt = conn.prepareStatement(genreSql)) {
@@ -156,7 +156,7 @@ public class DatabaseService {
         return genres.toArray(new String[0]);
     }
 
-    private boolean deleteUnusedGenres(Connection conn) throws StatusException {
+    private synchronized boolean deleteUnusedGenres(Connection conn) throws StatusException {
         String sql = "DELETE FROM genres WHERE id NOT IN (SELECT DISTINCT genre_id FROM movie_genres)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             int result = pstmt.executeUpdate();
@@ -166,7 +166,7 @@ public class DatabaseService {
         } 
     }
 
-    public ArrayList<Movie> getMovies() throws StatusException {
+    public synchronized ArrayList<Movie> getMovies() throws StatusException {
         String sql = "SELECT id, title, director, year, rating, rating_amount, synopsis FROM movies";
         ArrayList<Movie> movies = new ArrayList<>();
         try (Connection conn = connect();
@@ -190,7 +190,7 @@ public class DatabaseService {
         return movies;
     }
 
-    public void createMovie(Movie movie) throws StatusException {
+    public synchronized void createMovie(Movie movie) throws StatusException {
         String movieSql = "INSERT INTO movies(title, director, year, rating, rating_amount, synopsis) VALUES(?, ?, ?, 0, 0, ?)";
         String checkGenreSql = "SELECT id FROM genres WHERE name = ?";
         String createGenreSql = "INSERT INTO genres(name) VALUES(?)";
@@ -246,7 +246,7 @@ public class DatabaseService {
         }
     }
 
-    public void updateMovie(Movie movie) throws StatusException {
+    public synchronized void updateMovie(Movie movie) throws StatusException {
         String movieSql = "UPDATE movies SET title = ?, director = ?, year = ?, synopsis = ? WHERE id = ?";
         String deleteGenresSql = "DELETE FROM movie_genres WHERE movie_id = ?";
         String checkGenreSql = "SELECT id FROM genres WHERE name = ?";
@@ -307,7 +307,7 @@ public class DatabaseService {
         }
     }
 
-    public void deleteMovie(int id) throws StatusException {
+    public synchronized void deleteMovie(int id) throws StatusException {
         String movieSql = "DELETE FROM movies WHERE id = ?";
         String genresSql = "DELETE FROM movie_genres WHERE movie_id = ?";
         String reviewsSql = "DELETE FROM reviews WHERE movie_id = ?";
@@ -341,7 +341,7 @@ public class DatabaseService {
         }
     }
 
-    public void createReview(Review review) throws StatusException {
+    public synchronized void createReview(Review review) throws StatusException {
         String sql = "INSERT INTO reviews(movie_id, user_id, rating, title, description) VALUES(?, ?, ?, ?, ?)";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -360,7 +360,7 @@ public class DatabaseService {
         } 
     }
 
-    public ArrayList<Review> getMovieReviews(int movieID) throws StatusException {
+    public synchronized ArrayList<Review> getMovieReviews(int movieID) throws StatusException {
         String sql = "SELECT * FROM reviews WHERE movie_id = ?";
         ArrayList<Review> reviews = new ArrayList<>();
         try (Connection conn = connect();
@@ -384,7 +384,7 @@ public class DatabaseService {
         return reviews;
     }
 
-    public ArrayList<Review> getUserReviews(int userID) throws StatusException {
+    public synchronized ArrayList<Review> getUserReviews(int userID) throws StatusException {
         String sql = "SELECT * FROM reviews WHERE user_id = ?";
         ArrayList<Review> reviews = new ArrayList<>();
         try (Connection conn = connect();
@@ -408,7 +408,7 @@ public class DatabaseService {
         return reviews;
     }
 
-    public void updateReview(Review review) throws StatusException {
+    public synchronized void updateReview(Review review) throws StatusException {
         String sql = "UPDATE reviews SET rating = ?, title = ?, description = ? WHERE id = ?";
         try (Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -425,7 +425,7 @@ public class DatabaseService {
         } 
     }
 
-    public void deleteReview(int id) throws StatusException {
+    public synchronized void deleteReview(int id) throws StatusException {
         String sql = "DELETE FROM reviews WHERE id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
