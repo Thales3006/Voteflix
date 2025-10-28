@@ -61,7 +61,6 @@ public class ClientHandler extends Thread {
 
     public void close() {
         running.set(false);
-        serverService.handleClosed(this);
         try {
             if (connection != null && !connection.isClosed()){ 
                 connection.close();

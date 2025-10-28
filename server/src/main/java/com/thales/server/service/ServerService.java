@@ -131,11 +131,7 @@ public class ServerService {
         String username = jsonObject.get("usuario").getAsString();
         String password = jsonObject.get("senha").getAsString();
 
-        synchronized (usersLock) {
-            if(!users.containsKey(username)){
-                users.put(username, new User(username, password));
-            }
-        }
+        
         client.setUsername(username);
 
         String token = null;
@@ -147,6 +143,12 @@ public class ServerService {
 
         JsonObject json = createStatus(ErrorStatus.OK);  
         json.addProperty("token", token);
+
+        synchronized (usersLock) {
+            if(!users.containsKey(username)){
+                users.put(username, new User(username, password));
+            }
+        }
         
         return json.toString();
     }
@@ -159,6 +161,8 @@ public class ServerService {
 
         database.getUsername(id);
         JsonObject json = createStatus(ErrorStatus.OK);  
+
+        handleClosed(client);
     
         return json.toString();
     }
@@ -244,8 +248,9 @@ public class ServerService {
         DecodedJWT jwt = verifier.verify(token);
         
         int id = jwt.getClaim("id").asInt();
-
         database.deleteUser(id);
+
+        handleClosed(client);
         return createStatus(ErrorStatus.OK).toString();
     }
 
