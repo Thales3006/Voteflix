@@ -78,8 +78,17 @@ public class JsonValidator {
         );
     }
 
-    public void validateRequest(JsonObject json, Request expectedRequest) throws ValidationException {
-        requestSchemas.get(expectedRequest).validate(json.toString());
+    public void validateRequest(JsonObject json, Request expectedRequest) throws StatusException {
+        try{
+            requestSchemas.get(expectedRequest).validate(json.toString());
+        } catch (ValidationException e) {
+            boolean isInvalidKey = e.getMessage().contains("required") || e.getMessage().contains("is required");
+            if (!isInvalidKey) {
+                throw new StatusException(ErrorStatus.INVALID_INPUT);
+            } else {
+                throw new StatusException(ErrorStatus.UNPROCESSABLE_ENTITY);
+            }
+        }
     }
 
     public Request getRequest(final String message) throws ValidationException {

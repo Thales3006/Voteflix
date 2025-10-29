@@ -80,7 +80,6 @@ public class ServerService {
         try{
             Request op = validator.getRequest(message);
             
-    
             JsonObject jsonObject = gson.fromJson(message, JsonObject.class);
             validator.validateRequest(jsonObject, op);
 
@@ -107,9 +106,6 @@ public class ServerService {
             if(op == Request.LOGOUT || op == Request.DELETE_OWN_USER){
                 client.close();
             }
-        } catch (ValidationException e){
-            System.err.println(e.toString());
-            client.sendMessage(createStatus(ErrorStatus.UNPROCESSABLE_ENTITY).toString());
         } catch (JWTVerificationException e){
             System.err.println(e.toString());
             client.sendMessage(createStatus(ErrorStatus.UNAUTHORIZED).toString());

@@ -100,6 +100,7 @@ public class UserController extends SceneController {
             String request = clientService.getUsername().equals(selectedUser.getUsername())?
                 clientService.requestDeleteOwnUser() :
                 clientService.requestDeleteUser(selectedUser.getId());
+            switchPage(event, "/login_page.fxml");
             feedback(request);
         });
     }
