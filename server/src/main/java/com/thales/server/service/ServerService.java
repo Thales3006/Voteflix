@@ -1,7 +1,5 @@
 package com.thales.server.service;
 
-import org.everit.json.schema.ValidationException;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
