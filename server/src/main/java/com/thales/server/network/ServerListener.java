@@ -1,9 +1,14 @@
 package com.thales.server.network;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import com.thales.server.service.ServerService;
@@ -29,13 +34,44 @@ public class ServerListener {
         }
         serverService.log("Server Online!");
         try {
-            String ip = java.net.InetAddress.getLocalHost().getHostAddress();
+            String ip = getLocalAddress();
             serverService.log("IP: " + ip + " Port: " + port);
         } catch (Exception e) {
             serverService.log("Port: " + port);
         }
 
         new Thread(() -> listen()).start();
+    }
+
+    private String getLocalAddress() {
+        try (DatagramSocket sock = new DatagramSocket()) {
+            sock.connect(InetAddress.getByName("8.8.8.8"), 53);
+            InetAddress local = sock.getLocalAddress();
+            if (local instanceof Inet4Address && !local.isLoopbackAddress()) {
+                return local.getHostAddress();
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            Enumeration<NetworkInterface> ifs = NetworkInterface.getNetworkInterfaces();
+            while (ifs.hasMoreElements()) {
+                NetworkInterface nif = ifs.nextElement();
+                if (!nif.isUp() || nif.isLoopback() || nif.isVirtual()) continue;
+                Enumeration<InetAddress> addrs = nif.getInetAddresses();
+                while (addrs.hasMoreElements()) {
+                    InetAddress addr = addrs.nextElement();
+                    if (addr instanceof Inet4Address && !addr.isLoopbackAddress() && !addr.isLinkLocalAddress()) {
+                        return addr.getHostAddress();
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            return "127.0.0.1";
+        }
     }
 
     private void listen(){
