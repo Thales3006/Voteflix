@@ -3,9 +3,9 @@
   "title": "Movie",    
   "type": "object", 
   "properties": {
-    "titulo": { "type": "string" },
-    "diretor": { "type": "string" },
-    "ano": { "type": "string", "pattern": "^[0-9]{4}$" },
+    "titulo": { "type": "string", "minLength": 3 },
+    "diretor": { "type": "string", "minLength": 3 },
+    "ano": { "type": "string", "pattern": "^[0-9]{3,4}$" },
     "genero": { "type": "array", "items": { "type": "string" } },
     "sinopse": { "type": "string" , "maxLength": 250 }
   },

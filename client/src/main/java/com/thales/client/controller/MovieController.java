@@ -40,24 +40,6 @@ public class MovieController extends SceneController {
     private final SimpleObjectProperty<Movie> currentMovie = new SimpleObjectProperty<>();
 
     @FXML private void initialize(){
-        yearField.textProperty().addListener((_, _, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                yearField.setText(newValue.replaceAll("[^\\d]", ""));
-            }
-            if (newValue.length() > 1) {
-                yearField.setText(newValue.substring(0, 4));
-            }
-        });
-
-        reviewScoreField.textProperty().addListener((_, _, newValue) -> {
-            if (!newValue.matches("[1-5]")) {
-                reviewScoreField.setText(newValue.replaceAll("[^1-5]", ""));
-            }
-            if (newValue.length() > 1) {
-                reviewScoreField.setText(newValue.substring(0, 1));
-            }
-        });
-
         currentMovie.addListener((_, _, movie) -> {
             if (movie != null) {
                 titleField.setText(movie.getTitle());
@@ -145,7 +127,6 @@ public class MovieController extends SceneController {
         handle(event, () -> { 
             String request = clientService.requestDeleteMovie(currentMovie.get().getID()); 
             feedback(request);
-            loadMovies();
         });
     }
 

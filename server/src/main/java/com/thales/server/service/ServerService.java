@@ -242,6 +242,10 @@ public class ServerService {
         DecodedJWT jwt = verifier.verify(token);
         
         int id = jwt.getClaim("id").asInt();
+        String username = database.getUsername(id);
+        if ("admin".equals(username)) {
+            throw new StatusException(ErrorStatus.FORBIDDEN);
+        }
         database.deleteUser(id);
 
         handleClosed(client);
@@ -257,6 +261,11 @@ public class ServerService {
         int tokenId = jwt.getClaim("id").asInt();
         if(!database.isAdmin(tokenId)){
             return createStatus(ErrorStatus.FORBIDDEN).toString();
+        }
+        
+        String username = database.getUsername(userId);
+        if ("admin".equals(username)) {
+            throw new StatusException(ErrorStatus.FORBIDDEN);
         }
         
         database.deleteUser(userId);
