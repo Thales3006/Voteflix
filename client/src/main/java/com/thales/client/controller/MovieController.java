@@ -3,6 +3,7 @@ package com.thales.client.controller;
 import java.util.ArrayList;
 
 import com.thales.common.model.Movie;
+import com.thales.common.model.Review;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
@@ -36,6 +37,7 @@ public class MovieController extends SceneController {
     @FXML private HBox movieButtonHbox;
     @FXML private TilePane movieTilePane;
     @FXML private VBox reviewVbox;
+    @FXML private Button loadReviewButton;
 
     private final SimpleObjectProperty<Movie> currentMovie = new SimpleObjectProperty<>();
 
@@ -131,10 +133,59 @@ public class MovieController extends SceneController {
     }
 
     @FXML private void HandleCreateReviewButton(ActionEvent event){
-        handle(event, () -> { throw new Exception("review creation not implemented yet"); });
+        handle(event, () -> { 
+            Review review = new Review(
+                null,
+                currentMovie.get().getID(),
+                null,
+                Float.valueOf(reviewScoreField.getText()),
+                reviewTitleField.getText(),
+                reviewDescriptionField.getText(),
+                null
+            );
+            var message = clientService.requestCreateReview(review);
+
+            feedback(message);
+        });
+    }
+
+    @FXML private void HandleLoadReviewButton(ActionEvent event){
+        handle(event, () -> { 
+            var request = clientService.requestMovieReviewList(currentMovie.get().getID());
+            String message = request.getFirst();
+            ArrayList<Review> reviews = request.getSecond();
+
+            reviewVbox.getChildren().clear();
+
+            if (reviews == null || reviews.isEmpty()) {
+                reviewVbox.getChildren().add(new Label("No reviews yet."));
+            } else {
+                for (Review r : reviews) {
+                    reviewVbox.getChildren().add(ViewReview(r));
+                }
+            }
+            reviewTitleField.clear();
+            reviewDescriptionField.clear();
+            reviewScoreField.clear();
+
+            feedback(message);
+        });
     }
 
     @FXML private void HandleRefreshMovieButton(ActionEvent event){
         handle(event, () -> loadMovies());
+    }
+
+    private VBox ViewReview(Review r){
+        VBox reviewBox = new VBox();
+        Label title = new Label("Title: " + (r.getTitle() == null ? "" : r.getTitle()));
+        Label description = new Label("Description: " + (r.getDescription() == null ? "" : r.getDescription()));
+        Label score = new Label("Rating: " + (r.getRating() == null ? "" : String.valueOf(r.getRating())));
+        Button deleteButton = new Button("Delete");
+        deleteButton.setOnAction(evt -> {
+            reviewVbox.getChildren().remove(reviewBox);
+        });
+        reviewBox.getChildren().addAll(title, description, score, deleteButton);
+        return reviewBox;
     }
 }

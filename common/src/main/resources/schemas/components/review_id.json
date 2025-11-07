@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Review with ID",
   "allOf": [
-    { "$ref": "review.json" },
+    { "$ref": "return_review.json" },
     {
       "type": "object",
       "properties": {

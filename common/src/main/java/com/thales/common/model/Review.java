@@ -43,6 +43,7 @@ public class Review {
         Integer ID = null;
         Integer movieID = null;
         Integer userID = null;
+        String username = null;
         Float rating = null;
         String title = null;
         String description = null;
@@ -55,7 +56,7 @@ public class Review {
             movieID = Integer.valueOf(json.get("id_filme").getAsString());
         }
         if (json.has("nome_usuario")) {
-            userID = Integer.valueOf(json.get("nome_usuario").getAsString());
+            username = json.get("nome_usuario").getAsString();
         }
         if (json.has("nota")) {
             rating = Float.valueOf(json.get("nota").getAsString()); 
@@ -70,6 +71,9 @@ public class Review {
             date = LocalDate.parse(json.get("data").getAsString());
         }
 
-        return new Review(ID, movieID, userID, rating, title, description, date);
+        Review review = new Review(ID, movieID, userID, rating, title, description, date);
+        review.setUsername(username);
+        return review;
+
     }
 }

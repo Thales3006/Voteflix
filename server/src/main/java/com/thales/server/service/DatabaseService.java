@@ -378,22 +378,39 @@ public class DatabaseService {
     }
 
     public synchronized void createReview(Review review) throws StatusException {
+        String checkUserSql = "SELECT id FROM users WHERE id = ?";
+        String checkMovieSql = "SELECT id FROM movies WHERE id = ?";
         String sql = "INSERT INTO reviews(movie_id, user_id, rating, title, description) VALUES(?, ?, ?, ?, ?)";
-        try (Connection conn = connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, review.getMovieID());
-            pstmt.setInt(2, review.getUserID());
-            pstmt.setFloat(3, review.getRating());
-            pstmt.setString(4, review.getTitle());
-            pstmt.setString(5, review.getDescription());
-            
-            int result = pstmt.executeUpdate();
-            if(result == 0){
-                throw new StatusException(ErrorStatus.NOT_FOUND);
+        try (Connection conn = connect()) {
+            try (PreparedStatement checkMovieStmt = conn.prepareStatement(checkMovieSql)) {
+                checkMovieStmt.setInt(1, review.getMovieID());
+                ResultSet movieRs = checkMovieStmt.executeQuery();
+                if (!movieRs.next()) {
+                    throw new StatusException(ErrorStatus.NOT_FOUND);
+                }
+            }
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkUserSql)) {
+                checkStmt.setInt(1, review.getUserID());
+                ResultSet rs = checkStmt.executeQuery();
+                if (!rs.next()) {
+                    throw new StatusException(ErrorStatus.NOT_FOUND);
+                }
+            }
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, review.getMovieID());
+                pstmt.setInt(2, review.getUserID());
+                pstmt.setFloat(3, review.getRating());
+                pstmt.setString(4, review.getTitle());
+                pstmt.setString(5, review.getDescription());
+
+                int result = pstmt.executeUpdate();
+                if (result == 0) {
+                    throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
+                }
             }
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
-        } 
+        }
     }
 
     public synchronized ArrayList<Review> getMovieReviews(int movieID) throws StatusException {

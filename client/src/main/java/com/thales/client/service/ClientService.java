@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.thales.common.model.Movie;
 import com.thales.common.model.Response;
+import com.thales.common.model.Review;
 import com.thales.common.model.User;
 import com.thales.common.utils.JsonValidator;
 
@@ -259,5 +260,36 @@ public class ClientService {
         validator.validateResponce(response, Response.OK);
 
         return response.get("mensagem").getAsString();
+    }
+
+    public String requestCreateReview(Review review) throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "CRIAR_REVIEW");
+        json.addProperty("token", token);
+        json.add("review", review.toJson());
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        validator.validateResponce(response, Response.CREATED);
+
+        return response.get("mensagem").getAsString();
+    }
+
+    public Pair<String, ArrayList<Review>> requestMovieReviewList(int movieId) throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "BUSCAR_FILME_ID");
+        json.addProperty("id_filme", Integer.toString(movieId));
+        json.addProperty("token", token);
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        validator.validateResponce(response, Response.REVIEW_LIST);
+
+        ArrayList<Review> reviews = new ArrayList<>();
+        JsonElement filmesElement = response.get("reviews");
+        for (JsonElement element : filmesElement.getAsJsonArray()) {
+            reviews.add(Review.fromJson(element.getAsJsonObject()));
+        }
+        return new Pair<>(response.get("mensagem").getAsString(),reviews);
     }
 }

@@ -71,6 +71,15 @@ public class ServerService {
         return json;
     }
 
+    private void setReviewUsername(Review review) {
+        if(review.getUserID() == null) {
+            return;
+        }
+        try{
+        review.setUsername(database.getUsername(review.getUserID()));
+        } catch (StatusException e) {}
+    }
+
     // ===================================
     //  Main Handler
     // ===================================
@@ -349,7 +358,6 @@ public class ServerService {
         DecodedJWT jwt = verifier.verify(token);
         int tokenId = jwt.getClaim("id").asInt();
         review.setUserID(tokenId);
-        review.setDate(java.time.LocalDate.now());
         database.createReview(review);
 
         Movie movie = database.getMovie(review.getMovieID());
@@ -369,7 +377,7 @@ public class ServerService {
 
         JsonObject json = createStatus(ErrorStatus.OK);
         json.add("reviews", gson.toJsonTree(database.getUserReviews(tokenId).stream()
-            .map(review -> review.toJson())
+            .map(review -> {setReviewUsername(review); return review.toJson();})
             .toList()));
         return json.toString();
 
@@ -386,7 +394,7 @@ public class ServerService {
         Movie movie = database.getMovie(movieId);
         json.add("filme", movie.toJson());
         json.add("reviews", gson.toJsonTree(database.getMovieReviews(movieId).stream()
-            .map(review -> review.toJson())
+            .map(review -> {setReviewUsername(review); return review.toJson();})
             .toList()));
         return json.toString();
     }
