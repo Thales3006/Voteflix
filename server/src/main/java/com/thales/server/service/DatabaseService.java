@@ -383,7 +383,7 @@ public class DatabaseService {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, review.getMovieID());
             pstmt.setInt(2, review.getUserID());
-            pstmt.setInt(3, review.getRating());
+            pstmt.setFloat(3, review.getRating());
             pstmt.setString(4, review.getTitle());
             pstmt.setString(5, review.getDescription());
             
@@ -420,7 +420,7 @@ public class DatabaseService {
                   rs.getInt("id"),
                   rs.getInt("movie_id"),
                   rs.getInt("user_id"),
-                  rs.getInt("rating"),
+                  rs.getFloat("rating"),
                   rs.getString("title"),
                   rs.getString("description"),
                   rs.getDate("date").toLocalDate()
@@ -456,7 +456,7 @@ public class DatabaseService {
                   rs.getInt("id"),
                   rs.getInt("movie_id"),
                   rs.getInt("user_id"),
-                  rs.getInt("rating"),
+                  rs.getFloat("rating"),
                   rs.getString("title"),
                   rs.getString("description"),
                   rs.getDate("date").toLocalDate()
@@ -479,7 +479,7 @@ public class DatabaseService {
                     rs.getInt("id"),
                     rs.getInt("movie_id"),
                     rs.getInt("user_id"),
-                    rs.getInt("rating"),
+                    rs.getFloat("rating"),
                     rs.getString("title"),
                     rs.getString("description"),
                     rs.getDate("date").toLocalDate()
@@ -495,7 +495,7 @@ public class DatabaseService {
         String sql = "UPDATE reviews SET rating = ?, title = ?, description = ? WHERE id = ?";
         try (Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, review.getRating());
+            pstmt.setFloat(1, review.getRating());
             pstmt.setString(2, review.getTitle());
             pstmt.setString(3, review.getDescription());
             pstmt.setInt(4, review.getID());
