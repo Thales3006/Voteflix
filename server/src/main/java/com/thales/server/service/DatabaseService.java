@@ -166,6 +166,30 @@ public class DatabaseService {
         } 
     }
 
+    public synchronized Movie getMovie(int id) throws StatusException {
+        String sql = "SELECT id, title, director, year, rating, rating_amount, synopsis FROM movies WHERE id = ?";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new Movie(
+                    rs.getInt("id"),
+                    rs.getString("title"),
+                    rs.getString("director"),
+                    getGenres(conn, rs.getInt("id")),
+                    rs.getInt("year"),
+                    rs.getFloat("rating"),
+                    rs.getInt("rating_amount"),
+                    rs.getString("synopsis")
+                );
+            }
+        } catch (SQLException e) {
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+        throw new StatusException(ErrorStatus.NOT_FOUND);
+    }
+
     public synchronized ArrayList<Movie> getMovies() throws StatusException {
         String sql = "SELECT id, title, director, year, rating, rating_amount, synopsis FROM movies";
         ArrayList<Movie> movies = new ArrayList<>();
@@ -191,6 +215,7 @@ public class DatabaseService {
     }
 
     public synchronized void createMovie(Movie movie) throws StatusException {
+        String checkMovieSql = "SELECT id FROM movies WHERE title = ? AND director = ? AND year = ?";
         String movieSql = "INSERT INTO movies(title, director, year, rating, rating_amount, synopsis) VALUES(?, ?, ?, 0, 0, ?)";
         String checkGenreSql = "SELECT id FROM genres WHERE name = ?";
         String createGenreSql = "INSERT INTO genres(name) VALUES(?)";
@@ -199,6 +224,17 @@ public class DatabaseService {
         try (Connection conn = connect()) {
             conn.setAutoCommit(false);
             try {
+                try (PreparedStatement checkMovieStmt = conn.prepareStatement(checkMovieSql)) {
+                    checkMovieStmt.setString(1, movie.getTitle());
+                    checkMovieStmt.setString(2, movie.getDirector());
+                    checkMovieStmt.setInt(3, movie.getYear());
+                    ResultSet checkRs = checkMovieStmt.executeQuery();
+                    if (checkRs.next()) {
+                        conn.rollback();
+                        throw new StatusException(ErrorStatus.ALREADY_EXISTS);
+                    }
+                }
+
                 PreparedStatement movieStmt = conn.prepareStatement(movieSql, PreparedStatement.RETURN_GENERATED_KEYS);
                 movieStmt.setString(1, movie.getTitle());
                 movieStmt.setString(2, movie.getDirector());
@@ -347,7 +383,7 @@ public class DatabaseService {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, review.getMovieID());
             pstmt.setInt(2, review.getUserID());
-            pstmt.setInt(3, review.getRating());
+            pstmt.setFloat(3, review.getRating());
             pstmt.setString(4, review.getTitle());
             pstmt.setString(5, review.getDescription());
             
@@ -361,6 +397,18 @@ public class DatabaseService {
     }
 
     public synchronized ArrayList<Review> getMovieReviews(int movieID) throws StatusException {
+        String checkSql = "SELECT id FROM movies WHERE id = ?";
+        try (Connection conn = connect();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            checkStmt.setInt(1, movieID);
+            ResultSet rs = checkStmt.executeQuery();
+            if (!rs.next()) {
+            throw new StatusException(ErrorStatus.NOT_FOUND);
+            }
+        } catch (SQLException e) {
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+
         String sql = "SELECT * FROM reviews WHERE movie_id = ?";
         ArrayList<Review> reviews = new ArrayList<>();
         try (Connection conn = connect();
@@ -372,7 +420,7 @@ public class DatabaseService {
                   rs.getInt("id"),
                   rs.getInt("movie_id"),
                   rs.getInt("user_id"),
-                  rs.getInt("rating"),
+                  rs.getFloat("rating"),
                   rs.getString("title"),
                   rs.getString("description"),
                   rs.getDate("date").toLocalDate()
@@ -385,10 +433,22 @@ public class DatabaseService {
     }
 
     public synchronized ArrayList<Review> getUserReviews(int userID) throws StatusException {
+        String checkSql = "SELECT id FROM users WHERE id = ?";
+        try (Connection conn = connect();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            checkStmt.setInt(1, userID);
+            ResultSet rs = checkStmt.executeQuery();
+            if (!rs.next()) {
+                throw new StatusException(ErrorStatus.NOT_FOUND);
+            }
+        } catch (SQLException e) {
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+
         String sql = "SELECT * FROM reviews WHERE user_id = ?";
         ArrayList<Review> reviews = new ArrayList<>();
         try (Connection conn = connect();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userID);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -396,7 +456,7 @@ public class DatabaseService {
                   rs.getInt("id"),
                   rs.getInt("movie_id"),
                   rs.getInt("user_id"),
-                  rs.getInt("rating"),
+                  rs.getFloat("rating"),
                   rs.getString("title"),
                   rs.getString("description"),
                   rs.getDate("date").toLocalDate()
@@ -408,11 +468,34 @@ public class DatabaseService {
         return reviews;
     }
 
+    public synchronized Review getReview(int id) throws StatusException {
+        String sql = "SELECT * FROM reviews WHERE id = ?";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new Review(
+                    rs.getInt("id"),
+                    rs.getInt("movie_id"),
+                    rs.getInt("user_id"),
+                    rs.getFloat("rating"),
+                    rs.getString("title"),
+                    rs.getString("description"),
+                    rs.getDate("date").toLocalDate()
+                );
+            }
+        } catch (SQLException e) {
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+        throw new StatusException(ErrorStatus.NOT_FOUND);
+    }
+
     public synchronized void updateReview(Review review) throws StatusException {
         String sql = "UPDATE reviews SET rating = ?, title = ?, description = ? WHERE id = ?";
         try (Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, review.getRating());
+            pstmt.setFloat(1, review.getRating());
             pstmt.setString(2, review.getTitle());
             pstmt.setString(3, review.getDescription());
             pstmt.setInt(4, review.getID());

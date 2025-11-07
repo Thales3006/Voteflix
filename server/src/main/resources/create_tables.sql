@@ -32,7 +32,7 @@ CREATE TABLE reviews (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     movie_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
-    rating INTEGER NOT NULL,
+    rating FLOAT NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
     date DATETIME DEFAULT CURRENT_TIMESTAMP,

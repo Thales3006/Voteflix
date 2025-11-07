@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.Movie;
 import com.thales.common.model.Request;
+import com.thales.common.model.Review;
 import com.thales.common.model.StatusException;
 import com.thales.common.model.User;
 import com.thales.common.utils.ErrorTable;
@@ -97,6 +98,12 @@ public class ServerService {
             case LIST_MOVIES -> handleListMovies(jsonObject, client);
             case UPDATE_MOVIE -> handleUpdateMovie(jsonObject, client);
             case DELETE_MOVIE -> handleDeleteMovie(jsonObject, client);
+
+            case CREATE_REVIEW -> handleCreateReview(jsonObject, client);
+            case LIST_OWN_REVIEWS -> handleListOwnReviews(jsonObject, client);
+            case LIST_REVIEWS -> handleListReviews(jsonObject, client);
+            case UPDATE_REVIEW -> handleUpdateReview(jsonObject, client);
+            case DELETE_REVIEW -> handleDeleteReview(jsonObject, client);
             
             default -> throw new StatusException(ErrorStatus.BAD_REQUEST);
             });
@@ -147,7 +154,7 @@ public class ServerService {
         return json.toString();
     }
 
-    private String handleLogout(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException  {
+    private String handleLogout(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
         String token = jsonObject.get("token").getAsString();
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
         DecodedJWT jwt = verifier.verify(token);
@@ -183,7 +190,7 @@ public class ServerService {
         return json.toString();
     }
 
-    private String handleListUsers(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException  {
+    private String handleListUsers(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
         String token = jsonObject.get("token").getAsString();
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
         DecodedJWT jwt = verifier.verify(token);
@@ -272,7 +279,7 @@ public class ServerService {
         return createStatus(ErrorStatus.OK).toString();
     }
 
-    private String handleCreateMovie(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException  {
+    private String handleCreateMovie(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
         String token = jsonObject.get("token").getAsString();
         Movie movie = Movie.fromJson(jsonObject.get("filme").getAsJsonObject());
 
@@ -288,7 +295,7 @@ public class ServerService {
         return createStatus(ErrorStatus.CREATED).toString();
     }
 
-    private String handleListMovies(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException  {
+    private String handleListMovies(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
         String token = jsonObject.get("token").getAsString();
         JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
         verifier.verify(token);
@@ -301,7 +308,7 @@ public class ServerService {
 
     }
 
-    private String handleUpdateMovie(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException  {
+    private String handleUpdateMovie(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
         String token = jsonObject.get("token").getAsString();
         Movie movie = Movie.fromJson(jsonObject.get("filme").getAsJsonObject());
 
@@ -318,7 +325,7 @@ public class ServerService {
 
     }
 
-    private String handleDeleteMovie(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException  {
+    private String handleDeleteMovie(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
         String token = jsonObject.get("token").getAsString();
         int movieId = Integer.parseInt(jsonObject.get("id").getAsString());
 
@@ -333,8 +340,102 @@ public class ServerService {
         database.deleteMovie(movieId);
         return createStatus(ErrorStatus.OK).toString();
     }
- 
 
+    private String handleCreateReview(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
+        String token = jsonObject.get("token").getAsString();
+        Review review = Review.fromJson(jsonObject.get("review").getAsJsonObject());
+
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+        review.setUserID(tokenId);
+        review.setDate(java.time.LocalDate.now());
+        database.createReview(review);
+
+        Movie movie = database.getMovie(review.getMovieID());
+        Float newRating = (movie.getRating()*movie.getRatingAmount() + review.getRating()) / (movie.getRatingAmount()+1) ;
+        movie.setRating(newRating);
+        movie.setRatingAmount(movie.getRatingAmount()+1);
+        database.updateMovie(movie);
+
+        return createStatus(ErrorStatus.CREATED).toString();
+    }
+
+    private String handleListOwnReviews(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
+        String token = jsonObject.get("token").getAsString();
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+
+        JsonObject json = createStatus(ErrorStatus.OK);
+        json.add("reviews", gson.toJsonTree(database.getUserReviews(tokenId).stream()
+            .map(review -> review.toJson())
+            .toList()));
+        return json.toString();
+
+    }
+
+    private String handleListReviews(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
+        String token = jsonObject.get("token").getAsString();
+        int movieId = Integer.parseInt(jsonObject.get("id_filme").getAsString());
+
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        verifier.verify(token);
+
+        JsonObject json = createStatus(ErrorStatus.OK);
+        Movie movie = database.getMovie(movieId);
+        json.add("filme", movie.toJson());
+        json.add("reviews", gson.toJsonTree(database.getMovieReviews(movieId).stream()
+            .map(review -> review.toJson())
+            .toList()));
+        return json.toString();
+    }
+
+    private String handleUpdateReview(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
+        String token = jsonObject.get("token").getAsString();
+        Review review = Review.fromJson(jsonObject.get("review").getAsJsonObject());
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+
+        Review oldReview = database.getReview(review.getID());
+        if (!oldReview.getUserID().equals(tokenId)) {
+            return createStatus(ErrorStatus.FORBIDDEN).toString();
+        }
+        database.updateReview(review);
+
+        Movie movie = database.getMovie(review.getMovieID());
+        Float newRating = (movie.getRating()*movie.getRatingAmount() - oldReview.getRating() + review.getRating()) / (movie.getRatingAmount()) ;
+        movie.setRating(newRating);
+        database.updateMovie(movie);
+
+        JsonObject json = createStatus(ErrorStatus.OK);
+        return json.toString();
+    }
+
+    private String handleDeleteReview(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
+        String token = jsonObject.get("token").getAsString();
+        int reviewId = Integer.parseInt(jsonObject.get("id").getAsString());
+        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
+        DecodedJWT jwt = verifier.verify(token);
+        int tokenId = jwt.getClaim("id").asInt();
+
+        Review oldReview = database.getReview(reviewId);
+        if ((!oldReview.getUserID().equals(tokenId)) || (!database.isAdmin(tokenId))) {
+            return createStatus(ErrorStatus.FORBIDDEN).toString();
+        }
+        database.deleteReview(reviewId);
+
+        Movie movie = database.getMovie(oldReview.getMovieID());
+        Float newRating = (movie.getRating()*movie.getRatingAmount() - oldReview.getRating()) / (movie.getRatingAmount()-1) ;
+        movie.setRating(newRating);
+        movie.setRatingAmount(movie.getRatingAmount()-1);
+        database.updateMovie(movie);
+        
+        JsonObject json = createStatus(ErrorStatus.OK);
+        return json.toString();
+    }
+ 
     public void handleClosed(ClientHandler client) {
         String username = client.getUsername();
         if (username != null) {
