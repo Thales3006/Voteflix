@@ -1,12 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "BuscarFilmeId",
+  "title": "ListarReviewsUsuario",
   "type": "object",
   "properties": {
     "operacao": { "type": "string", "const": "BUSCAR_FILME_ID" },
-    "token": { "type": "string" },
-    "id_filme": { "type": "string" }
+    "token": { "type": "string" }
   },
-  "required": ["operacao", "id_filme", "token"],
+  "required": ["operacao", "token"],
   "additionalProperties": true
 }
