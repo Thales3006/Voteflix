@@ -52,9 +52,9 @@
                   <Label text="Title" />
                   <Label text="Description" GridPane.rowIndex="1" />
                   <Label text="Rating" GridPane.rowIndex="2" />
-                  <TextField fx:id="titleField" GridPane.columnIndex="1" />
-                  <TextField fx:id="descriptionField" prefHeight="82.0" prefWidth="291.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <TextField fx:id="ratingField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <TextField fx:id="titleField" alignment="TOP_LEFT" GridPane.columnIndex="1" />
+                  <TextField fx:id="descriptionField" alignment="TOP_LEFT" prefHeight="82.0" prefWidth="291.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="ratingField" alignment="TOP_LEFT" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                   <Label text="Movie ID" GridPane.rowIndex="3" />
                   <Label text="username" GridPane.rowIndex="4" />
                   <Label fx:id="movieLabel" prefHeight="18.0" prefWidth="235.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />

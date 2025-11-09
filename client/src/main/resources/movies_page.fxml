@@ -43,7 +43,7 @@
    <right>
       <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="582.0" prefWidth="365.0">
          <content>
-            <VBox fx:id="movieInfoPane" alignment="TOP_CENTER" prefHeight="582.0" prefWidth="360.0" spacing="2.0">
+            <VBox fx:id="movieInfoPane" alignment="TOP_CENTER" prefHeight="752.0" prefWidth="349.0" spacing="2.0">
                <children>
                   <Label text="Movie Info" />
                   <GridPane prefHeight="140.0" prefWidth="340.0">

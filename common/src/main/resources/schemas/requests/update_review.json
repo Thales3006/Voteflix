@@ -4,7 +4,7 @@
   "type": "object",
   "properties": {
     "operacao": { "type": "string", "const": "EDITAR_REVIEW" },
-    "review": { "$ref": "../components/review_id.json" },
+    "review": { "$ref": "../components/review_id_update.json" },
     "token": { "type": "string" }
   },
   "required": ["operacao", "review", "token"],

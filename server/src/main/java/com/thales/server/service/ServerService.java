@@ -412,7 +412,7 @@ public class ServerService {
         }
         database.updateReview(review);
 
-        Movie movie = database.getMovie(review.getMovieID());
+        Movie movie = database.getMovie(oldReview.getMovieID());
         Float newRating = (movie.getRating()*movie.getRatingAmount() - oldReview.getRating() + review.getRating()) / (movie.getRatingAmount()) ;
         movie.setRating(newRating);
         database.updateMovie(movie);

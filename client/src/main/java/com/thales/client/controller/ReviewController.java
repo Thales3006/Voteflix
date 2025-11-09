@@ -73,7 +73,7 @@ public class ReviewController extends SceneController {
             if(currentReview.get() == null){
                 throw  new Exception("You have to select a review");
             }
-            String message = clientService.requestUpdateReview(currentReview.get());
+            String message = clientService.requestUpdateReview(extractReview());
             feedback(message);
         });
     }
@@ -86,5 +86,17 @@ public class ReviewController extends SceneController {
             String message = clientService.requestDeleteReview(currentReview.get().getID());
             feedback(message);
         });
+    }
+
+    @FXML private Review extractReview() {
+        return new Review(
+        currentReview.get().getID(),
+        null,
+        null,
+        Float.parseFloat(ratingField.getText()),
+        titleField.getText(),
+        descriptionField.getText(), 
+        null
+        );
     }
 }

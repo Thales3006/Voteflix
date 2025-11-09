@@ -1,15 +1,14 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Review with id_filme",
+  "title": "Base_Review with ID",
   "allOf": [
     { "$ref": "base_review.json" },
     {
       "type": "object",
       "properties": {
-        "id_filme": { "type": "string" }
+        "id": { "type": "string" }
       },
-      "required": ["id_filme"],
-      "additionalProperties": true
+      "required": ["id"]
     }
   ]
 }
