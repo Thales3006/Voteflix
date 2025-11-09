@@ -19,7 +19,7 @@
             <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#HandleRefreshButton" text="Refresh" />
             <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="542.0" prefWidth="570.0">
                <content>
-                  <VBox fx:id="reviewBox" alignment="TOP_CENTER" prefHeight="243.0" prefWidth="568.0" />
+                  <VBox fx:id="reviewList" alignment="TOP_CENTER" prefHeight="243.0" prefWidth="568.0" />
                </content>
             </ScrollPane>
          </children>
@@ -43,6 +43,7 @@
                 <RowConstraints maxHeight="69.0" minHeight="10.0" prefHeight="69.0" vgrow="SOMETIMES" />
                   <RowConstraints maxHeight="64.0" minHeight="10.0" prefHeight="38.0" vgrow="SOMETIMES" />
                   <RowConstraints maxHeight="64.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="64.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Label text="Title" />
@@ -55,6 +56,8 @@
                   <Label text="username" GridPane.rowIndex="4" />
                   <Label fx:id="movieLabel" prefHeight="18.0" prefWidth="235.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <Label fx:id="usernameLabel" prefHeight="18.0" prefWidth="263.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <Label text="date" GridPane.rowIndex="5" />
+                  <Label fx:id="dateLabel" prefHeight="18.0" prefWidth="239.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                </children>
             </GridPane>
             <HBox prefHeight="59.0" prefWidth="390.0" spacing="10.0">

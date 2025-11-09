@@ -164,10 +164,6 @@ public class MovieController extends SceneController {
                     reviewVbox.getChildren().add(ViewReview(r));
                 }
             }
-            reviewTitleField.clear();
-            reviewDescriptionField.clear();
-            reviewScoreField.clear();
-
             feedback(message);
         });
     }
@@ -180,13 +176,15 @@ public class MovieController extends SceneController {
         VBox reviewBox = new VBox();
         Label title = new Label("Title: " + (r.getTitle() == null ? "" : r.getTitle()));
         Label description = new Label("Description: " + (r.getDescription() == null ? "" : r.getDescription()));
+        Label name = new Label("Username: " + (r.getUsername() == null ? "" : String.valueOf(r.getUsername())));
         Label score = new Label("Rating: " + (r.getRating() == null ? "" : String.valueOf(r.getRating())));
+        Label date = new Label("Date: " + (r.getDate() == null ? "" : String.valueOf(r.getDate())));
         Button deleteButton = new Button("Delete");
         deleteButton.setOnAction(evt -> handle(evt, () -> {
-            clientService.requestDeleteReview(r.getID());
-            reviewVbox.getChildren().remove(reviewBox);
+            String message = clientService.requestDeleteReview(r.getID());
+            feedback(message);
         }));
-        reviewBox.getChildren().addAll(title, description, score, deleteButton);
+        reviewBox.getChildren().addAll(title, description, name, score, date, deleteButton);
         return reviewBox;
     }
 }
