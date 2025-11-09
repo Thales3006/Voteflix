@@ -275,6 +275,23 @@ public class ClientService {
         return response.get("mensagem").getAsString();
     }
 
+    public Pair<String, ArrayList<Review>> requestOwnReviewList() throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "LISTAR_REVIEWS_USUARIO");
+        json.addProperty("token", token);
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        validator.validateResponce(response, Response.REVIEW_LIST);
+
+        ArrayList<Review> reviews = new ArrayList<>();
+        JsonElement filmesElement = response.get("reviews");
+        for (JsonElement element : filmesElement.getAsJsonArray()) {
+            reviews.add(Review.fromJson(element.getAsJsonObject()));
+        }
+        return new Pair<>(response.get("mensagem").getAsString(),reviews);
+    }
+
     public Pair<String, ArrayList<Review>> requestMovieReviewList(int movieId) throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "BUSCAR_FILME_ID");
@@ -291,5 +308,35 @@ public class ClientService {
             reviews.add(Review.fromJson(element.getAsJsonObject()));
         }
         return new Pair<>(response.get("mensagem").getAsString(),reviews);
+    }
+
+    public String requestUpdateReview(Review newReview) throws Exception {
+        Review review = newReview;
+
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "EDITAR_REVIEW");
+        json.addProperty("token", token);
+        review.setDate(null);
+        review.setUsername(null);
+        json.add("review", review.toJson());
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        validator.validateResponce(response, Response.OK);
+        
+        return response.get("mensagem").getAsString();
+    }
+
+    public String requestDeleteReview(int id) throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "EXCLUIR_REVIEW");
+        json.addProperty("token", token);
+        json.addProperty("id", Integer.toString(id));
+        socket.sendMessage(json.toString());
+
+        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        validator.validateResponce(response, Response.OK);
+        
+        return response.get("mensagem").getAsString();
     }
 }

@@ -182,9 +182,10 @@ public class MovieController extends SceneController {
         Label description = new Label("Description: " + (r.getDescription() == null ? "" : r.getDescription()));
         Label score = new Label("Rating: " + (r.getRating() == null ? "" : String.valueOf(r.getRating())));
         Button deleteButton = new Button("Delete");
-        deleteButton.setOnAction(evt -> {
+        deleteButton.setOnAction(evt -> handle(evt, () -> {
+            clientService.requestDeleteReview(r.getID());
             reviewVbox.getChildren().remove(reviewBox);
-        });
+        }));
         reviewBox.getChildren().addAll(title, description, score, deleteButton);
         return reviewBox;
     }

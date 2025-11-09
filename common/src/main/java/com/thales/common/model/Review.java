@@ -36,7 +36,7 @@ public class Review {
         if (rating != null) json.addProperty("nota", rating.toString());
         if (title != null) json.addProperty("titulo", title);
         if (description != null) json.addProperty("descricao", description);
-        if (date != null) json.addProperty("data", date.toString());
+        json.addProperty("data", date.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         return json;
     }
     public static Review fromJson(JsonObject json) {
@@ -68,7 +68,7 @@ public class Review {
             description = json.get("descricao").getAsString();
         }
         if (json.has("data")) {
-            date = LocalDate.parse(json.get("data").getAsString());
+            date = LocalDate.parse(json.get("data").getAsString(), java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         }
 
         Review review = new Review(ID, movieID, userID, rating, title, description, date);

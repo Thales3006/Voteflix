@@ -6,7 +6,15 @@
     "titulo": { "type": "string", "minLength": 3 },
     "diretor": { "type": "string", "minLength": 3 },
     "ano": { "type": "string", "pattern": "^[0-9]{3,4}$" },
-    "genero": { "type": "array", "items": { "type": "string" } },
+    "genero": {
+      "type": "array",
+      "items": {
+      "type": "string",
+      "enum": ["Ação", "Aventura", "Comédia", "Drama", "Fantasia", "Ficção Científica", "Terror", "Romance", "Documentário", "Musical", "Animação"]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
     "sinopse": { "type": "string" , "maxLength": 250 }
   },
   "required": ["titulo", "diretor", "ano", "genero", "sinopse"],

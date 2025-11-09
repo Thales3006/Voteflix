@@ -7,9 +7,9 @@
     "mensagem": { "type": "string" },
     "filme": { "$ref": "../components/movie_id.json" },
     "reviews": { "type": "array", 
-      "items": { "$ref": "../components/review_id.json" }
+      "items": { "$ref": "../components/return_review.json" }
     }
   },
-  "required": ["status", "filme", "reviews"],
+  "required": ["status", "reviews"],
   "additionalProperties": true
 }

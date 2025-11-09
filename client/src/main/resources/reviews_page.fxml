@@ -5,7 +5,6 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -13,13 +12,21 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.client.controller.MovieController">
    <center>
-      <ScrollPane hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0" />
-        </content>
-      </ScrollPane>
+      <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="refreshButton" mnemonicParsing="false" onAction="#HandleRefreshButton" text="Refresh" />
+            <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" prefHeight="542.0" prefWidth="570.0">
+               <content>
+                  <VBox fx:id="reviewBox" alignment="TOP_CENTER" prefHeight="243.0" prefWidth="568.0" />
+               </content>
+            </ScrollPane>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
    </center>
    <right>
       <VBox alignment="TOP_CENTER" prefHeight="600.0" prefWidth="410.0" spacing="10.0" BorderPane.alignment="CENTER">
@@ -46,14 +53,14 @@
                   <TextField fx:id="ratingField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                   <Label text="Movie ID" GridPane.rowIndex="3" />
                   <Label text="username" GridPane.rowIndex="4" />
-                  <Label fx:id="movieLabel" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <Label fx:id="usernameLabel" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <Label fx:id="movieLabel" prefHeight="18.0" prefWidth="235.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Label fx:id="usernameLabel" prefHeight="18.0" prefWidth="263.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                </children>
             </GridPane>
             <HBox prefHeight="59.0" prefWidth="390.0" spacing="10.0">
                <children>
-                  <Button mnemonicParsing="false" text="Update" />
-                  <Button mnemonicParsing="false" text="Delete" />
+                  <Button fx:id="updateButton" mnemonicParsing="false" onAction="#HandleUpdateButton" text="Update" />
+                  <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#HandleDeleteButton" text="Delete" />
                </children>
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
