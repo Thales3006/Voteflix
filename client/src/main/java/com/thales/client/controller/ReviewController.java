@@ -58,6 +58,8 @@ public class ReviewController extends SceneController {
                     Label score = new Label("Rating: " + (r.getRating() == null ? "" : String.valueOf(r.getRating())));
                     Label date = new Label("Date: " + (r.getDate() == null ? "" : String.valueOf(r.getDate())));
                     reviewBox.getChildren().addAll(title, description, name, score, date);
+                    reviewBox.getStyleClass().add("review-view");
+                    reviewBox.setOnMouseClicked(_ -> currentReview.set(r));
                     reviewList.getChildren().add(reviewBox);
                 }
             }
@@ -68,6 +70,9 @@ public class ReviewController extends SceneController {
 
     @FXML private void HandleUpdateButton(ActionEvent event){
         handle(event, () -> {
+            if(currentReview.get() == null){
+                throw  new Exception("You have to select a review");
+            }
             String message = clientService.requestUpdateReview(currentReview.get());
             feedback(message);
         });
@@ -75,6 +80,9 @@ public class ReviewController extends SceneController {
 
     @FXML private void HandleDeleteButton(ActionEvent event){
         handle(event, () -> {
+            if(currentReview.get() == null){
+                throw  new Exception("You have to select a review");
+            }
             String message = clientService.requestDeleteReview(currentReview.get().getID());
             feedback(message);
         });

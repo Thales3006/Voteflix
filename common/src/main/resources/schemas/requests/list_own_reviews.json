@@ -3,7 +3,7 @@
   "title": "ListarReviewsUsuario",
   "type": "object",
   "properties": {
-    "operacao": { "type": "string", "const": "BUSCAR_FILME_ID" },
+    "operacao": { "type": "string", "const": "LISTAR_REVIEWS_USUARIO" },
     "token": { "type": "string" }
   },
   "required": ["operacao", "token"],

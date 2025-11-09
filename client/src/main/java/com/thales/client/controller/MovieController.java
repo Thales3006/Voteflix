@@ -108,6 +108,9 @@ public class MovieController extends SceneController {
 
     @FXML private void HandleUpdateMovieButton(ActionEvent event){
         handle(event, () -> { 
+            if(currentMovie.get() == null){
+                throw  new Exception("You have to select a movie");
+            }
             Movie movie = new Movie(
                 currentMovie.get().getID(),
                 titleField.getText(), 
@@ -127,6 +130,9 @@ public class MovieController extends SceneController {
 
     @FXML private void HandleDeleteMovieButton(ActionEvent event){
         handle(event, () -> { 
+            if(currentMovie.get() == null){
+                throw  new Exception("You have to select a movie");
+            }
             String request = clientService.requestDeleteMovie(currentMovie.get().getID()); 
             feedback(request);
         });
@@ -134,6 +140,9 @@ public class MovieController extends SceneController {
 
     @FXML private void HandleCreateReviewButton(ActionEvent event){
         handle(event, () -> { 
+            if(currentMovie.get() == null){
+                throw  new Exception("You have to select a movie");
+            }
             Review review = new Review(
                 null,
                 currentMovie.get().getID(),
@@ -151,6 +160,9 @@ public class MovieController extends SceneController {
 
     @FXML private void HandleLoadReviewButton(ActionEvent event){
         handle(event, () -> { 
+            if(currentMovie.get() == null){
+                throw  new Exception("You have to select a movie");
+            }
             var request = clientService.requestMovieReviewList(currentMovie.get().getID());
             String message = request.getFirst();
             ArrayList<Review> reviews = request.getSecond();
@@ -184,6 +196,7 @@ public class MovieController extends SceneController {
             String message = clientService.requestDeleteReview(r.getID());
             feedback(message);
         }));
+        reviewBox.getStyleClass().add("review-view");
         reviewBox.getChildren().addAll(title, description, name, score, date, deleteButton);
         return reviewBox;
     }
