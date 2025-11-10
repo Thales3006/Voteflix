@@ -283,7 +283,7 @@ public class DatabaseService {
     }
 
     public synchronized void updateMovie(Movie movie) throws StatusException {
-        String movieSql = "UPDATE movies SET title = ?, director = ?, year = ?, synopsis = ? WHERE id = ?";
+        String movieSql = "UPDATE movies SET title = ?, director = ?, year = ?, rating = COALESCE(?, rating), rating_amount = COALESCE(?, rating_amount), synopsis = ? WHERE id = ?";
         String deleteGenresSql = "DELETE FROM movie_genres WHERE movie_id = ?";
         String checkGenreSql = "SELECT id FROM genres WHERE name = ?";
         String createGenreSql = "INSERT INTO genres(name) VALUES(?)";
@@ -296,8 +296,20 @@ public class DatabaseService {
                 movieStmt.setString(1, movie.getTitle());
                 movieStmt.setString(2, movie.getDirector());
                 movieStmt.setInt(3, movie.getYear());
-                movieStmt.setString(4, movie.getSynopsis());
-                movieStmt.setInt(5, movie.getID());
+                // rating (may be null -> keep existing) bound as nullable
+                if (movie.getRating() != null) {
+                    movieStmt.setFloat(4, movie.getRating());
+                } else {
+                    movieStmt.setNull(4, java.sql.Types.REAL);
+                }
+                // rating_amount (may be null -> keep existing) bound as nullable
+                if (movie.getRatingAmount() != null) {
+                    movieStmt.setInt(5, movie.getRatingAmount());
+                } else {
+                    movieStmt.setNull(5, java.sql.Types.INTEGER);
+                }
+                movieStmt.setString(6, movie.getSynopsis());
+                movieStmt.setInt(7, movie.getID());
                 int result = movieStmt.executeUpdate();
 
                 if (result == 0) {

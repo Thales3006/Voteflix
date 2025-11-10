@@ -435,7 +435,10 @@ public class ServerService {
         database.deleteReview(reviewId);
 
         Movie movie = database.getMovie(oldReview.getMovieID());
-        Float newRating = (movie.getRating()*movie.getRatingAmount() - oldReview.getRating()) / (movie.getRatingAmount()-1) ;
+        Float newRating = 0.0f;
+        if(movie.getRatingAmount() > 1){
+            newRating = (movie.getRating()*movie.getRatingAmount() - oldReview.getRating()) / (movie.getRatingAmount()-1) ;
+        }
         movie.setRating(newRating);
         movie.setRatingAmount(movie.getRatingAmount()-1);
         database.updateMovie(movie);
