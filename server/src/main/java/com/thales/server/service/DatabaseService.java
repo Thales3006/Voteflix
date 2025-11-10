@@ -437,7 +437,7 @@ public class DatabaseService {
                   rs.getInt("id"),
                   rs.getInt("movie_id"),
                   rs.getInt("user_id"),
-                  rs.getFloat("rating"),
+                  (int)rs.getFloat("rating"),
                   rs.getString("title"),
                   rs.getString("description"),
                   rs.getDate("date").toLocalDate()
@@ -473,7 +473,7 @@ public class DatabaseService {
                   rs.getInt("id"),
                   rs.getInt("movie_id"),
                   rs.getInt("user_id"),
-                  rs.getFloat("rating"),
+                  (int)rs.getFloat("rating"),
                   rs.getString("title"),
                   rs.getString("description"),
                   rs.getDate("date").toLocalDate()
@@ -496,7 +496,7 @@ public class DatabaseService {
                     rs.getInt("id"),
                     rs.getInt("movie_id"),
                     rs.getInt("user_id"),
-                    rs.getFloat("rating"),
+                    (int)rs.getFloat("rating"),
                     rs.getString("title"),
                     rs.getString("description"),
                     rs.getDate("date").toLocalDate()

@@ -10,7 +10,7 @@ CREATE TABLE movies (
     title TEXT NOT NULL,
     director TEXT NOT NULL,
     year INTEGER NOT NULL, 
-    rating INTEGER NOT NULL, 
+    rating FLOAT NOT NULL, 
     rating_amount INTEGER NOT NULL,
     synopsis TEXT NOT NULL
 );

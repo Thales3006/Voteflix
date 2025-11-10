@@ -3,7 +3,7 @@
   "title": "Review",    
   "type": "object", 
   "properties": {
-    "nota": { "type": "string" },
+    "nota": {"type": "string","pattern": "^[1-5]$"},
     "titulo": { "type": "string" },
     "descricao": { "type": "string" , "maxLength": 250 }
     },

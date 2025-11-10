@@ -6,7 +6,10 @@
     {
       "type": "object",
       "properties": {
-        "nota": { "type": "string" },
+        "nota": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d$"
+        },
         "qtd_avaliacoes": { "type": "string" }
       },
       "required": ["nota", "qtd_avaliacoes"]

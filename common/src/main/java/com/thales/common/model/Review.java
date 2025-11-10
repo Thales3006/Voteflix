@@ -13,12 +13,12 @@ public class Review {
     private Integer movieID;
     private Integer userID;
     private String username;
-    private Float rating;
+    private Integer rating;
     private String title;
     private String description;
     private LocalDate date;
 
-    public Review(Integer ID, Integer movieID, Integer userID, Float rating, String title, String description, LocalDate date) {
+    public Review(Integer ID, Integer movieID, Integer userID, Integer rating, String title, String description, LocalDate date) {
         this.ID = ID;
         this.movieID = movieID;
         this.userID = userID;
@@ -44,7 +44,7 @@ public class Review {
         Integer movieID = null;
         Integer userID = null;
         String username = null;
-        Float rating = null;
+        Integer rating = null;
         String title = null;
         String description = null;
         LocalDate date = null;
@@ -59,7 +59,7 @@ public class Review {
             username = json.get("nome_usuario").getAsString();
         }
         if (json.has("nota")) {
-            rating = Float.valueOf(json.get("nota").getAsString()); 
+            rating = Integer.valueOf(json.get("nota").getAsString()); 
         }
         if (json.has("titulo")) {
             title = json.get("titulo").getAsString();

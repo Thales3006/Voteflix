@@ -147,7 +147,7 @@ public class MovieController extends SceneController {
                 null,
                 currentMovie.get().getID(),
                 null,
-                Float.valueOf(reviewScoreField.getText()),
+                Integer.valueOf(reviewScoreField.getText()),
                 reviewTitleField.getText(),
                 reviewDescriptionField.getText(),
                 null

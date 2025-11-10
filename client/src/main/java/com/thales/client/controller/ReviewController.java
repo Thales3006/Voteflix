@@ -93,7 +93,7 @@ public class ReviewController extends SceneController {
         currentReview.get().getID(),
         null,
         null,
-        Float.parseFloat(ratingField.getText()),
+        Integer.valueOf(ratingField.getText()),
         titleField.getText(),
         descriptionField.getText(), 
         null
