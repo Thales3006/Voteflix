@@ -429,7 +429,7 @@ public class ServerService {
         int tokenId = jwt.getClaim("id").asInt();
 
         Review oldReview = database.getReview(reviewId);
-        if ((!oldReview.getUserID().equals(tokenId)) || (!database.isAdmin(tokenId))) {
+        if ((!oldReview.getUserID().equals(tokenId)) && (!database.isAdmin(tokenId))) {
             return createStatus(ErrorStatus.FORBIDDEN).toString();
         }
         database.deleteReview(reviewId);
