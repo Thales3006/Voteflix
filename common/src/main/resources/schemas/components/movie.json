@@ -3,8 +3,8 @@
   "title": "Movie",    
   "type": "object", 
   "properties": {
-    "titulo": { "type": "string", "minLength": 3 },
-    "diretor": { "type": "string", "minLength": 3 },
+    "titulo": { "type": "string", "minLength": 3, "maxLength": 30 },
+    "diretor": { "type": "string", "minLength": 3, "maxLength": 30  },
     "ano": { "type": "string", "pattern": "^[0-9]{3,4}$" },
     "genero": {
       "type": "array",
