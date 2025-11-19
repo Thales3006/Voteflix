@@ -7,13 +7,10 @@
       "type": "object",
       "properties": {
         "nome_usuario": { "type": "string" },
-        "data": {
-          "type": "string",
-          "pattern": "^[0-9]{2}/[0-9]{2}/[0-9]{3,4}$"
-        },
-        "editado": { "type": "string" }
+        "data": {"type": "string","pattern": "^[0-9]{2}/[0-9]{2}/[0-9]{3,4}$"},
+        "editado": {"type": "string","enum": ["true", "false"]}
       },
-      "required": ["id", "id_filme", "nome_usuario", "nota", "titulo", "descricao", "data"],
+      "required": ["id", "id_filme", "nome_usuario", "nota", "titulo", "descricao", "editado", "data"],
       "additionalProperties": true
     }
   ]

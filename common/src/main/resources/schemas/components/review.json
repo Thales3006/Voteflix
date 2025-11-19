@@ -6,7 +6,10 @@
     {
       "type": "object",
       "properties": {
-        "id_filme": { "type": "string" }
+        "id_filme": { 
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        }
       },
       "required": ["id_filme"],
       "additionalProperties": true
