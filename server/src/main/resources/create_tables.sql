@@ -35,6 +35,7 @@ CREATE TABLE reviews (
     rating FLOAT NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
+    edited BOOLEAN NOT NULL DEFAULT 0,
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (movie_id) REFERENCES movies(id),
     FOREIGN KEY (user_id) REFERENCES users(id)

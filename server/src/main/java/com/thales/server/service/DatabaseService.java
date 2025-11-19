@@ -452,6 +452,7 @@ public class DatabaseService {
                   (int)rs.getFloat("rating"),
                   rs.getString("title"),
                   rs.getString("description"),
+                  rs.getBoolean("edited"),
                   rs.getDate("date").toLocalDate()
                ));
             }
@@ -488,6 +489,7 @@ public class DatabaseService {
                   (int)rs.getFloat("rating"),
                   rs.getString("title"),
                   rs.getString("description"),
+                  rs.getBoolean("edited"),
                   rs.getDate("date").toLocalDate()
                ));
             }
@@ -511,6 +513,7 @@ public class DatabaseService {
                     (int)rs.getFloat("rating"),
                     rs.getString("title"),
                     rs.getString("description"),
+                    rs.getBoolean("edited"),
                     rs.getDate("date").toLocalDate()
                 );
             }
@@ -521,13 +524,15 @@ public class DatabaseService {
     }
 
     public synchronized void updateReview(Review review) throws StatusException {
-        String sql = "UPDATE reviews SET rating = ?, title = ?, description = ? WHERE id = ?";
+        String sql = "UPDATE reviews SET rating = ?, title = ?, description = ?, edited = ? WHERE id = ?";
         try (Connection conn = connect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setFloat(1, review.getRating());
             pstmt.setString(2, review.getTitle());
             pstmt.setString(3, review.getDescription());
-            pstmt.setInt(4, review.getID());
+            pstmt.setBoolean(4, true);
+            pstmt.setInt(5, review.getID());
+            
             int result = pstmt.executeUpdate();
             if(result == 0){
                 throw new StatusException(ErrorStatus.NOT_FOUND);

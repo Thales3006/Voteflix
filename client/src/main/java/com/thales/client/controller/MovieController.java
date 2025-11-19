@@ -150,6 +150,7 @@ public class MovieController extends SceneController {
                 Integer.valueOf(reviewScoreField.getText()),
                 reviewTitleField.getText(),
                 reviewDescriptionField.getText(),
+                null,
                 null
             );
             var message = clientService.requestCreateReview(review);

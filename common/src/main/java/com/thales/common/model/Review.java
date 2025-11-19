@@ -16,15 +16,17 @@ public class Review {
     private Integer rating;
     private String title;
     private String description;
+    private Boolean edited;
     private LocalDate date;
 
-    public Review(Integer ID, Integer movieID, Integer userID, Integer rating, String title, String description, LocalDate date) {
+    public Review(Integer ID, Integer movieID, Integer userID, Integer rating, String title, String description, Boolean edited, LocalDate date) {
         this.ID = ID;
         this.movieID = movieID;
         this.userID = userID;
         this.rating = rating;
         this.title = title;
         this.description = description;
+        this.edited = edited;
         this.date = date;
     }
 
@@ -36,6 +38,7 @@ public class Review {
         if (rating != null) json.addProperty("nota", rating.toString());
         if (title != null) json.addProperty("titulo", title);
         if (description != null) json.addProperty("descricao", description);
+        if (edited != null) json.addProperty("edited", description);
         if (date != null) json.addProperty("data", date.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         return json;
     }
@@ -47,6 +50,7 @@ public class Review {
         Integer rating = null;
         String title = null;
         String description = null;
+        Boolean edited = null;
         LocalDate date = null;
 
         if (json.has("id")) {
@@ -67,11 +71,14 @@ public class Review {
         if (json.has("descricao")) {
             description = json.get("descricao").getAsString();
         }
+        if (json.has("editado")) {
+            edited = Boolean.valueOf(json.get("editado").getAsString());
+        }
         if (json.has("data")) {
             date = LocalDate.parse(json.get("data").getAsString(), java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
         }
 
-        Review review = new Review(ID, movieID, userID, rating, title, description, date);
+        Review review = new Review(ID, movieID, userID, rating, title, description, edited, date);
         review.setUsername(username);
         return review;
 

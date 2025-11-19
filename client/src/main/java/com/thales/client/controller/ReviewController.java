@@ -96,6 +96,7 @@ public class ReviewController extends SceneController {
         Integer.valueOf(ratingField.getText()),
         titleField.getText(),
         descriptionField.getText(), 
+        null,
         null
         );
     }
