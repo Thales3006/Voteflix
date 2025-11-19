@@ -38,7 +38,7 @@ public class Review {
         if (rating != null) json.addProperty("nota", rating.toString());
         if (title != null) json.addProperty("titulo", title);
         if (description != null) json.addProperty("descricao", description);
-        if (edited != null) json.addProperty("edited", description);
+        if (edited != null) json.addProperty("editado", edited.toString());
         if (date != null) json.addProperty("data", date.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         return json;
     }

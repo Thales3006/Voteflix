@@ -192,13 +192,14 @@ public class MovieController extends SceneController {
         Label name = new Label("Username: " + (r.getUsername() == null ? "" : String.valueOf(r.getUsername())));
         Label score = new Label("Rating: " + (r.getRating() == null ? "" : String.valueOf(r.getRating())));
         Label date = new Label("Date: " + (r.getDate() == null ? "" : String.valueOf(r.getDate())));
+        Label edited = new Label("Edited: " + (r.getEdited() == null ? "" : String.valueOf(r.getEdited())));
         Button deleteButton = new Button("Delete");
         deleteButton.setOnAction(evt -> handle(evt, () -> {
             String message = clientService.requestDeleteReview(r.getID());
             feedback(message);
         }));
         reviewBox.getStyleClass().add("review-view");
-        reviewBox.getChildren().addAll(title, description, name, score, date, deleteButton);
+        reviewBox.getChildren().addAll(title, description, name, score, date, edited, deleteButton);
         return reviewBox;
     }
 }

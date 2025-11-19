@@ -56,8 +56,9 @@ public class ReviewController extends SceneController {
                     Label description = new Label("Description: " + (r.getDescription() == null ? "" : r.getDescription()));
                     Label name = new Label("Username: " + (r.getUsername() == null ? "" : String.valueOf(r.getUsername())));
                     Label score = new Label("Rating: " + (r.getRating() == null ? "" : String.valueOf(r.getRating())));
+                    Label edited = new Label("Edited: " + (r.getEdited() == null ? "" : String.valueOf(r.getEdited())));
                     Label date = new Label("Date: " + (r.getDate() == null ? "" : String.valueOf(r.getDate())));
-                    reviewBox.getChildren().addAll(title, description, name, score, date);
+                    reviewBox.getChildren().addAll(title, description, name, score, date, edited);
                     reviewBox.getStyleClass().add("review-view");
                     reviewBox.setOnMouseClicked(_ -> currentReview.set(r));
                     reviewList.getChildren().add(reviewBox);
