@@ -360,12 +360,6 @@ public class ServerService {
         review.setUserID(tokenId);
         database.createReview(review);
 
-        Movie movie = database.getMovie(review.getMovieID());
-        Float newRating = (movie.getRating()*movie.getRatingAmount() + review.getRating()) / (movie.getRatingAmount()+1) ;
-        movie.setRating(newRating);
-        movie.setRatingAmount(movie.getRatingAmount()+1);
-        database.updateMovie(movie);
-
         return createStatus(ErrorStatus.CREATED).toString();
     }
 
@@ -412,11 +406,6 @@ public class ServerService {
         }
         database.updateReview(review);
 
-        Movie movie = database.getMovie(oldReview.getMovieID());
-        Float newRating = (movie.getRating()*movie.getRatingAmount() - oldReview.getRating() + review.getRating()) / (movie.getRatingAmount()) ;
-        movie.setRating(newRating);
-        database.updateMovie(movie);
-
         JsonObject json = createStatus(ErrorStatus.OK);
         return json.toString();
     }
@@ -433,15 +422,6 @@ public class ServerService {
             return createStatus(ErrorStatus.FORBIDDEN).toString();
         }
         database.deleteReview(reviewId);
-
-        Movie movie = database.getMovie(oldReview.getMovieID());
-        Float newRating = 0.0f;
-        if(movie.getRatingAmount() > 1){
-            newRating = (movie.getRating()*movie.getRatingAmount() - oldReview.getRating()) / (movie.getRatingAmount()-1) ;
-        }
-        movie.setRating(newRating);
-        movie.setRatingAmount(movie.getRatingAmount()-1);
-        database.updateMovie(movie);
         
         JsonObject json = createStatus(ErrorStatus.OK);
         return json.toString();
