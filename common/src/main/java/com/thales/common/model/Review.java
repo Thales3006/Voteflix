@@ -63,7 +63,7 @@ public class Review {
             username = json.get("nome_usuario").getAsString();
         }
         if (json.has("nota")) {
-            rating = Integer.valueOf(json.get("nota").getAsString()); 
+            rating = Float.valueOf(json.get("nota").getAsString()).intValue(); 
         }
         if (json.has("titulo")) {
             title = json.get("titulo").getAsString();

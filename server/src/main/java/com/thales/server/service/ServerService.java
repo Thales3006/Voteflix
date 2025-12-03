@@ -360,6 +360,9 @@ public class ServerService {
         review.setUserID(tokenId);
         database.createReview(review);
 
+        if(database.isAdmin(tokenId)){
+            return createStatus(ErrorStatus.FORBIDDEN).toString();
+        }
         return createStatus(ErrorStatus.CREATED).toString();
     }
 
@@ -369,6 +372,9 @@ public class ServerService {
         DecodedJWT jwt = verifier.verify(token);
         int tokenId = jwt.getClaim("id").asInt();
 
+        if(database.isAdmin(tokenId)){
+            return createStatus(ErrorStatus.FORBIDDEN).toString();
+        }
         JsonObject json = createStatus(ErrorStatus.OK);
         json.add("reviews", gson.toJsonTree(database.getUserReviews(tokenId).stream()
             .map(review -> {setReviewUsername(review); return review.toJson();})
@@ -402,6 +408,9 @@ public class ServerService {
 
         Review oldReview = database.getReview(review.getID());
         if (!oldReview.getUserID().equals(tokenId)) {
+            return createStatus(ErrorStatus.FORBIDDEN).toString();
+        }
+        if(database.isAdmin(tokenId)){
             return createStatus(ErrorStatus.FORBIDDEN).toString();
         }
         database.updateReview(review);
