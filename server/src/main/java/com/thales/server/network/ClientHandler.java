@@ -26,6 +26,7 @@ public class ClientHandler extends Thread {
         running = new SimpleBooleanProperty(false);
         this.connection = connection;
         this.serverService = serverService;
+        this.username = "";
     }
 
     public void run(){
