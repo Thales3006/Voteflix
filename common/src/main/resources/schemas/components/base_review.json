@@ -4,7 +4,7 @@
   "type": "object", 
   "properties": {
     "nota": {"type": "string","pattern": "^[1-5](.(0+))?$"},
-    "titulo": { "type": "string" },
+    "titulo": { "type": "string", "minLength": 3, "maxLength": 30 },
     "descricao": { "type": "string" , "maxLength": 250 }
     },
   "required": ["nota", "titulo", "descricao"],
