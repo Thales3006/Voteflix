@@ -27,7 +27,9 @@ public class Main extends Application {
             @Override
             public void handle(WindowEvent event) {
                 AppController controller = loader.getController();
-                controller.getServerListener().close();
+                if (controller.getServerListener() != null) {
+                    controller.getServerListener().close();
+                }
                 Platform.exit();
                 System.exit(0);
             }
