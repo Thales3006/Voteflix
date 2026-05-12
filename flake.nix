@@ -50,15 +50,22 @@
       };
 
       apps.${system} = {
-        server = {
+
+        default = {
           type = "app";
-          program = toString (mkJavaApp "server");
+          program = toString (mkJavaApp "client");
         };
 
         client = {
           type = "app";
           program = toString (mkJavaApp "client");
         };
+
+        server = {
+          type = "app";
+          program = toString (mkJavaApp "server");
+        };
+
       };
     };
 }
