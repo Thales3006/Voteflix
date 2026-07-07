@@ -19,6 +19,10 @@ public class Main extends Application {
         Scene scene = new Scene(loader.load());
         stage.setScene(scene);
         stage.setTitle("VoteFlix");
+        stage.setMinWidth(800);
+        stage.setMinHeight(540);
+        stage.setMaxWidth(1440);
+        stage.setMaxHeight(960);
         stage.show();
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/icon.png")));
 
