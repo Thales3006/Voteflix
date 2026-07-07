@@ -63,13 +63,15 @@ public class MovieController extends SceneController {
             synopsisField.setEditable(true);
             movieButtonHbox.setDisable(false);
         }
+
+        handle(null, () -> { loadMovies(); });
     }
 
     private void loadMovies() throws Exception {
         var request = clientService.requestMovieList();
         ArrayList<Movie> movies = request.getSecond();
-        movieTilePane.getChildren().clear();
 
+        movieTilePane.getChildren().clear();
         for (Movie movie : movies) {
             VBox movieBox = new VBox();
             movieBox.prefWidthProperty().bind(movieTilePane.widthProperty().divide(2.2));
@@ -83,7 +85,6 @@ public class MovieController extends SceneController {
 
             movieBox.setOnMouseClicked(_ -> currentMovie.set(movie));
         }
-        feedback(request.getFirst());
     }
 
 
@@ -102,7 +103,7 @@ public class MovieController extends SceneController {
                 synopsisField.getText().trim()
             );
             String request = clientService.requestCreateMovie(movie); 
-            feedback(request);
+            loadMovies();
         });
     }
 
@@ -124,7 +125,7 @@ public class MovieController extends SceneController {
                 synopsisField.getText()
             );
             String request = clientService.requestUpdateMovie(movie);
-            feedback(request);
+            loadMovies();
         });
     }
 
@@ -134,7 +135,7 @@ public class MovieController extends SceneController {
                 throw  new Exception("You have to select a movie");
             }
             String request = clientService.requestDeleteMovie(currentMovie.get().getID()); 
-            feedback(request);
+            loadMovies();
         });
     }
 
