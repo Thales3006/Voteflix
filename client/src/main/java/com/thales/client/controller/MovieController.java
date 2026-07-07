@@ -139,9 +139,28 @@ public class MovieController extends SceneController {
         });
     }
 
+    private void loadReviews() throws Exception {
+        if(currentMovie.get() == null){
+            throw new Exception("No movie selected");
+        }
+        var request = clientService.requestMovieReviewList(currentMovie.get().getID());
+        String message = request.getFirst();
+        ArrayList<Review> reviews = request.getSecond();
+
+        reviewVbox.getChildren().clear();
+
+        if (reviews == null || reviews.isEmpty()) {
+            reviewVbox.getChildren().add(new Label("No reviews yet."));
+        } else {
+            for (Review r : reviews) {
+                reviewVbox.getChildren().add(ViewReview(r));
+            }
+        }
+    }
+
     @FXML private void HandleCreateReviewButton(ActionEvent event){
         handle(event, () -> { 
-            if(currentMovie.get() == null){
+            if (currentMovie.get() == null) {
                 throw  new Exception("You have to select a movie");
             }
             Review review = new Review(
@@ -155,31 +174,11 @@ public class MovieController extends SceneController {
                 null
             );
             var message = clientService.requestCreateReview(review);
-
-            feedback(message);
         });
     }
 
     @FXML private void HandleLoadReviewButton(ActionEvent event){
-        handle(event, () -> { 
-            if(currentMovie.get() == null){
-                throw  new Exception("You have to select a movie");
-            }
-            var request = clientService.requestMovieReviewList(currentMovie.get().getID());
-            String message = request.getFirst();
-            ArrayList<Review> reviews = request.getSecond();
-
-            reviewVbox.getChildren().clear();
-
-            if (reviews == null || reviews.isEmpty()) {
-                reviewVbox.getChildren().add(new Label("No reviews yet."));
-            } else {
-                for (Review r : reviews) {
-                    reviewVbox.getChildren().add(ViewReview(r));
-                }
-            }
-            feedback(message);
-        });
+        handle(event, () -> { loadReviews(); });
     }
 
     @FXML private void HandleRefreshMovieButton(ActionEvent event){
@@ -197,7 +196,6 @@ public class MovieController extends SceneController {
         Button deleteButton = new Button("Delete");
         deleteButton.setOnAction(evt -> handle(evt, () -> {
             String message = clientService.requestDeleteReview(r.getID());
-            feedback(message);
         }));
         reviewBox.getStyleClass().add("review-view");
         reviewBox.getChildren().addAll(title, description, name, score, date, edited, deleteButton);
