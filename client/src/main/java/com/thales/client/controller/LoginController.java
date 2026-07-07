@@ -18,18 +18,17 @@ public class LoginController extends SceneController {
     @FXML private PasswordField passwordField;
 
     // ===================================
-    //  UI interaction handlers
+    // UI interaction handlers
     // ===================================
 
-    @FXML private void HandleLoginButton(ActionEvent event){
+    @FXML private void HandleLoginButton(ActionEvent event) {
         handle(event, () -> {
-            String request = clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
-            feedback(request);
+            clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
             SceneController.switchPage(event, "/menu_page.fxml");
         });
     }
 
-    @FXML private void HandleRegisterButton(ActionEvent event){
+    @FXML private void HandleRegisterButton(ActionEvent event) {
         handle(event, () -> {
             String request = clientService.requestRegister(new User(usernameField.getText(), passwordField.getText()));
             feedback(request);
