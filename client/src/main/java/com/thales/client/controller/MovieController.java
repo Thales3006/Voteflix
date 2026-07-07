@@ -52,6 +52,8 @@ public class MovieController extends SceneController {
                 ratingLabel.setText(String.valueOf(movie.getRating()));
                 reviewAmountLabel.setText(String.valueOf(movie.getRatingAmount()));
                 idLabel.setText(String.valueOf(movie.getID()));
+
+                handle(null, () -> { loadReviews(); });
             }
         });
 
@@ -174,6 +176,7 @@ public class MovieController extends SceneController {
                 null
             );
             var message = clientService.requestCreateReview(review);
+            loadReviews();
         });
     }
 
@@ -196,6 +199,7 @@ public class MovieController extends SceneController {
         Button deleteButton = new Button("Delete");
         deleteButton.setOnAction(evt -> handle(evt, () -> {
             String message = clientService.requestDeleteReview(r.getID());
+            loadReviews();
         }));
         reviewBox.getStyleClass().add("review-view");
         reviewBox.getChildren().addAll(title, description, name, score, date, edited, deleteButton);
