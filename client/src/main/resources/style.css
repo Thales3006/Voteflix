@@ -1,55 +1,366 @@
+/* === VOTEFLIX — CINEMATIC THEME === */
+
+/* ─── Base ─── */
 .root {
-    -fx-font-family: "Arial";
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-background-color: #0e0e18;
 }
 
+/* ─── Typography ─── */
+.label {
+    -fx-text-fill: #dde1f0;
+}
+
+.text {
+    -fx-fill: #dde1f0;
+}
+
+/* ─── Text Inputs ─── */
+.text-field,
+.password-field {
+    -fx-background-color: #1a1a28;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #48486a;
+    -fx-border-color: #2d2d45;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 5 10 5 10;
+    -fx-highlight-fill: rgba(79, 128, 247, 0.4);
+    -fx-highlight-text-fill: #ffffff;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: #4f80f7;
+    -fx-effect: dropshadow(gaussian, rgba(79, 128, 247, 0.3), 8, 0, 0, 0);
+}
+
+.text-field:hover,
+.password-field:hover {
+    -fx-border-color: #3d3d5a;
+}
+
+.text-input:readonly {
+    -fx-background-color: #13131d;
+    -fx-text-fill: #60607a;
+    -fx-border-color: #1e1e2e;
+}
+
+/* ─── Primary Buttons (positive actions) ─── */
 .button {
-    -fx-background-color: #2196F3;
-    -fx-text-fill: white;
+    -fx-background-color: linear-gradient(to bottom, #5c8cf8, #4270e8);
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-border-width: 0;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(66, 112, 232, 0.45), 8, 0, 0, 3);
 }
 
-.button:pressed{
-    -fx-background-color: #276394;
-    -fx-text-fill: rgb(170, 170, 170);
+.button:hover {
+    -fx-background-color: linear-gradient(to bottom, #6d9aff, #5280f8);
+    -fx-effect: dropshadow(gaussian, rgba(79, 128, 247, 0.65), 12, 0, 0, 3);
+}
+
+.button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #3a68d0, #2d58c4);
     -fx-scale-x: 0.97;
     -fx-scale-y: 0.97;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0, 0, 1);
 
-    transition: -fx-background-color 0.1s ease,
-                -fx-text-fill 0.1s ease,
-                -fx-scale-x 0.1s ease,
-                -fx-scale-y 0.1s ease;
+    transition: -fx-scale-x 0.08s ease,
+                -fx-scale-y 0.08s ease;
 }
 
+.button:disabled {
+    -fx-background-color: #1c1c2c;
+    -fx-text-fill: #3a3a55;
+    -fx-opacity: 1.0;
+    -fx-cursor: default;
+    -fx-effect: none;
+}
+
+/* ─── Exit Buttons — amber outlined (Disconnect, Logout) ─── */
+#disconnectButton,
+#logoutButton {
+    -fx-background-color: transparent;
+    -fx-text-fill: #d97706;
+    -fx-border-color: #78460a;
+    -fx-border-width: 1;
+    -fx-effect: none;
+}
+
+#disconnectButton:hover,
+#logoutButton:hover {
+    -fx-background-color: rgba(217, 119, 6, 0.12);
+    -fx-text-fill: #fbbf24;
+    -fx-border-color: #d97706;
+    -fx-effect: dropshadow(gaussian, rgba(217, 119, 6, 0.3), 8, 0, 0, 0);
+}
+
+#disconnectButton:disabled {
+    -fx-background-color: transparent;
+    -fx-text-fill: #302210;
+    -fx-border-color: #241808;
+    -fx-effect: none;
+    -fx-cursor: default;
+}
+
+/* ─── Danger Buttons — red outlined (Delete only) ─── */
+#deleteButton,
+#deleteUserButton,
+#deleteMovieButton {
+    -fx-background-color: transparent;
+    -fx-text-fill: #f87171;
+    -fx-border-color: #7f1d1d;
+    -fx-border-width: 1;
+    -fx-effect: none;
+}
+
+#deleteButton:hover,
+#deleteUserButton:hover,
+#deleteMovieButton:hover {
+    -fx-background-color: rgba(248, 113, 113, 0.1);
+    -fx-text-fill: #fca5a5;
+    -fx-border-color: #ef4444;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.3), 8, 0, 0, 0);
+}
+
+/* ─── Navigation Bar ─── */
+.nav-bar {
+    -fx-background-color: linear-gradient(to right, #080810, #0c0c1a, #080810);
+    -fx-border-color: transparent transparent #1a1a2e transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 10, 0, 0, 3);
+}
+
+.nav-bar .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6060a0;
+    -fx-font-weight: normal;
+    -fx-border-width: 0;
+    -fx-effect: none;
+    -fx-padding: 8 16 8 16;
+    -fx-background-radius: 4;
+}
+
+.nav-bar .button:hover {
+    -fx-background-color: rgba(79, 128, 247, 0.12);
+    -fx-text-fill: #a0c0ff;
+    -fx-effect: none;
+}
+
+.nav-bar .button:pressed {
+    -fx-background-color: rgba(79, 128, 247, 0.2);
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
+.nav-bar #logoutButton {
+    -fx-background-color: transparent;
+    -fx-text-fill: #503a1a;
+    -fx-border-color: transparent;
+}
+
+.nav-bar #logoutButton:hover {
+    -fx-background-color: rgba(217, 119, 6, 0.12);
+    -fx-text-fill: #d97706;
+    -fx-border-color: transparent;
+    -fx-effect: none;
+}
+
+/* ─── Connection Bar ─── */
+.connection-bar {
+    -fx-background-color: #090912;
+    -fx-border-color: #1a1a2e transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* ─── Scroll Bars ─── */
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+    -fx-background-color: #0a0a14;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 7;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 7;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #28283e;
+    -fx-background-radius: 4em;
+    -fx-background-insets: 1;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #4f80f7;
+}
+
+.scroll-bar .track {
+    -fx-background-color: #0a0a14;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+    -fx-min-height: 0;
+    -fx-min-width: 0;
+    -fx-max-height: 0;
+    -fx-max-width: 0;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+/* ─── List View ─── */
+.list-view {
+    -fx-background-color: #10101a;
+    -fx-border-color: #1e1e30;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4 0 4 0;
+}
+
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9090b8;
+    -fx-padding: 8 12 8 12;
+    -fx-border-width: 0;
+}
+
+.list-view .list-cell:odd {
+    -fx-background-color: rgba(255, 255, 255, 0.015);
+}
+
+.list-view .list-cell:hover {
+    -fx-background-color: rgba(79, 128, 247, 0.1);
+    -fx-text-fill: #c0c8f0;
+}
+
+.list-view .list-cell:selected {
+    -fx-background-color: rgba(79, 128, 247, 0.22);
+    -fx-text-fill: #ffffff;
+}
+
+.list-view:focused .list-cell:selected {
+    -fx-background-color: rgba(79, 128, 247, 0.3);
+    -fx-text-fill: #ffffff;
+}
+
+.list-view:focused {
+    -fx-border-color: #4f80f7;
+}
+
+/* ─── Separator ─── */
+.separator .line {
+    -fx-border-color: #1e1e2e;
+    -fx-border-width: 0.5;
+}
+
+/* ─── Movie Card ─── */
 .movie-view {
-    -fx-padding: 10px;
-    -fx-spacing: 10px;
-    -fx-alignment: center;
-    
-    -fx-border-color: gray;
-    -fx-border-width: 1px;
-    -fx-border-radius: 5px;
-
-    -fx-background-color: white;
-    -fx-background-radius: 5px;
-    
-    -fx-effect: dropshadow(gaussian, rgb(0, 0, 0), 10, 0, 0, 0);
+    -fx-padding: 12;
+    -fx-spacing: 6;
+    -fx-alignment: center-left;
+    -fx-border-color: #1e1e30;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-color: linear-gradient(to bottom, #1c1c2e, #14141f);
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 12, 0, 0, 4);
+    -fx-cursor: hand;
 }
 
-.movie-view:hover{
-    -fx-background-color: #bbceee;
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
+.movie-view .label {
+    -fx-text-fill: #8888b8;
+    -fx-font-size: 12px;
+}
 
-    transition: -fx-background-color 1s ease,
-                -fx-scale-x 0.5s ease,
-                -fx-scale-y 0.5s ease;
+.movie-view:hover {
+    -fx-background-color: linear-gradient(to bottom, #242438, #1a1a2c);
+    -fx-border-color: #4f80f7;
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(gaussian, rgba(79, 128, 247, 0.35), 18, 0, 0, 4);
+
+    transition: -fx-scale-x 0.2s ease,
+                -fx-scale-y 0.2s ease;
 }
 
 .movie-view:pressed {
-    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, #ffffff, #bbceee);
-    -fx-scale-x: 1.03;
-    -fx-scale-y: 1.03;
+    -fx-scale-x: 1.01;
+    -fx-scale-y: 1.01;
+    -fx-background-color: linear-gradient(to bottom, #181828, #10101c);
 
-    transition: -fx-background-color 0.5s ease,
-                -fx-scale-x 0.5s ease,
-                -fx-scale-y 0.5s ease;
+    transition: -fx-scale-x 0.08s ease,
+                -fx-scale-y 0.08s ease;
+}
+
+/* ─── Review Card ─── */
+.review-view {
+    -fx-padding: 12;
+    -fx-spacing: 4;
+    -fx-border-color: #1e1e30 #1e1e30 #1e1e30 #4f80f7;
+    -fx-border-width: 1 1 1 3;
+    -fx-border-radius: 6;
+    -fx-background-color: #12121e;
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.review-view .label {
+    -fx-text-fill: #8080a8;
+    -fx-font-size: 12px;
+}
+
+.review-view:hover {
+    -fx-background-color: #181828;
+    -fx-border-color: #2e2e50 #2e2e50 #2e2e50 #6d9aff;
+    -fx-effect: dropshadow(gaussian, rgba(79, 128, 247, 0.2), 12, 0, 0, 2);
+
+    transition: -fx-background-color 0.15s ease;
+}
+
+/* ─── Alert Dialogs ─── */
+.dialog-pane {
+    -fx-background-color: #12121e;
+    -fx-border-color: #2a2a42;
+    -fx-border-width: 1;
+}
+
+.dialog-pane .content.label,
+.dialog-pane .label {
+    -fx-text-fill: #dde1f0;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: #1a1a2e;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
 }
