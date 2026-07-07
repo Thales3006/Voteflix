@@ -57,15 +57,12 @@ public class UserController extends SceneController {
         for(User user : users){
             userListView.getItems().add(user);
         }
-        feedback(request.getFirst());
     }
 
     private void listOwnUser() throws Exception {
         var request = clientService.requestOwnUser();
         selectedUser = request.getSecond();
         usernameLabel.setText(selectedUser.getUsername());
-        feedback(request.getFirst());
-        
     }
 
     // ===================================
@@ -87,7 +84,6 @@ public class UserController extends SceneController {
                     new User("", passwordField.getText())):
                 clientService.requestUpdateUser(
                     new User("", passwordField.getText()), selectedUser.getId());
-            feedback(request);
         });
     }
 
@@ -103,7 +99,6 @@ public class UserController extends SceneController {
             if(clientService.getUsername().equals(selectedUser.getUsername())){
                 switchPage(event, "/login_page.fxml");
             }
-            feedback(request);
         });
     }
 

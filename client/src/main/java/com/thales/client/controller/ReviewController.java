@@ -64,8 +64,6 @@ public class ReviewController extends SceneController {
                     reviewList.getChildren().add(reviewBox);
                 }
             }
-
-            feedback(message);
         });
     }
 
@@ -75,7 +73,6 @@ public class ReviewController extends SceneController {
                 throw  new Exception("You have to select a review");
             }
             String message = clientService.requestUpdateReview(extractReview());
-            feedback(message);
         });
     }
 
@@ -85,7 +82,6 @@ public class ReviewController extends SceneController {
                 throw  new Exception("You have to select a review");
             }
             String message = clientService.requestDeleteReview(currentReview.get().getID());
-            feedback(message);
         });
     }
 
