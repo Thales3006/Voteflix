@@ -1,7 +1,6 @@
 package com.thales.server.controller;
 
 import com.thales.common.model.User;
-import com.thales.server.network.ClientHandler;
 import com.thales.server.network.ServerListener;
 import com.thales.server.service.ServerService;
 
@@ -42,29 +41,9 @@ public class AppController {
         for (String username : users.keySet()) {
             User user = users.get(username);
 
-            ClientHandler client = null;
-            for (ClientHandler ch : serverListener.getClients()) {
-                if (ch != null && username.equals(ch.getUsername())) {
-                    client = ch;
-                    break;
-                }
-            }
-            String IP = "unknown";
-            if(client != null){
-                String clientIp = client.getConnection().getInetAddress() != null? 
-                    client.getConnection().getInetAddress().getHostAddress()
-                    : "unknown";
-                int clientPort = client.getConnection().getPort();
-                IP = clientIp + ":" + clientPort;
-            }
-
-
-
             TitledPane pane = new TitledPane(username, new Label(
-                "Password: " + user.getPassword() + "\n" +
-                "IP: " + IP + "\n"
+                "Password: " + user.getPassword() + "\n"
                 ));
-            
 
             userList.getPanes().add(pane);
         }
