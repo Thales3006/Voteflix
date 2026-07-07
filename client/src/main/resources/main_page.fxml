@@ -6,34 +6,12 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 
-<BorderPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.thales.client.controller.MainPageController">
+<BorderPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@style.css"
+    xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.thales.client.controller.MainPageController">
    <center>
-      <BorderPane fx:id="currentPage" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-      </BorderPane>
+      <BorderPane fx:id="currentPage" BorderPane.alignment="CENTER" />
    </center>
-   <bottom>
-      <HBox spacing="10.0" styleClass="connection-bar" BorderPane.alignment="CENTER">
-         <children>
-            <Label alignment="CENTER" text="IPv4" />
-            <TextField fx:id="IPField" promptText="000.000.000.000" text="localhost" />
-            <Label alignment="CENTER" text="Port" />
-            <TextField fx:id="portField" promptText="0000" text="20737" />
-            <Button fx:id="connectButton" mnemonicParsing="false" onAction="#HandleConnectButton" prefWidth="110.0" text="Connect" />
-            <Button fx:id="disconnectButton" disable="true" mnemonicParsing="false" onAction="#HandleDisconnectButton" prefWidth="110.0" text="Disconnect" />
-         </children>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
-         <padding>
-            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-         </padding>
-      </HBox>
-   </bottom>
-   <padding>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-   </padding>
 </BorderPane>
