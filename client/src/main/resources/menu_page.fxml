@@ -11,7 +11,7 @@
       <Insets />
    </opaqueInsets>
    <top>
-      <HBox alignment="TOP_RIGHT" prefHeight="50.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <HBox alignment="TOP_RIGHT" prefHeight="50.0" prefWidth="200.0" spacing="10.0" styleClass="nav-bar" BorderPane.alignment="CENTER">
          <children>
             <Button fx:id="reviewButton" mnemonicParsing="false" onAction="#HandleReviewButton" text="Reviews" />
             <Button fx:id="movieButton" mnemonicParsing="false" onAction="#HandleMovieButton" text="Movies" />
