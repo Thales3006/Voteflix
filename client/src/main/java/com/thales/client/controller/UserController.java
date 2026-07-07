@@ -85,7 +85,9 @@ public class UserController extends SceneController {
                     new User("", passwordField.getText())):
                 clientService.requestUpdateUser(
                     new User("", passwordField.getText()), selectedUser.getId());
-            refreshUsers();
+            if(clientService.isAdmin()) {
+                refreshUsers();
+            }
         });
     }
 
@@ -101,7 +103,9 @@ public class UserController extends SceneController {
             if(clientService.getUsername().equals(selectedUser.getUsername())){
                 switchPage(event, "/login_page.fxml");
             }
-            refreshUsers();
+            if(clientService.isAdmin()) {
+                refreshUsers();
+            }
         });
     }
 
