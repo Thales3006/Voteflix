@@ -27,27 +27,28 @@ public class UserController extends SceneController {
 
     @FXML protected void initialize(){
         
-        
-        if(!clientService.isAdmin()){
-            return;
-        }
-        usersVbox.setDisable(false);
+        if(clientService.isAdmin()){
+            usersVbox.setDisable(false);
 
-        userListView.setCellFactory(_ -> new ListCell<User>() {
-            @Override
-            protected void updateItem(User user, boolean empty) {
-            super.updateItem(user, empty);
-            if (empty || user == null) {
-                setGraphic(null);
-            } else {
-                VBox vbox = new VBox(
-                new Label("Username: " + user.getUsername()),
-                new Label("ID: " + user.getId())
-                );
-                setGraphic(vbox);
-            }
-            }
-        });
+            userListView.setCellFactory(_ -> new ListCell<User>() {
+                @Override
+                protected void updateItem(User user, boolean empty) {
+                super.updateItem(user, empty);
+                if (empty || user == null) {
+                    setGraphic(null);
+                } else {
+                    VBox vbox = new VBox(
+                    new Label("Username: " + user.getUsername()),
+                    new Label("ID: " + user.getId())
+                    );
+                    setGraphic(vbox);
+                }
+                }
+            });
+            handle(null, () -> { refreshUsers(); });
+        }
+        handle(null, () -> { listOwnUser(); });
+        
     }
     
     private void refreshUsers() throws Exception {
@@ -84,6 +85,7 @@ public class UserController extends SceneController {
                     new User("", passwordField.getText())):
                 clientService.requestUpdateUser(
                     new User("", passwordField.getText()), selectedUser.getId());
+            refreshUsers();
         });
     }
 
@@ -99,6 +101,7 @@ public class UserController extends SceneController {
             if(clientService.getUsername().equals(selectedUser.getUsername())){
                 switchPage(event, "/login_page.fxml");
             }
+            refreshUsers();
         });
     }
 
