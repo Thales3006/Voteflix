@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import com.thales.common.model.ErrorStatus;
@@ -18,6 +19,11 @@ public class DatabaseService {
 
     private synchronized Connection connect() throws SQLException {
         return DriverManager.getConnection(url);
+    }
+
+    private LocalDate parseDate(String raw) {
+        if (raw == null) return null;
+        return LocalDate.parse(raw.substring(0, 10));
     }
 
     public synchronized boolean checkUser(String username, String password) throws StatusException {
@@ -476,7 +482,7 @@ public class DatabaseService {
                   rs.getString("title"),
                   rs.getString("description"),
                   rs.getBoolean("edited"),
-                  rs.getDate("date").toLocalDate()
+                  parseDate(rs.getString("date"))
                ));
             }
         } catch (SQLException e) {
@@ -513,7 +519,7 @@ public class DatabaseService {
                   rs.getString("title"),
                   rs.getString("description"),
                   rs.getBoolean("edited"),
-                  rs.getDate("date").toLocalDate()
+                  parseDate(rs.getString("date"))
                ));
             }
         } catch (SQLException e) {
@@ -537,7 +543,7 @@ public class DatabaseService {
                     rs.getString("title"),
                     rs.getString("description"),
                     rs.getBoolean("edited"),
-                    rs.getDate("date").toLocalDate()
+                    parseDate(rs.getString("date"))
                 );
             }
         } catch (SQLException e) {
