@@ -16,7 +16,7 @@
       </BorderPane>
    </center>
    <bottom>
-      <HBox spacing="10.0" BorderPane.alignment="CENTER">
+      <HBox spacing="10.0" styleClass="connection-bar" BorderPane.alignment="CENTER">
          <children>
             <Label alignment="CENTER" text="IPv4" />
             <TextField fx:id="IPField" promptText="000.000.000.000" text="localhost" />
