@@ -37,34 +37,37 @@ public class ReviewController extends SceneController {
                 dateLabel.setText(String.valueOf(review.getDate()));
             }
         });
+        handle(null, () -> { loadReviews(); });
+    }
+
+    private void loadReviews() throws Exception { 
+        var request = clientService.requestOwnReviewList();
+        String message = request.getFirst();
+        ArrayList<Review> reviews = request.getSecond();
+
+        reviewList.getChildren().clear();
+
+        if (reviews == null || reviews.isEmpty()) {
+            reviewList.getChildren().add(new Label("No reviews yet."));
+        } else {
+            for (Review r : reviews) {
+                VBox reviewBox = new VBox();
+                Label title = new Label("Title: " + (r.getTitle() == null ? "" : r.getTitle()));
+                Label description = new Label("Description: " + (r.getDescription() == null ? "" : r.getDescription()));
+                Label name = new Label("Username: " + (r.getUsername() == null ? "" : String.valueOf(r.getUsername())));
+                Label score = new Label("Rating: " + (r.getRating() == null ? "" : String.valueOf(r.getRating())));
+                Label edited = new Label("Edited: " + (r.getEdited() == null ? "" : String.valueOf(r.getEdited())));
+                Label date = new Label("Date: " + (r.getDate() == null ? "" : String.valueOf(r.getDate())));
+                reviewBox.getChildren().addAll(title, description, name, score, date, edited);
+                reviewBox.getStyleClass().add("review-view");
+                reviewBox.setOnMouseClicked(_ -> currentReview.set(r));
+                reviewList.getChildren().add(reviewBox);
+            }
+        }
     }
 
     @FXML private void HandleRefreshButton(ActionEvent event) {
-        handle(event, () -> { 
-            var request = clientService.requestOwnReviewList();
-            String message = request.getFirst();
-            ArrayList<Review> reviews = request.getSecond();
-
-            reviewList.getChildren().clear();
-
-            if (reviews == null || reviews.isEmpty()) {
-                reviewList.getChildren().add(new Label("No reviews yet."));
-            } else {
-                for (Review r : reviews) {
-                    VBox reviewBox = new VBox();
-                    Label title = new Label("Title: " + (r.getTitle() == null ? "" : r.getTitle()));
-                    Label description = new Label("Description: " + (r.getDescription() == null ? "" : r.getDescription()));
-                    Label name = new Label("Username: " + (r.getUsername() == null ? "" : String.valueOf(r.getUsername())));
-                    Label score = new Label("Rating: " + (r.getRating() == null ? "" : String.valueOf(r.getRating())));
-                    Label edited = new Label("Edited: " + (r.getEdited() == null ? "" : String.valueOf(r.getEdited())));
-                    Label date = new Label("Date: " + (r.getDate() == null ? "" : String.valueOf(r.getDate())));
-                    reviewBox.getChildren().addAll(title, description, name, score, date, edited);
-                    reviewBox.getStyleClass().add("review-view");
-                    reviewBox.setOnMouseClicked(_ -> currentReview.set(r));
-                    reviewList.getChildren().add(reviewBox);
-                }
-            }
-        });
+        handle(event, () -> { loadReviews(); });
     }
 
     @FXML private void HandleUpdateButton(ActionEvent event){
@@ -73,6 +76,7 @@ public class ReviewController extends SceneController {
                 throw  new Exception("You have to select a review");
             }
             String message = clientService.requestUpdateReview(extractReview());
+            loadReviews();
         });
     }
 
@@ -82,6 +86,7 @@ public class ReviewController extends SceneController {
                 throw  new Exception("You have to select a review");
             }
             String message = clientService.requestDeleteReview(currentReview.get().getID());
+            loadReviews();
         });
     }
 
