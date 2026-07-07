@@ -142,8 +142,6 @@ public class ServerService {
         String password = jsonObject.get("senha").getAsString();
 
         
-        client.setUsername(username);
-
         String token = null;
         if(!database.checkUser(username, password)){
             return createStatus(ErrorStatus.FORBIDDEN).toString();
@@ -169,11 +167,13 @@ public class ServerService {
         DecodedJWT jwt = verifier.verify(token);
         int id = jwt.getClaim("id").asInt();
 
-        database.getUsername(id);
-        JsonObject json = createStatus(ErrorStatus.OK);  
+        String username = database.getUsername(id);
+        JsonObject json = createStatus(ErrorStatus.OK);
 
-        handleClosed(client);
-    
+        synchronized (usersLock) {
+            users.remove(username);
+        }
+
         return json.toString();
     }
 
@@ -264,7 +264,9 @@ public class ServerService {
         }
         database.deleteUser(id);
 
-        handleClosed(client);
+        synchronized (usersLock) {
+            users.remove(username);
+        }
         return createStatus(ErrorStatus.OK).toString();
     }
 
@@ -427,13 +429,4 @@ public class ServerService {
         return json.toString();
     }
  
-    public void handleClosed(ClientHandler client) {
-        String username = client.getUsername();
-        if (username != null) {
-            synchronized (usersLock){
-                users.remove(username);
-            }
-        }
-    }
-
 }
