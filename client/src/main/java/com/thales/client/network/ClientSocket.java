@@ -13,7 +13,7 @@ public class ClientSocket {
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            socket.setSoTimeout(10000);
+            socket.setSoTimeout(2000);
             System.out.println("Send: " + message);
             out.println(message);
 

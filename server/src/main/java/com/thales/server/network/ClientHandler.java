@@ -25,6 +25,7 @@ public class ClientHandler extends Thread {
 
     public void run(){
         try{
+            connection.setSoTimeout(2000);
             in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             out = new PrintWriter(connection.getOutputStream(), true);
 
