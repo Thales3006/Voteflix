@@ -17,8 +17,8 @@ public class MainPageController extends SceneController {
     @FXML protected void initialize() {
         handle(null, () -> switchContent(currentPage, "/login_page.fxml"));
 
-        connectButton.disableProperty().bind(clientService.getSocket().getRunning());
-        disconnectButton.disableProperty().bind(clientService.getSocket().getRunning().not());
+        connectButton.disableProperty().bind(clientService.getConnected());
+        disconnectButton.disableProperty().bind(clientService.getConnected().not());
     }
 
     // ===================================

@@ -7,9 +7,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 
 import com.thales.server.service.ServerService;
 
@@ -20,11 +18,9 @@ public class ServerListener {
 
     private ServerService serverService;
     private ServerSocket listener;
-    private List<ClientHandler> clients;
 
     public ServerListener(ServerService serverService, int port){
         this.serverService = serverService;
-        clients = new ArrayList<>();
 
         try {
             listener = new ServerSocket(port);
@@ -79,7 +75,6 @@ public class ServerListener {
             try {
                 Socket connection = listener.accept();
                 ClientHandler socket = new ClientHandler(serverService, connection);
-                clients.add(socket);
                 socket.start();
 
                 serverService.log("A client has connected");
