@@ -7,6 +7,12 @@
 # Config files
 .vscode
 
+# Eclipse / Spring Tools
+.project
+.classpath
+.factorypath
+.settings/
+
 #Build files
 target/
 
