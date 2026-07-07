@@ -10,7 +10,7 @@
       "type": "array",
       "items": {
       "type": "string",
-      "enum": ["Ação", "Aventura", "Comédia", "Drama", "Fantasia", "Ficção Científica", "Terror", "Romance", "Documentário", "Musical", "Animação"]
+      "enum": ["Ação", "Aventura", "Comédia", "Drama", "Fantasia", "Ficção Científica", "Terror", "Romance", "Documentário", "Musical", "Animação", "Crime", "Suspense", "Histórico"]
       },
       "minItems": 1,
       "uniqueItems": true
