@@ -42,6 +42,7 @@
         buildInputs = with pkgs; [
           jdk23
           maven
+          scenebuilder
         ] ++ javafxLibs;
 
         shellHook = ''
