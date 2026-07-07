@@ -5,72 +5,24 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import lombok.Data;
-
-@Data
 public class ClientSocket {
 
-    private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
-    private BooleanProperty running;
+    public String sendAndReceive(String serverIP, int serverPort, String message) throws IOException {
+        try (Socket socket = new Socket(serverIP, serverPort);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-    public ClientSocket(){
-        running = new SimpleBooleanProperty(false);
-    }
+            socket.setSoTimeout(10000);
+            System.out.println("Send: " + message);
+            out.println(message);
 
-    public void connect(String serverIP, int serverPort) throws IOException, UnknownHostException {
-        System.out.println("Trying to connect to server");
-        if (running.get()) {
-            throw new IOException("A socket connection is still on");
-        }
-        
-        socket = new Socket(serverIP, serverPort);
-        socket.setSoTimeout(10000);
-        socket.setReceiveBufferSize(100000000);
-        out = new PrintWriter(socket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        running.set(true);
-        System.out.println("You are connected");
-    }
-
-    public void sendMessage(String message) throws IOException{
-        if(out == null){
-            throw new IOException("Socket not connected");
-        }
-        System.out.println("Send: " + message);
-        out.println(message);
-    }
-
-    public String waitMessage() throws IOException {
-        String message = in.readLine();
-        if(message == null){
-            close();
-            throw new IOException("Received Null, Connection was Closed");
-        }
-        System.out.println("Received: " + message);
-        return message;
-    }
-
-    public void close() {
-        running.set(false);
-        try {
-            if (socket != null && !socket.isClosed()){ 
-                socket.close();
-                System.out.println("You were disconnected");
+            String response = in.readLine();
+            if (response == null) {
+                throw new IOException("Connection closed before response was received");
             }
-            if (in != null){
-                in.close();
-            }
-            if (out != null){
-                out.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Received: " + response);
+            return response;
         }
     }
 }

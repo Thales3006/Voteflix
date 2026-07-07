@@ -1,7 +1,6 @@
 package com.thales.client.service;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -18,22 +17,26 @@ import org.apache.commons.math3.util.Pair;
 
 import com.thales.client.network.ClientSocket;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
 import lombok.Data;
 
 @Data
 public class ClientService {
 
     private static ClientService instance;
-    private ClientSocket socket;
+    private String serverIP;
+    private int serverPort;
+    private final BooleanProperty connected = new SimpleBooleanProperty(false);
     private String token;
     private boolean isAdmin;
     private String username;
-    private final Gson gson; 
+    private final Gson gson;
     private JsonValidator validator;
 
 
     private ClientService(){
-        this.socket = new ClientSocket();
         this.isAdmin = false;
         this.gson = new Gson();
         this.validator = JsonValidator.getInstance();
@@ -52,12 +55,21 @@ public class ClientService {
         return instance;
     }
 
-    public void connect(String IP, int port) throws IOException, UnknownHostException{
-        socket.connect(IP, port);
+    public void connect(String IP, int port) {
+        this.serverIP = IP;
+        this.serverPort = port;
+        connected.set(true);
     }
 
     public void close(){
-        socket.close();
+        token = null;
+        username = null;
+        isAdmin = false;
+        connected.set(false);
+    }
+
+    private String sendAndReceive(String json) throws IOException {
+        return new ClientSocket().sendAndReceive(serverIP, serverPort, json);
     }
 
     // ===================================
@@ -71,9 +83,8 @@ public class ClientService {
         usuario.addProperty("nome", user.getUsername());
         usuario.addProperty("senha", user.getPassword());
         json.add("usuario", usuario);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.CREATED);
 
         return response.get("mensagem").getAsString();
@@ -84,17 +95,16 @@ public class ClientService {
         json.addProperty("operacao", "LOGIN");
         json.addProperty("usuario", user.getUsername());
         json.addProperty("senha", user.getPassword());
-        socket.sendMessage(json.toString());
-        
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.LOGIN);
-        
+
         JsonElement token = response.get("token");
         this.token = token.getAsString();
 
         username = user.getUsername();
         isAdmin = "admin".equals(username);
-        
+
         return response.get("mensagem").getAsString();
     }
 
@@ -102,16 +112,14 @@ public class ClientService {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "LOGOUT");
         json.addProperty("token", token);
-        socket.sendMessage(json.toString());
-        
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.OK);
-        
+
         token = null;
         username = null;
         isAdmin = false;
-        socket.close();
-        
+
         return response.get("mensagem").getAsString();
     }
 
@@ -122,9 +130,8 @@ public class ClientService {
         JsonObject usuario = new JsonObject();
         usuario.addProperty("senha", user.getPassword());
         json.add("usuario", usuario);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.OK);
 
         return response.get("mensagem").getAsString();
@@ -138,9 +145,8 @@ public class ClientService {
         JsonObject usuario = new JsonObject();
         usuario.addProperty("senha", user.getPassword());
         json.add("usuario", usuario);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.OK);
 
         return response.get("mensagem").getAsString();
@@ -150,42 +156,39 @@ public class ClientService {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "LISTAR_PROPRIO_USUARIO");
         json.addProperty("token", token);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.USER_INFO);
 
         String username = response.get("usuario").getAsString();
         return new Pair<>(response.get("mensagem").getAsString(), new User(null, username, null));
     }
 
-    public Pair<String,ArrayList<User>> requestUserList() throws Exception{
-            JsonObject json = new JsonObject();
-            json.addProperty("operacao", "LISTAR_USUARIOS");
-            json.addProperty("token", token);
-            socket.sendMessage(json.toString());
+    public Pair<String,ArrayList<User>> requestUserList() throws Exception {
+        JsonObject json = new JsonObject();
+        json.addProperty("operacao", "LISTAR_USUARIOS");
+        json.addProperty("token", token);
 
-            JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
-            validator.validateResponce(response, Response.USER_LIST);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
+        validator.validateResponce(response, Response.USER_LIST);
 
-            ArrayList<User> users = new ArrayList<>();
-            JsonElement usuariosElement = response.get("usuarios");
-            for (JsonElement element : usuariosElement.getAsJsonArray()) {
-                JsonObject obj = element.getAsJsonObject();
-                Integer id = Integer.parseInt(obj.get("id").getAsString());
-                String username = obj.get("nome").getAsString();
-                users.add(new User(id, username));
-            }
-            return new Pair<>(response.get("mensagem").getAsString(),users);
+        ArrayList<User> users = new ArrayList<>();
+        JsonElement usuariosElement = response.get("usuarios");
+        for (JsonElement element : usuariosElement.getAsJsonArray()) {
+            JsonObject obj = element.getAsJsonObject();
+            Integer id = Integer.parseInt(obj.get("id").getAsString());
+            String username = obj.get("nome").getAsString();
+            users.add(new User(id, username));
+        }
+        return new Pair<>(response.get("mensagem").getAsString(), users);
     }
 
     public String requestDeleteOwnUser() throws Exception {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "EXCLUIR_PROPRIO_USUARIO");
         json.addProperty("token", token);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.OK);
 
         return response.get("mensagem").getAsString();
@@ -196,9 +199,8 @@ public class ClientService {
         json.addProperty("operacao", "ADMIN_EXCLUIR_USUARIO");
         json.addProperty("token", token);
         json.addProperty("id", Integer.toString(id));
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.OK);
 
         return response.get("mensagem").getAsString();
@@ -210,9 +212,8 @@ public class ClientService {
         json.addProperty("token", token);
         JsonObject filme = movie.toJson();
         json.add("filme", filme);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.CREATED);
 
         return response.get("mensagem").getAsString();
@@ -222,9 +223,8 @@ public class ClientService {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "LISTAR_FILMES");
         json.addProperty("token", token);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.MOVIE_LIST);
 
         ArrayList<Movie> movies = new ArrayList<>();
@@ -232,7 +232,7 @@ public class ClientService {
         for (JsonElement element : filmesElement.getAsJsonArray()) {
             movies.add(Movie.fromJson(element.getAsJsonObject()));
         }
-        return new Pair<>(response.get("mensagem").getAsString(),movies);
+        return new Pair<>(response.get("mensagem").getAsString(), movies);
     }
 
     public String requestUpdateMovie(Movie movie) throws Exception {
@@ -241,9 +241,8 @@ public class ClientService {
         json.addProperty("token", token);
         JsonObject filme = movie.toJson();
         json.add("filme", filme);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.OK);
 
         return response.get("mensagem").getAsString();
@@ -254,9 +253,8 @@ public class ClientService {
         json.addProperty("operacao", "EXCLUIR_FILME");
         json.addProperty("token", token);
         json.addProperty("id", Integer.toString(id));
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.OK);
 
         return response.get("mensagem").getAsString();
@@ -267,9 +265,8 @@ public class ClientService {
         json.addProperty("operacao", "CRIAR_REVIEW");
         json.addProperty("token", token);
         json.add("review", review.toJson());
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.CREATED);
 
         return response.get("mensagem").getAsString();
@@ -279,9 +276,8 @@ public class ClientService {
         JsonObject json = new JsonObject();
         json.addProperty("operacao", "LISTAR_REVIEWS_USUARIO");
         json.addProperty("token", token);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.REVIEW_LIST);
 
         ArrayList<Review> reviews = new ArrayList<>();
@@ -289,7 +285,7 @@ public class ClientService {
         for (JsonElement element : filmesElement.getAsJsonArray()) {
             reviews.add(Review.fromJson(element.getAsJsonObject()));
         }
-        return new Pair<>(response.get("mensagem").getAsString(),reviews);
+        return new Pair<>(response.get("mensagem").getAsString(), reviews);
     }
 
     public Pair<String, ArrayList<Review>> requestMovieReviewList(int movieId) throws Exception {
@@ -297,9 +293,8 @@ public class ClientService {
         json.addProperty("operacao", "BUSCAR_FILME_ID");
         json.addProperty("id_filme", Integer.toString(movieId));
         json.addProperty("token", token);
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.REVIEW_LIST);
 
         ArrayList<Review> reviews = new ArrayList<>();
@@ -307,7 +302,7 @@ public class ClientService {
         for (JsonElement element : filmesElement.getAsJsonArray()) {
             reviews.add(Review.fromJson(element.getAsJsonObject()));
         }
-        return new Pair<>(response.get("mensagem").getAsString(),reviews);
+        return new Pair<>(response.get("mensagem").getAsString(), reviews);
     }
 
     public String requestUpdateReview(Review newReview) throws Exception {
@@ -319,11 +314,10 @@ public class ClientService {
         review.setDate(null);
         review.setUsername(null);
         json.add("review", review.toJson());
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.OK);
-        
+
         return response.get("mensagem").getAsString();
     }
 
@@ -332,11 +326,10 @@ public class ClientService {
         json.addProperty("operacao", "EXCLUIR_REVIEW");
         json.addProperty("token", token);
         json.addProperty("id", Integer.toString(id));
-        socket.sendMessage(json.toString());
 
-        JsonObject response = gson.fromJson(socket.waitMessage(), JsonObject.class);
+        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
         validator.validateResponce(response, Response.OK);
-        
+
         return response.get("mensagem").getAsString();
     }
 }
