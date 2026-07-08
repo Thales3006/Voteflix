@@ -1,6 +1,6 @@
 package com.thales.client.controller;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.thales.common.model.Movie;
 import com.thales.common.model.Review;
@@ -47,7 +47,7 @@ public class MovieController extends SceneController {
 
     private final SimpleObjectProperty<Movie> currentMovie = new SimpleObjectProperty<>();
 
-    @FXML private void initialize(){
+    @FXML private void initialize() {
         movieOverlay.setOnMouseClicked((MouseEvent e) -> {
             if (e.getTarget() == movieOverlay) closeOverlay();
         });
@@ -63,8 +63,8 @@ public class MovieController extends SceneController {
                 genresField.setText(String.join(", ", movie.getGenre()));
                 synopsisField.setText(movie.getSynopsis());
                 ratingLabel.setText(String.valueOf(movie.getRating()));
-                reviewAmountLabel.setText(String.valueOf(movie.getRatingAmount()));
-                idLabel.setText(String.valueOf(movie.getID()));
+                reviewAmountLabel.setText(String.valueOf(movie.getRatingCount()));
+                idLabel.setText(String.valueOf(movie.getId()));
 
                 movieOverlay.setVisible(true);
                 movieOverlay.setManaged(true);
@@ -101,8 +101,8 @@ public class MovieController extends SceneController {
     }
 
     private void loadMovies() throws Exception {
-        var request = clientService.requestMovieList();
-        ArrayList<Movie> movies = request.getSecond();
+        var response = clientService.requestMovieList();
+        List<Movie> movies = response.movies();
 
         movieTilePane.getChildren().clear();
         for (Movie movie : movies) {
@@ -120,65 +120,63 @@ public class MovieController extends SceneController {
         }
     }
 
-
-    @FXML private void HandleCreateMovieButton(ActionEvent event){
-        handle(event, () -> { 
+    @FXML private void HandleCreateMovieButton(ActionEvent event) {
+        handle(event, () -> {
             Movie movie = new Movie(
                 null,
-                titleField.getText().trim(), 
-                directorField.getText().trim(), 
+                titleField.getText().trim(),
+                directorField.getText().trim(),
                 java.util.Arrays.stream(genresField.getText().trim().split(",\\s*"))
                     .map(String::trim)
                     .toArray(String[]::new),
-                Integer.parseInt(yearField.getText()), 
+                Integer.parseInt(yearField.getText()),
                 null,
                 null,
                 synopsisField.getText().trim()
             );
-            String request = clientService.requestCreateMovie(movie); 
+            clientService.requestCreateMovie(movie);
             loadMovies();
         });
     }
 
-    @FXML private void HandleUpdateMovieButton(ActionEvent event){
-        handle(event, () -> { 
-            if(currentMovie.get() == null){
-                throw  new Exception("You have to select a movie");
+    @FXML private void HandleUpdateMovieButton(ActionEvent event) {
+        handle(event, () -> {
+            if (currentMovie.get() == null) {
+                throw new Exception("You have to select a movie");
             }
             Movie movie = new Movie(
-                currentMovie.get().getID(),
-                titleField.getText(), 
-                directorField.getText(), 
+                currentMovie.get().getId(),
+                titleField.getText(),
+                directorField.getText(),
                 java.util.Arrays.stream(genresField.getText().trim().split(",\\s*"))
                     .map(String::trim)
                     .toArray(String[]::new),
-                Integer.parseInt(yearField.getText()), 
+                Integer.parseInt(yearField.getText()),
                 null,
                 null,
                 synopsisField.getText()
             );
-            String request = clientService.requestUpdateMovie(movie);
+            clientService.requestUpdateMovie(movie);
             loadMovies();
         });
     }
 
-    @FXML private void HandleDeleteMovieButton(ActionEvent event){
-        handle(event, () -> { 
-            if(currentMovie.get() == null){
-                throw  new Exception("You have to select a movie");
+    @FXML private void HandleDeleteMovieButton(ActionEvent event) {
+        handle(event, () -> {
+            if (currentMovie.get() == null) {
+                throw new Exception("You have to select a movie");
             }
-            String request = clientService.requestDeleteMovie(currentMovie.get().getID()); 
+            clientService.requestDeleteMovie(currentMovie.get().getId());
             loadMovies();
         });
     }
 
     private void loadReviews() throws Exception {
-        if(currentMovie.get() == null){
+        if (currentMovie.get() == null) {
             throw new Exception("No movie selected");
         }
-        var request = clientService.requestMovieReviewList(currentMovie.get().getID());
-        String message = request.getFirst();
-        ArrayList<Review> reviews = request.getSecond();
+        var response = clientService.requestMovieReviewList(currentMovie.get().getId());
+        List<Review> reviews = response.reviews();
 
         reviewVbox.getChildren().clear();
 
@@ -191,14 +189,14 @@ public class MovieController extends SceneController {
         }
     }
 
-    @FXML private void HandleCreateReviewButton(ActionEvent event){
-        handle(event, () -> { 
+    @FXML private void HandleCreateReviewButton(ActionEvent event) {
+        handle(event, () -> {
             if (currentMovie.get() == null) {
-                throw  new Exception("You have to select a movie");
+                throw new Exception("You have to select a movie");
             }
             Review review = new Review(
                 null,
-                currentMovie.get().getID(),
+                currentMovie.get().getId(),
                 null,
                 Integer.valueOf(reviewScoreField.getText()),
                 reviewTitleField.getText(),
@@ -206,21 +204,20 @@ public class MovieController extends SceneController {
                 null,
                 null
             );
-            var message = clientService.requestCreateReview(review);
+            clientService.requestCreateReview(review);
             loadReviews();
         });
     }
 
-    @FXML private void HandleLoadReviewButton(ActionEvent event){
+    @FXML private void HandleLoadReviewButton(ActionEvent event) {
         handle(event, () -> { loadReviews(); });
     }
 
-    @FXML private void HandleRefreshMovieButton(ActionEvent event){
+    @FXML private void HandleRefreshMovieButton(ActionEvent event) {
         handle(event, () -> loadMovies());
     }
 
     private VBox ViewReview(Review r) {
-        // Row 1: title (bold) + username (muted, right)
         Label titleLabel = new Label(r.getTitle() == null ? "" : r.getTitle());
         titleLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px;");
         Label usernameLabel = new Label(r.getUsername() == null ? "" : r.getUsername());
@@ -230,12 +227,10 @@ public class MovieController extends SceneController {
         HBox row1 = new HBox(4, titleLabel, spacer1, usernameLabel);
         row1.setAlignment(Pos.CENTER_LEFT);
 
-        // Row 2: description
         Label descLabel = new Label(r.getDescription() == null ? "" : r.getDescription());
         descLabel.getStyleClass().add("detail-label");
         descLabel.setWrapText(true);
 
-        // Row 3: star rating (left) + date (right)
         Label ratingLabel = new Label(r.getRating() == null ? "" : "★ " + r.getRating());
         Label dateLabel = new Label(r.getDate() == null ? "" : String.valueOf(r.getDate()));
         dateLabel.getStyleClass().add("detail-label");
@@ -246,14 +241,13 @@ public class MovieController extends SceneController {
 
         Button deleteButton = new Button("Delete");
         deleteButton.setOnAction(evt -> handle(evt, () -> {
-            clientService.requestDeleteReview(r.getID());
+            clientService.requestDeleteReview(r.getId());
             loadReviews();
         }));
 
         VBox reviewBox = new VBox(4, row1, descLabel, row3);
         reviewBox.getStyleClass().add("review-view");
 
-        // Only show "edited" badge if the review was actually edited
         if (Boolean.TRUE.equals(r.getEdited())) {
             Label editedLabel = new Label("edited");
             editedLabel.getStyleClass().add("detail-label");

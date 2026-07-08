@@ -1,6 +1,6 @@
 package com.thales.client.controller;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.thales.common.model.Review;
 
@@ -24,26 +24,25 @@ public class ReviewController extends SceneController {
     @FXML Label dateLabel;
     @FXML VBox reviewList;
 
-        private final SimpleObjectProperty<Review> currentReview = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<Review> currentReview = new SimpleObjectProperty<>();
 
-    @FXML private void initialize(){
+    @FXML private void initialize() {
         currentReview.addListener((_, _, review) -> {
             if (review != null) {
                 titleField.setText(review.getTitle());
                 descriptionField.setText(review.getDescription());
                 ratingField.setText(String.valueOf(review.getRating()));
                 usernameLabel.setText(review.getUsername());
-                movieLabel.setText(String.valueOf(review.getMovieID()));
+                movieLabel.setText(String.valueOf(review.getMovieId()));
                 dateLabel.setText(String.valueOf(review.getDate()));
             }
         });
         handle(null, () -> { loadReviews(); });
     }
 
-    private void loadReviews() throws Exception { 
-        var request = clientService.requestOwnReviewList();
-        String message = request.getFirst();
-        ArrayList<Review> reviews = request.getSecond();
+    private void loadReviews() throws Exception {
+        var response = clientService.requestOwnReviewList();
+        List<Review> reviews = response.reviews();
 
         reviewList.getChildren().clear();
 
@@ -70,36 +69,36 @@ public class ReviewController extends SceneController {
         handle(event, () -> { loadReviews(); });
     }
 
-    @FXML private void HandleUpdateButton(ActionEvent event){
+    @FXML private void HandleUpdateButton(ActionEvent event) {
         handle(event, () -> {
-            if(currentReview.get() == null){
-                throw  new Exception("You have to select a review");
+            if (currentReview.get() == null) {
+                throw new Exception("You have to select a review");
             }
-            String message = clientService.requestUpdateReview(extractReview());
+            clientService.requestUpdateReview(extractReview());
             loadReviews();
         });
     }
 
-    @FXML private void HandleDeleteButton(ActionEvent event){
+    @FXML private void HandleDeleteButton(ActionEvent event) {
         handle(event, () -> {
-            if(currentReview.get() == null){
-                throw  new Exception("You have to select a review");
+            if (currentReview.get() == null) {
+                throw new Exception("You have to select a review");
             }
-            String message = clientService.requestDeleteReview(currentReview.get().getID());
+            clientService.requestDeleteReview(currentReview.get().getId());
             loadReviews();
         });
     }
 
     @FXML private Review extractReview() {
         return new Review(
-        currentReview.get().getID(),
-        null,
-        null,
-        Integer.valueOf(ratingField.getText()),
-        titleField.getText(),
-        descriptionField.getText(), 
-        null,
-        null
+            currentReview.get().getId(),
+            null,
+            null,
+            Integer.valueOf(ratingField.getText()),
+            titleField.getText(),
+            descriptionField.getText(),
+            null,
+            null
         );
     }
 }
