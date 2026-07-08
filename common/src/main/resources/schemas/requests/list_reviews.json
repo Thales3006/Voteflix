@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "BuscarFilmeId",
+  "title": "ListReviewsRequest",
   "type": "object",
   "properties": {
-    "operacao": { "type": "string", "const": "BUSCAR_FILME_ID" },
-    "token": { "type": "string" },
-    "id_filme": { "type": "string" }
+    "operation": { "type": "string", "const": "LIST_REVIEWS" },
+    "token":     { "type": "string" },
+    "movie_id":  { "type": "integer" }
   },
-  "required": ["operacao", "id_filme", "token"],
-  "additionalProperties": true
+  "required": ["operation", "token", "movie_id"],
+  "additionalProperties": false
 }

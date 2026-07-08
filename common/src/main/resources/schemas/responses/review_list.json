@@ -1,15 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "MovieWithReviewsResponse",
+  "title": "ReviewListResponse",
   "type": "object",
   "properties": {
-    "status": { "type": "string", "const": "200" },
-    "mensagem": { "type": "string" },
-    "filme": { "$ref": "../components/movie_id.json" },
-    "reviews": { "type": "array", 
-      "items": { "$ref": "../components/return_review.json" }
+    "status":  { "type": "string", "const": "200" },
+    "message": { "type": "string" },
+    "reviews": {
+      "type": "array",
+      "items": { "$ref": "../components/review_response.json" }
     }
   },
   "required": ["status", "reviews"],
-  "additionalProperties": true
+  "additionalProperties": false
 }

@@ -3,18 +3,21 @@
   "title": "UserListResponse",
   "type": "object",
   "properties": {
-    "status": { "type": "string", "const": "200" },
-    "mensagem": { "type": "string" },
-    "usuarios": {
-      "type": "array", "items": { "type": "object", "properties": {
-          "id": { "type": "string" },
-          "nome": { "$ref": "../components/base_string.json" }
+    "status":  { "type": "string", "const": "200" },
+    "message": { "type": "string" },
+    "users": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id":       { "type": "integer" },
+          "username": { "$ref": "../components/base_string.json" }
         },
-        "required": ["id", "nome"],
-        "additionalProperties": true
+        "required": ["id", "username"],
+        "additionalProperties": false
       }
     }
   },
-  "required": ["status", "usuarios"],
-  "additionalProperties": true
+  "required": ["status", "users"],
+  "additionalProperties": false
 }

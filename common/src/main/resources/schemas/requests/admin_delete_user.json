@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "DeleteMovieRequest",
+  "title": "AdminDeleteUserRequest",
   "type": "object",
   "properties": {
-    "operation": { "type": "string", "const": "DELETE_MOVIE" },
+    "operation": { "type": "string", "const": "ADMIN_DELETE_USER" },
     "token":     { "type": "string" },
     "id":        { "type": "integer" }
   },

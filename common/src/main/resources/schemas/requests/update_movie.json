@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "EditarFilme",
+  "title": "UpdateMovieRequest",
   "type": "object",
   "properties": {
-    "operacao": { "type": "string", "const": "EDITAR_FILME" },
-    "filme": { "$ref": "../components/movie_id.json" },
-    "token": { "type": "string" }
+    "operation": { "type": "string", "const": "UPDATE_MOVIE" },
+    "token":     { "type": "string" },
+    "movie":     { "$ref": "../components/movie_with_id.json" }
   },
-  "required": ["operacao", "filme", "token"],
-  "additionalProperties": true
+  "required": ["operation", "token", "movie"],
+  "additionalProperties": false
 }
