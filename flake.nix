@@ -26,14 +26,21 @@
       javaEnv = ''
         export JAVA_HOME=${pkgs.jdk23}
         export PATH=${pkgs.jdk23}/bin:${pkgs.maven}/bin:$PATH
-        export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath javafxLibs}
       '';
 
-      mkJavaApp = module: pkgs.writeShellScript "run-${module}" ''
+      mkClientApp = pkgs.writeShellScript "run-client" ''
+        ${javaEnv}
+        export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath javafxLibs}
+
+        mvn -pl common install -DskipTests
+        mvn -pl client javafx:run
+      '';
+
+      mkServerApp = pkgs.writeShellScript "run-server" ''
         ${javaEnv}
 
         mvn -pl common install -DskipTests
-        mvn -pl ${module} javafx:run
+        mvn -pl server exec:java
       '';
 
     in {
@@ -54,17 +61,17 @@
 
         default = {
           type = "app";
-          program = toString (mkJavaApp "client");
+          program = toString mkClientApp;
         };
 
         client = {
           type = "app";
-          program = toString (mkJavaApp "client");
+          program = toString mkClientApp;
         };
 
         server = {
           type = "app";
-          program = toString (mkJavaApp "server");
+          program = toString mkServerApp;
         };
 
       };
