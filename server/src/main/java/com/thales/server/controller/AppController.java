@@ -42,7 +42,7 @@ public class AppController {
             User user = users.get(username);
 
             TitledPane pane = new TitledPane(username, new Label(
-                "Password: " + user.getPassword() + "\n"
+                "ID: " + user.getId()
                 ));
 
             userList.getPanes().add(pane);

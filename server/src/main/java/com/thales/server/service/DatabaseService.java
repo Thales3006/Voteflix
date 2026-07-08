@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.Movie;
 import com.thales.common.model.Review;
@@ -27,16 +29,16 @@ public class DatabaseService {
     }
 
     public synchronized boolean checkUser(String username, String password) throws StatusException {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+        String sql = "SELECT password FROM users WHERE username = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, username);
-            pstmt.setString(2, password);
             ResultSet rs = pstmt.executeQuery();
-            return rs.next();
+            if (!rs.next()) return false;
+            return BCrypt.checkpw(password, rs.getString("password"));
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
-        } 
+        }
     }
 
     public synchronized boolean isAdmin(int id) throws StatusException {
@@ -63,12 +65,12 @@ public class DatabaseService {
             }
             try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
                 insertStmt.setString(1, username);
-                insertStmt.setString(2, password);
+                insertStmt.setString(2, BCrypt.hashpw(password, BCrypt.gensalt(12)));
                 insertStmt.executeUpdate();
             }
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
-        } 
+        }
     }
 
     public synchronized int getUserId(String username) throws StatusException {
@@ -122,7 +124,7 @@ public class DatabaseService {
         String sql = "UPDATE users SET password = ? WHERE id = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, newPassword);
+            pstmt.setString(1, BCrypt.hashpw(newPassword, BCrypt.gensalt(12)));
             pstmt.setInt(2, id);
             int result = pstmt.executeUpdate();
             if (result <= 0){
@@ -135,24 +137,30 @@ public class DatabaseService {
 
     public synchronized void deleteUser(int id) throws StatusException {
         String reviewsSql = "DELETE FROM reviews WHERE user_id = ?";
-        String sql = "DELETE FROM users WHERE id = ?";
-        try (Connection conn = connect();
-             PreparedStatement delReviewsStmt = conn.prepareStatement(reviewsSql)) {
-            delReviewsStmt.setInt(1, id);
-            delReviewsStmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
-        }
-        try (Connection conn = connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            int result = pstmt.executeUpdate();
-            if (result <= 0){
-                throw new StatusException(ErrorStatus.NOT_FOUND);
+        String userSql = "DELETE FROM users WHERE id = ?";
+        try (Connection conn = connect()) {
+            conn.setAutoCommit(false);
+            try {
+                try (PreparedStatement delReviewsStmt = conn.prepareStatement(reviewsSql)) {
+                    delReviewsStmt.setInt(1, id);
+                    delReviewsStmt.executeUpdate();
+                }
+                try (PreparedStatement delUserStmt = conn.prepareStatement(userSql)) {
+                    delUserStmt.setInt(1, id);
+                    int result = delUserStmt.executeUpdate();
+                    if (result <= 0) {
+                        conn.rollback();
+                        throw new StatusException(ErrorStatus.NOT_FOUND);
+                    }
+                }
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
-        } 
+        }
     }
 
     private synchronized String[] getGenres(Connection conn, int id) throws StatusException{
@@ -205,29 +213,43 @@ public class DatabaseService {
     }
 
     public synchronized ArrayList<Movie> getMovies() throws StatusException {
-        String sql = "SELECT m.id, m.title, m.director, m.year, COALESCE(AVG(r.rating), 0) AS rating, COUNT(r.rating) AS rating_amount, m.synopsis " +
+        String movieSql = "SELECT m.id, m.title, m.director, m.year, COALESCE(AVG(r.rating), 0) AS rating, COUNT(r.rating) AS rating_amount, m.synopsis " +
                  "FROM movies m LEFT JOIN reviews r ON m.id = r.movie_id " +
                  "GROUP BY m.id, m.title, m.director, m.year, m.synopsis";
-        ArrayList<Movie> movies = new ArrayList<>();
-        try (Connection conn = connect();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                movies.add(new Movie(
-                    rs.getInt("id"),
-                    rs.getString("title"),
-                    rs.getString("director"),
-                    getGenres(conn, rs.getInt("id")),
-                    rs.getInt("year"),
-                    rs.getFloat("rating"),
-                    rs.getInt("rating_amount"),
-                    rs.getString("synopsis")
-                ));
+        String genreSql = "SELECT mg.movie_id, g.name FROM movie_genres mg JOIN genres g ON mg.genre_id = g.id";
+
+        try (Connection conn = connect()) {
+            java.util.Map<Integer, java.util.List<String>> genreMap = new java.util.HashMap<>();
+            try (PreparedStatement gstmt = conn.prepareStatement(genreSql)) {
+                ResultSet grs = gstmt.executeQuery();
+                while (grs.next()) {
+                    genreMap.computeIfAbsent(grs.getInt("movie_id"), _ -> new ArrayList<>())
+                            .add(grs.getString("name"));
+                }
             }
+
+            ArrayList<Movie> movies = new ArrayList<>();
+            try (PreparedStatement pstmt = conn.prepareStatement(movieSql)) {
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    java.util.List<String> genres = genreMap.getOrDefault(id, java.util.List.of());
+                    movies.add(new Movie(
+                        id,
+                        rs.getString("title"),
+                        rs.getString("director"),
+                        genres.toArray(new String[0]),
+                        rs.getInt("year"),
+                        rs.getFloat("rating"),
+                        rs.getInt("rating_amount"),
+                        rs.getString("synopsis")
+                    ));
+                }
+            }
+            return movies;
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
-        } 
-        return movies;
+        }
     }
 
     public synchronized void createMovie(Movie movie) throws StatusException {
@@ -319,13 +341,13 @@ public class DatabaseService {
                     movieStmt.setNull(4, java.sql.Types.REAL);
                 }
                 // rating_amount (may be null -> keep existing) bound as nullable
-                if (movie.getRatingAmount() != null) {
-                    movieStmt.setInt(5, movie.getRatingAmount());
+                if (movie.getRatingCount() != null) {
+                    movieStmt.setInt(5, movie.getRatingCount());
                 } else {
                     movieStmt.setNull(5, java.sql.Types.INTEGER);
                 }
                 movieStmt.setString(6, movie.getSynopsis());
-                movieStmt.setInt(7, movie.getID());
+                movieStmt.setInt(7, movie.getId());
                 int result = movieStmt.executeUpdate();
 
                 if (result == 0) {
@@ -333,7 +355,7 @@ public class DatabaseService {
                     throw new StatusException(ErrorStatus.NOT_FOUND);
                 }
                 PreparedStatement deleteGenresStmt = conn.prepareStatement(deleteGenresSql);
-                deleteGenresStmt.setInt(1, movie.getID());
+                deleteGenresStmt.setInt(1, movie.getId());
                 deleteGenresStmt.executeUpdate();
 
                 PreparedStatement checkGenreStmt = conn.prepareStatement(checkGenreSql);
@@ -355,7 +377,7 @@ public class DatabaseService {
                         genreId = genreRs.getInt("id");
                     }
 
-                    genreStmt.setInt(1, movie.getID());
+                    genreStmt.setInt(1, movie.getId());
                     genreStmt.setInt(2, genreId);
                     genreStmt.executeUpdate();
                 }
@@ -413,7 +435,7 @@ public class DatabaseService {
         try (Connection conn = connect()) {
             // Check if movie exists
             try (PreparedStatement checkMovieStmt = conn.prepareStatement(checkMovieSql)) {
-                checkMovieStmt.setInt(1, review.getMovieID());
+                checkMovieStmt.setInt(1, review.getMovieId());
                 ResultSet movieRs = checkMovieStmt.executeQuery();
                 if (!movieRs.next()) {
                     throw new StatusException(ErrorStatus.NOT_FOUND);
@@ -421,7 +443,7 @@ public class DatabaseService {
             }
             // Check if user exists
             try (PreparedStatement checkStmt = conn.prepareStatement(checkUserSql)) {
-                checkStmt.setInt(1, review.getUserID());
+                checkStmt.setInt(1, review.getUserId());
                 ResultSet rs = checkStmt.executeQuery();
                 if (!rs.next()) {
                     throw new StatusException(ErrorStatus.NOT_FOUND);
@@ -429,8 +451,8 @@ public class DatabaseService {
             }
             // Check if review already exists for this user/movie
             try (PreparedStatement checkReviewStmt = conn.prepareStatement(checkReviewSql)) {
-                checkReviewStmt.setInt(1, review.getMovieID());
-                checkReviewStmt.setInt(2, review.getUserID());
+                checkReviewStmt.setInt(1, review.getMovieId());
+                checkReviewStmt.setInt(2, review.getUserId());
                 ResultSet reviewRs = checkReviewStmt.executeQuery();
                 if (reviewRs.next()) {
                     throw new StatusException(ErrorStatus.ALREADY_EXISTS);
@@ -438,8 +460,8 @@ public class DatabaseService {
             }
             // Insert review
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setInt(1, review.getMovieID());
-                pstmt.setInt(2, review.getUserID());
+                pstmt.setInt(1, review.getMovieId());
+                pstmt.setInt(2, review.getUserId());
                 pstmt.setFloat(3, review.getRating());
                 pstmt.setString(4, review.getTitle());
                 pstmt.setString(5, review.getDescription());
@@ -560,7 +582,7 @@ public class DatabaseService {
             pstmt.setString(2, review.getTitle());
             pstmt.setString(3, review.getDescription());
             pstmt.setBoolean(4, true);
-            pstmt.setInt(5, review.getID());
+            pstmt.setInt(5, review.getId());
             
             int result = pstmt.executeUpdate();
             if(result == 0){
