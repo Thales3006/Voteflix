@@ -8,10 +8,9 @@ import lombok.Data;
 
 @Data
 public class Review {
-
-    private Integer ID;
-    private Integer movieID;
-    private Integer userID;
+    private Integer id;
+    private Integer movieId;
+    private Integer userId;
     private String username;
     private Integer rating;
     private String title;
@@ -19,10 +18,10 @@ public class Review {
     private Boolean edited;
     private LocalDate date;
 
-    public Review(Integer ID, Integer movieID, Integer userID, Integer rating, String title, String description, Boolean edited, LocalDate date) {
-        this.ID = ID;
-        this.movieID = movieID;
-        this.userID = userID;
+    public Review(Integer id, Integer movieId, Integer userId, Integer rating, String title, String description, Boolean edited, LocalDate date) {
+        this.id = id;
+        this.movieId = movieId;
+        this.userId = userId;
         this.rating = rating;
         this.title = title;
         this.description = description;
@@ -32,55 +31,34 @@ public class Review {
 
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
-        if (ID != null) json.addProperty("id", ID.toString());
-        if (movieID != null) json.addProperty("id_filme", movieID.toString());
-        if (username != null) json.addProperty("nome_usuario", username);
-        if (rating != null) json.addProperty("nota", rating.toString());
-        if (title != null) json.addProperty("titulo", title);
-        if (description != null) json.addProperty("descricao", description);
-        if (edited != null) json.addProperty("editado", edited.toString());
-        if (date != null) json.addProperty("data", date.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        if (id != null) json.addProperty("id", id);
+        if (movieId != null) json.addProperty("movie_id", movieId);
+        if (username != null) json.addProperty("username", username);
+        if (rating != null) json.addProperty("rating", rating);
+        if (title != null) json.addProperty("title", title);
+        if (description != null) json.addProperty("description", description);
+        if (edited != null) json.addProperty("edited", edited);
+        if (date != null) json.addProperty("date", date.toString());
         return json;
     }
+
     public static Review fromJson(JsonObject json) {
-        Integer ID = null;
-        Integer movieID = null;
-        Integer userID = null;
-        String username = null;
-        Integer rating = null;
-        String title = null;
-        String description = null;
+        Integer id = null, movieId = null, userId = null, rating = null;
+        String username = null, title = null, description = null;
         Boolean edited = null;
         LocalDate date = null;
 
-        if (json.has("id")) {
-            ID = Integer.valueOf(json.get("id").getAsString());
-        }
-        if (json.has("id_filme")) {
-            movieID = Integer.valueOf(json.get("id_filme").getAsString());
-        }
-        if (json.has("nome_usuario")) {
-            username = json.get("nome_usuario").getAsString();
-        }
-        if (json.has("nota")) {
-            rating = Float.valueOf(json.get("nota").getAsString()).intValue(); 
-        }
-        if (json.has("titulo")) {
-            title = json.get("titulo").getAsString();
-        }
-        if (json.has("descricao")) {
-            description = json.get("descricao").getAsString();
-        }
-        if (json.has("editado")) {
-            edited = Boolean.valueOf(json.get("editado").getAsString());
-        }
-        if (json.has("data")) {
-            date = LocalDate.parse(json.get("data").getAsString(), java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        }
+        if (json.has("id")) id = json.get("id").getAsInt();
+        if (json.has("movie_id")) movieId = json.get("movie_id").getAsInt();
+        if (json.has("username")) username = json.get("username").getAsString();
+        if (json.has("rating")) rating = json.get("rating").getAsInt();
+        if (json.has("title")) title = json.get("title").getAsString();
+        if (json.has("description")) description = json.get("description").getAsString();
+        if (json.has("edited")) edited = json.get("edited").getAsBoolean();
+        if (json.has("date")) date = LocalDate.parse(json.get("date").getAsString());
 
-        Review review = new Review(ID, movieID, userID, rating, title, description, edited, date);
+        Review review = new Review(id, movieId, userId, rating, title, description, edited, date);
         review.setUsername(username);
         return review;
-
     }
 }
