@@ -1,11 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "ExcluirProprioUsuario",
+  "title": "DeleteOwnUserRequest",
   "type": "object",
   "properties": {
-    "operacao": { "type": "string", "const": "EXCLUIR_PROPRIO_USUARIO" },
-    "token": { "type": "string" }
+    "operation": { "type": "string", "const": "DELETE_OWN_USER" },
+    "token":     { "type": "string" }
   },
-  "required": ["operacao", "token"],
-  "additionalProperties": true
+  "required": ["operation", "token"],
+  "additionalProperties": false
 }

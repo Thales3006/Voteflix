@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "UserListResponse",
+  "title": "UserInfoResponse",
   "type": "object",
   "properties": {
-    "status": { "type": "string", "const": "200" },
-    "mensagem": { "type": "string" },
-    "usuario": { "type": "string" }
+    "status":    { "type": "string", "const": "200" },
+    "message":   { "type": "string" },
+    "username":  { "type": "string" }
   },
-  "required": ["status", "usuario"],
-  "additionalProperties": true
+  "required": ["status", "username"],
+  "additionalProperties": false
 }

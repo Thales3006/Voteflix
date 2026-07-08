@@ -1,10 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "UpdateOwnUserRequest",
+  "title": "AdminUpdateUserRequest",
   "type": "object",
   "properties": {
-    "operation": { "type": "string", "const": "UPDATE_OWN_USER" },
+    "operation": { "type": "string", "const": "ADMIN_UPDATE_USER" },
     "token": { "type": "string" },
+    "id":    { "type": "integer" },
     "user": {
       "type": "object",
       "properties": {
@@ -14,6 +15,6 @@
       "additionalProperties": false
     }
   },
-  "required": ["operation", "token", "user"],
+  "required": ["operation", "token", "id", "user"],
   "additionalProperties": false
 }

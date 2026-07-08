@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "EditarReview",
+  "title": "UpdateReviewRequest",
   "type": "object",
   "properties": {
-    "operacao": { "type": "string", "const": "EDITAR_REVIEW" },
-    "review": { "$ref": "../components/review_id_update.json" },
-    "token": { "type": "string" }
+    "operation": { "type": "string", "const": "UPDATE_REVIEW" },
+    "token":     { "type": "string" },
+    "review":    { "$ref": "../components/review_update.json" }
   },
-  "required": ["operacao", "review", "token"],
-  "additionalProperties": true
+  "required": ["operation", "token", "review"],
+  "additionalProperties": false
 }

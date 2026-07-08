@@ -3,10 +3,10 @@
   "title": "LoginRequest",
   "type": "object",
   "properties": {
-    "operacao": { "type": "string", "const": "LOGIN" },
-    "usuario": { "$ref": "../components/base_string.json" },
-    "senha": { "$ref": "../components/base_string.json" }
+    "operation": { "type": "string", "const": "LOGIN" },
+    "username":  { "$ref": "../components/base_string.json" },
+    "password":  { "$ref": "../components/base_string.json" }
   },
-  "required": ["operacao", "usuario", "senha"],
-  "additionalProperties": true
+  "required": ["operation", "username", "password"],
+  "additionalProperties": false
 }

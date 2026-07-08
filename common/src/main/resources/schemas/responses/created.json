@@ -1,11 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CreateResponse",
+  "title": "CreatedResponse",
   "type": "object",
   "properties": {
-    "status": { "type": "string", "const": "201" },
-    "mensagem": { "type": "string" }
+    "status":  { "type": "string", "const": "201" },
+    "message": { "type": "string" }
   },
   "required": ["status"],
-  "additionalProperties": true
+  "additionalProperties": false
 }

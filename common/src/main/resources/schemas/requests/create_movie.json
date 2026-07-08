@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "CriarFilme",
+  "title": "CreateMovieRequest",
   "type": "object",
   "properties": {
-    "operacao": { "type": "string", "const": "CRIAR_FILME" },
-    "filme": { "$ref": "../components/movie.json" },
-    "token": { "type": "string" }
+    "operation": { "type": "string", "const": "CREATE_MOVIE" },
+    "token":     { "type": "string" },
+    "movie":     { "$ref": "../components/movie.json" }
   },
-  "required": ["operacao", "filme", "token"],
-  "additionalProperties": true
+  "required": ["operation", "token", "movie"],
+  "additionalProperties": false
 }

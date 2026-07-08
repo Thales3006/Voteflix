@@ -1,10 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "StatusFieldOnly",
+  "title": "BasicResponse",
   "type": "object",
   "properties": {
-    "status": { "type": "string","pattern": "^[0-9]+$" },
-    "mensagem": { "type": "string" }
+    "status":  { "type": "string", "pattern": "^[0-9]+$" },
+    "message": { "type": "string" }
   },
   "required": ["status"],
   "additionalProperties": true

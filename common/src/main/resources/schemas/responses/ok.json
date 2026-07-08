@@ -1,11 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "LoginResponse",
+  "title": "OkResponse",
   "type": "object",
   "properties": {
-    "status": { "type": "string", "const": "200" },
-    "mensagem": { "type": "string" }
+    "status":  { "type": "string", "const": "200" },
+    "message": { "type": "string" }
   },
   "required": ["status"],
-  "additionalProperties": true
+  "additionalProperties": false
 }
