@@ -1,21 +1,21 @@
 package com.thales.common.model;
 
-import com.thales.common.utils.ErrorTable;
-
 import lombok.Getter;
 
 @Getter
-public class StatusException extends Exception {
-    private ErrorStatus status;
-    private String message = null;
+public class StatusException extends RuntimeException {
+    private final ErrorStatus status;
+    private final String userMessage;
 
-    public StatusException(ErrorStatus status){
+    public StatusException(ErrorStatus status) {
+        super(status.getMessage());
         this.status = status;
-        this.message = ErrorTable.getInstance().get(status).getSecond();
+        this.userMessage = status.getMessage();
     }
 
-    public StatusException(ErrorStatus status, String message){
+    public StatusException(ErrorStatus status, String userMessage) {
+        super(userMessage);
         this.status = status;
-        this.message = message;
+        this.userMessage = userMessage;
     }
 }
