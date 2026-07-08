@@ -5,18 +5,10 @@ import com.thales.common.model.AppRequest.*;
 import com.thales.common.model.AppResponse.*;
 import com.thales.common.utils.ResponseBuilder;
 import com.thales.common.utils.Validator;
-import com.thales.server.controller.AppController;
 import com.thales.server.network.ClientHandler;
-
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableMap;
 
 public class ServerService {
 
-    private final AppController appController;
-    private final ObservableMap<String, User> users = FXCollections.observableHashMap();
     private final Validator validator = Validator.getInstance();
     private final ResponseBuilder responseBuilder = new ResponseBuilder();
     private final DatabaseService database = new DatabaseService();
@@ -25,17 +17,12 @@ public class ServerService {
     private final MovieService movieService;
     private final ReviewService reviewService;
 
-    public ServerService(AppController appController) {
-        this.appController = appController;
+    public ServerService() {
         String secretKey = System.getenv().getOrDefault("JWT_SECRET", "256-bit-secret-key-placeholder");
         this.jwtService = new JwtService(secretKey);
         this.userService = new UserService(database, jwtService);
         this.movieService = new MovieService(database, jwtService);
         this.reviewService = new ReviewService(database, jwtService);
-
-        users.addListener((MapChangeListener<String, User>) _ -> {
-            Platform.runLater(() -> appController.updateUserList(users));
-        });
 
         try {
             validator.loadSchemas();
@@ -48,7 +35,6 @@ public class ServerService {
     public void log(String message) {
         String time = java.time.LocalTime.now().withNano(0).toString();
         System.out.println("[" + time + "] " + message);
-        Platform.runLater(() -> appController.appendToLog("[" + time + "] " + message));
     }
 
     public void handleMessage(String message, ClientHandler client) {
@@ -103,22 +89,11 @@ public class ServerService {
         }
         int id = database.getUserId(req.username());
         String token = jwtService.generateToken(id, req.username());
-
-        synchronized (users) {
-            users.putIfAbsent(req.username(), new User(id, req.username()));
-        }
-
         return new LoginResponse("Login successful", token);
     }
 
     private AppResponse handleLogout(LogoutRequest req) {
-        int id = jwtService.verifyAndGetUserId(req.token());
-        String username = database.getUsername(id);
-
-        synchronized (users) {
-            users.remove(username);
-        }
-
+        jwtService.verifyAndGetUserId(req.token());
         return new OkResponse("Logout successful");
     }
 }

@@ -15,16 +15,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
         </dependency>
@@ -60,9 +50,9 @@
         <plugins>
 
             <plugin>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.8</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.3.0</version>
                 <configuration>
                     <mainClass>com.thales.server.Main</mainClass>
                 </configuration>

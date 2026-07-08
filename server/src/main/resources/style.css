@@ -1,9 +1,0 @@
-.root {
-    font-family: "Arial";
-    -fx-font-family: "Arial";
-}
-.button {
-    background-color: #2196F3;
-    -fx-background-color: #2196F3;
-    -fx-text-fill: white;
-}

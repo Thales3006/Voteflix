@@ -1,42 +1,18 @@
 package com.thales.server;
 
-import com.thales.server.controller.AppController;
+import com.thales.server.network.ServerListener;
+import com.thales.server.service.ServerService;
 
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-
-public class Main extends Application {
-
-    @Override
-    public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/server.fxml"));
-
-        Scene scene = new Scene(loader.load());
-        stage.setScene(scene);
-        stage.setTitle("VoteFlix");
-        stage.show();
-        stage.getIcons().add(new Image(getClass().getResourceAsStream("/icon.png")));
-
-        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                AppController controller = loader.getController();
-                if (controller.getServerListener() != null) {
-                    controller.getServerListener().close();
-                }
-                Platform.exit();
-                System.exit(0);
-            }
-        });  
-    }
+public class Main {
 
     public static void main(String[] args) {
-        launch(args);
+        int port = args.length > 0
+            ? Integer.parseInt(args[0])
+            : Integer.parseInt(System.getenv().getOrDefault("PORT", "20737"));
+
+        ServerService service = new ServerService();
+        ServerListener listener = new ServerListener(service, port);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(listener::close));
     }
 }
