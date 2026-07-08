@@ -1,6 +1,6 @@
 package com.thales.client.controller;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.thales.common.model.User;
 
@@ -25,98 +25,95 @@ public class UserController extends SceneController {
 
     private User selectedUser = null;
 
-    @FXML protected void initialize(){
-        
-        if(clientService.isAdmin()){
+    @FXML protected void initialize() {
+
+        if (clientService.isAdmin()) {
             usersVbox.setDisable(false);
 
             userListView.setCellFactory(_ -> new ListCell<User>() {
                 @Override
                 protected void updateItem(User user, boolean empty) {
-                super.updateItem(user, empty);
-                if (empty || user == null) {
-                    setGraphic(null);
-                } else {
-                    VBox vbox = new VBox(
-                    new Label("Username: " + user.getUsername()),
-                    new Label("ID: " + user.getId())
-                    );
-                    setGraphic(vbox);
-                }
+                    super.updateItem(user, empty);
+                    if (empty || user == null) {
+                        setGraphic(null);
+                    } else {
+                        VBox vbox = new VBox(
+                            new Label("Username: " + user.getUsername()),
+                            new Label("ID: " + user.getId())
+                        );
+                        setGraphic(vbox);
+                    }
                 }
             });
             handle(null, () -> { refreshUsers(); });
         }
         handle(null, () -> { listOwnUser(); });
-        
     }
-    
+
     private void refreshUsers() throws Exception {
-        var request = clientService.requestUserList();
-        ArrayList<User> users = request.getSecond();
+        var response = clientService.requestUserList();
+        List<User> users = response.users();
         userListView.getItems().clear();
-        for(User user : users){
+        for (User user : users) {
             userListView.getItems().add(user);
         }
     }
 
     private void listOwnUser() throws Exception {
-        var request = clientService.requestOwnUser();
-        selectedUser = request.getSecond();
-        usernameLabel.setText(selectedUser.getUsername());
+        var response = clientService.requestOwnUser();
+        selectedUser = new User((Integer) null, response.username());
+        usernameLabel.setText(response.username());
     }
 
     // ===================================
     //  UI interaction handlers
     // ===================================
 
-    @FXML void HandleListUserButton(ActionEvent event){
+    @FXML void HandleListUserButton(ActionEvent event) {
         handle(event, () -> listOwnUser());
     }
 
-    @FXML void HandleUpdateUserButton(ActionEvent event){
+    @FXML void HandleUpdateUserButton(ActionEvent event) {
         handle(event, () -> {
-            if (selectedUser == null){
+            if (selectedUser == null) {
                 showPopup("Error", "You should select someone to update");
                 return;
             }
-            String request = clientService.getUsername().equals(selectedUser.getUsername())?
-                clientService.requestUpdateOwnUser(
-                    new User("", passwordField.getText())):
-                clientService.requestUpdateUser(
-                    new User("", passwordField.getText()), selectedUser.getId());
-            if(clientService.isAdmin()) {
+            String request = clientService.getUsername().equals(selectedUser.getUsername())
+                ? clientService.requestUpdateOwnUser(passwordField.getText())
+                : clientService.requestAdminUpdateUser(selectedUser.getId(), passwordField.getText());
+            if (clientService.isAdmin()) {
                 refreshUsers();
             }
         });
     }
 
-    @FXML void HandleDeleteUserButton(ActionEvent event){
+    @FXML void HandleDeleteUserButton(ActionEvent event) {
         handle(event, () -> {
-            if (selectedUser == null){
+            if (selectedUser == null) {
                 showPopup("Error", "You should select someone to delete");
                 return;
             }
-            String request = clientService.getUsername().equals(selectedUser.getUsername())?
-                clientService.requestDeleteOwnUser() :
-                clientService.requestDeleteUser(selectedUser.getId());
-            if(clientService.getUsername().equals(selectedUser.getUsername())){
+            String request = clientService.getUsername().equals(selectedUser.getUsername())
+                ? clientService.requestDeleteOwnUser()
+                : clientService.requestAdminDeleteUser(selectedUser.getId());
+            if (clientService.getUsername().equals(selectedUser.getUsername())) {
                 switchPage(event, "/login_page.fxml");
             }
-            if(clientService.isAdmin()) {
+            if (clientService.isAdmin()) {
                 refreshUsers();
             }
         });
     }
 
-    @FXML void HandleSelectUser(MouseEvent event){
+    @FXML void HandleSelectUser(MouseEvent event) {
         handle(null, () -> {
             selectedUser = userListView.getSelectionModel().getSelectedItem();
             usernameLabel.setText(selectedUser.getUsername());
         });
     }
 
-    @FXML void HandleRefreshUsersButton(ActionEvent event){
+    @FXML void HandleRefreshUsersButton(ActionEvent event) {
         handle(event, () -> refreshUsers());
     }
 }

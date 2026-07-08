@@ -1,7 +1,5 @@
 package com.thales.client.controller;
 
-import com.thales.common.model.User;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -40,15 +38,15 @@ public class LoginController extends SceneController {
 
     @FXML private void HandleLoginButton(ActionEvent event) {
         handle(event, () -> {
-            clientService.requestLogin(new User(usernameField.getText(), passwordField.getText()));
+            clientService.requestLogin(usernameField.getText(), passwordField.getText());
             SceneController.switchPage(event, "/menu_page.fxml");
         });
     }
 
     @FXML private void HandleRegisterButton(ActionEvent event) {
         handle(event, () -> {
-            String request = clientService.requestRegister(new User(usernameField.getText(), passwordField.getText()));
-            feedback(request);
+            String message = clientService.requestCreateUser(usernameField.getText(), passwordField.getText());
+            feedback(message);
         });
     }
 
