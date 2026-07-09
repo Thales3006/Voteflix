@@ -5,8 +5,15 @@
   "properties": {
     "operation": { "type": "string", "const": "LIST_REVIEWS" },
     "token":     { "type": "string" },
-    "movie_id":  { "type": "integer" }
+    "filter": {
+      "type": "object",
+      "properties": {
+        "movie_id": { "type": "integer" },
+        "user_id":  { "type": "integer" }
+      },
+      "additionalProperties": false
+    }
   },
-  "required": ["operation", "token", "movie_id"],
+  "required": ["operation", "token"],
   "additionalProperties": false
 }

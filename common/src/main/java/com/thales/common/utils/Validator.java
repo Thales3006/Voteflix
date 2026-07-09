@@ -3,8 +3,8 @@ package com.thales.common.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.thales.common.model.*;
-import com.thales.common.model.AppRequest.*;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.Response.*;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -48,7 +48,7 @@ public class Validator {
         loaded = true;
     }
 
-    public AppRequest parseRequest(String json) throws StatusException {
+    public Request parseRequest(String json) throws StatusException {
         try {
             basicRequestSchema.validate(json);
         } catch (Exception e) {
@@ -77,7 +77,7 @@ public class Validator {
         return deserializeRequest(op, obj);
     }
 
-    public AppResponse parseResponse(String json, Operation forOperation) throws StatusException {
+    public Response parseResponse(String json, Operation forOperation) throws StatusException {
         try {
             basicResponseSchema.validate(json);
         } catch (Exception e) {
@@ -103,7 +103,7 @@ public class Validator {
         return deserializeResponse(kind, obj);
     }
 
-    private AppRequest deserializeRequest(Operation op, JsonObject obj) {
+    private Request deserializeRequest(Operation op, JsonObject obj) {
         return switch (op) {
             case LOGIN -> new LoginRequest(
                 obj.get("username").getAsString(),
@@ -113,24 +113,24 @@ public class Validator {
 
             case CREATE_USER -> {
                 JsonObject user = obj.get("user").getAsJsonObject();
-                yield new CreateUserRequest(
+                yield new CreateUserRequest(new User(
                     user.get("username").getAsString(),
                     user.get("password").getAsString()
+                ));
+            }
+            case GET_USER -> new GetUserRequest(obj.get("token").getAsString());
+            case LIST_USERS -> new ListUsersRequest(
+                obj.get("token").getAsString(),
+                obj.has("filter") ? parseUserFilter(obj.get("filter").getAsJsonObject()) : null
+            );
+            case UPDATE_USER -> {
+                JsonObject user = obj.get("user").getAsJsonObject();
+                yield new UpdateUserRequest(
+                    obj.get("token").getAsString(),
+                    new User(user.get("id").getAsInt(), null, user.get("password").getAsString())
                 );
             }
-            case UPDATE_OWN_USER -> new UpdateOwnUserRequest(
-                obj.get("token").getAsString(),
-                obj.get("user").getAsJsonObject().get("password").getAsString()
-            );
-            case ADMIN_UPDATE_USER -> new AdminUpdateUserRequest(
-                obj.get("token").getAsString(),
-                obj.get("id").getAsInt(),
-                obj.get("user").getAsJsonObject().get("password").getAsString()
-            );
-            case LIST_OWN_USER -> new ListOwnUserRequest(obj.get("token").getAsString());
-            case LIST_USERS -> new ListUsersRequest(obj.get("token").getAsString());
-            case DELETE_OWN_USER -> new DeleteOwnUserRequest(obj.get("token").getAsString());
-            case ADMIN_DELETE_USER -> new AdminDeleteUserRequest(
+            case DELETE_USER -> new DeleteUserRequest(
                 obj.get("token").getAsString(),
                 obj.get("id").getAsInt()
             );
@@ -139,11 +139,14 @@ public class Validator {
                 obj.get("token").getAsString(),
                 Movie.fromJson(obj.get("movie").getAsJsonObject())
             );
+            case LIST_MOVIES -> new ListMoviesRequest(
+                obj.get("token").getAsString(),
+                obj.has("filter") ? parseMovieFilter(obj.get("filter").getAsJsonObject()) : null
+            );
             case UPDATE_MOVIE -> new UpdateMovieRequest(
                 obj.get("token").getAsString(),
                 Movie.fromJson(obj.get("movie").getAsJsonObject())
             );
-            case LIST_MOVIES -> new ListMoviesRequest(obj.get("token").getAsString());
             case DELETE_MOVIE -> new DeleteMovieRequest(
                 obj.get("token").getAsString(),
                 obj.get("id").getAsInt()
@@ -153,14 +156,13 @@ public class Validator {
                 obj.get("token").getAsString(),
                 Review.fromJson(obj.get("review").getAsJsonObject())
             );
+            case LIST_REVIEWS -> new ListReviewsRequest(
+                obj.get("token").getAsString(),
+                obj.has("filter") ? parseReviewFilter(obj.get("filter").getAsJsonObject()) : null
+            );
             case UPDATE_REVIEW -> new UpdateReviewRequest(
                 obj.get("token").getAsString(),
                 Review.fromJson(obj.get("review").getAsJsonObject())
-            );
-            case LIST_OWN_REVIEWS -> new ListOwnReviewsRequest(obj.get("token").getAsString());
-            case LIST_REVIEWS -> new ListReviewsRequest(
-                obj.get("token").getAsString(),
-                obj.get("movie_id").getAsInt()
             );
             case DELETE_REVIEW -> new DeleteReviewRequest(
                 obj.get("token").getAsString(),
@@ -171,12 +173,33 @@ public class Validator {
         };
     }
 
-    private AppResponse deserializeResponse(ResponseKind kind, JsonObject obj) {
+    private UserFilter parseUserFilter(JsonObject f) {
+        String username = f.has("username") ? f.get("username").getAsString() : null;
+        return new UserFilter(username);
+    }
+
+    private MovieFilter parseMovieFilter(JsonObject f) {
+        String genre = f.has("genre") ? f.get("genre").getAsString() : null;
+        Integer year = f.has("year") ? f.get("year").getAsInt() : null;
+        return new MovieFilter(genre, year);
+    }
+
+    private ReviewFilter parseReviewFilter(JsonObject f) {
+        Integer movieId = f.has("movie_id") ? f.get("movie_id").getAsInt() : null;
+        Integer userId = f.has("user_id") ? f.get("user_id").getAsInt() : null;
+        return new ReviewFilter(movieId, userId);
+    }
+
+    private Response deserializeResponse(ResponseKind kind, JsonObject obj) {
         String message = obj.has("message") ? obj.get("message").getAsString() : "";
         return switch (kind) {
             case OK -> new OkResponse(message);
             case CREATED -> new CreatedResponse(message);
-            case LOGIN -> new LoginResponse(message, obj.get("token").getAsString());
+            case LOGIN -> new LoginResponse(
+                message,
+                obj.get("token").getAsString(),
+                obj.get("id").getAsInt()
+            );
             case MOVIE_LIST -> {
                 var movies = new ArrayList<Movie>();
                 for (var el : obj.getAsJsonArray("movies")) {

@@ -60,7 +60,7 @@ public class UserController extends SceneController {
     }
 
     private void listOwnUser() throws Exception {
-        var response = clientService.requestOwnUser();
+        var response = clientService.requestGetUser();
         selectedUser = new User((Integer) null, response.username());
         usernameLabel.setText(response.username());
     }
@@ -80,7 +80,7 @@ public class UserController extends SceneController {
                 return;
             }
             String request = clientService.getUsername().equals(selectedUser.getUsername())
-                ? clientService.requestUpdateOwnUser(passwordField.getText())
+                ? clientService.requestUpdateUser(passwordField.getText())
                 : clientService.requestAdminUpdateUser(selectedUser.getId(), passwordField.getText());
             if (clientService.isAdmin()) {
                 refreshUsers();
@@ -95,7 +95,7 @@ public class UserController extends SceneController {
                 return;
             }
             String request = clientService.getUsername().equals(selectedUser.getUsername())
-                ? clientService.requestDeleteOwnUser()
+                ? clientService.requestDeleteUser()
                 : clientService.requestAdminDeleteUser(selectedUser.getId());
             if (clientService.getUsername().equals(selectedUser.getUsername())) {
                 switchPage(event, "/login_page.fxml");

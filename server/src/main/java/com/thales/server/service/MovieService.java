@@ -1,14 +1,15 @@
 package com.thales.server.service;
 
-import com.thales.common.model.AppRequest.*;
-import com.thales.common.model.AppResponse;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Request.MovieRequest;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.Response;
+import com.thales.common.model.Response.*;
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.StatusException;
 import com.thales.server.repository.MovieRepository;
 import com.thales.server.repository.UserRepository;
 
-public class MovieService {
+public class MovieService implements CrudService<MovieRequest> {
     private final MovieRepository movieRepo;
     private final UserRepository userRepo;
     private final JwtService jwtService;
@@ -19,29 +20,37 @@ public class MovieService {
         this.jwtService = jwtService;
     }
 
-    public AppResponse handleCreateMovie(CreateMovieRequest req) {
-        int id = jwtService.verifyAndGetUserId(req.token());
+    @Override
+    public Response create(MovieRequest req) {
+        CreateMovieRequest r = (CreateMovieRequest) req;
+        int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
-        movieRepo.create(req.movie());
+        movieRepo.create(r.movie());
         return new CreatedResponse("Movie created");
     }
 
-    public AppResponse handleListMovies(ListMoviesRequest req) {
-        jwtService.verifyAndGetUserId(req.token());
-        return new MovieListResponse("Movie list", movieRepo.findAll());
+    @Override
+    public Response list(MovieRequest req) {
+        ListMoviesRequest r = (ListMoviesRequest) req;
+        jwtService.verifyAndGetUserId(r.token());
+        return new MovieListResponse("Movie list", movieRepo.findAll(r.filter()));
     }
 
-    public AppResponse handleUpdateMovie(UpdateMovieRequest req) {
-        int id = jwtService.verifyAndGetUserId(req.token());
+    @Override
+    public Response update(MovieRequest req) {
+        UpdateMovieRequest r = (UpdateMovieRequest) req;
+        int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
-        movieRepo.update(req.movie());
+        movieRepo.update(r.movie());
         return new OkResponse("Movie updated");
     }
 
-    public AppResponse handleDeleteMovie(DeleteMovieRequest req) {
-        int id = jwtService.verifyAndGetUserId(req.token());
+    @Override
+    public Response delete(MovieRequest req) {
+        DeleteMovieRequest r = (DeleteMovieRequest) req;
+        int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
-        movieRepo.delete(req.id());
+        movieRepo.delete(r.id());
         return new OkResponse("Movie deleted");
     }
 }

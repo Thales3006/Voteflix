@@ -2,16 +2,17 @@ package com.thales.server.service;
 
 import java.util.List;
 
-import com.thales.common.model.AppRequest.*;
-import com.thales.common.model.AppResponse;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Request.ReviewRequest;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.Response;
+import com.thales.common.model.Response.*;
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.Review;
 import com.thales.common.model.StatusException;
 import com.thales.server.repository.ReviewRepository;
 import com.thales.server.repository.UserRepository;
 
-public class ReviewService {
+public class ReviewService implements CrudService<ReviewRequest> {
     private final ReviewRepository reviewRepo;
     private final UserRepository userRepo;
     private final JwtService jwtService;
@@ -29,44 +30,45 @@ public class ReviewService {
         } catch (StatusException e) {}
     }
 
-    public AppResponse handleCreateReview(CreateReviewRequest req) {
-        int userId = jwtService.verifyAndGetUserId(req.token());
-        Review review = req.review();
+    @Override
+    public Response create(ReviewRequest req) {
+        CreateReviewRequest r = (CreateReviewRequest) req;
+        int userId = jwtService.verifyAndGetUserId(r.token());
+        Review review = r.review();
         review.setUserId(userId);
         reviewRepo.create(review);
         return new CreatedResponse("Review created");
     }
 
-    public AppResponse handleListOwnReviews(ListOwnReviewsRequest req) {
-        int userId = jwtService.verifyAndGetUserId(req.token());
-        List<Review> reviews = reviewRepo.findByUserId(userId);
+    @Override
+    public Response list(ReviewRequest req) {
+        ListReviewsRequest r = (ListReviewsRequest) req;
+        jwtService.verifyAndGetUserId(r.token());
+        List<Review> reviews = reviewRepo.findAll(r.filter());
         reviews.forEach(this::attachUsername);
         return new ReviewListResponse("Reviews", reviews);
     }
 
-    public AppResponse handleListReviews(ListReviewsRequest req) {
-        jwtService.verifyAndGetUserId(req.token());
-        List<Review> reviews = reviewRepo.findByMovieId(req.movieId());
-        reviews.forEach(this::attachUsername);
-        return new ReviewListResponse("Reviews", reviews);
-    }
-
-    public AppResponse handleUpdateReview(UpdateReviewRequest req) {
-        int userId = jwtService.verifyAndGetUserId(req.token());
-        Review review = req.review();
+    @Override
+    public Response update(ReviewRequest req) {
+        UpdateReviewRequest r = (UpdateReviewRequest) req;
+        int userId = jwtService.verifyAndGetUserId(r.token());
+        Review review = r.review();
         Review existing = reviewRepo.findById(review.getId());
         if (!existing.getUserId().equals(userId)) throw new StatusException(ErrorStatus.FORBIDDEN);
         reviewRepo.update(review);
         return new OkResponse("Review updated");
     }
 
-    public AppResponse handleDeleteReview(DeleteReviewRequest req) {
-        int userId = jwtService.verifyAndGetUserId(req.token());
-        Review existing = reviewRepo.findById(req.id());
+    @Override
+    public Response delete(ReviewRequest req) {
+        DeleteReviewRequest r = (DeleteReviewRequest) req;
+        int userId = jwtService.verifyAndGetUserId(r.token());
+        Review existing = reviewRepo.findById(r.id());
         if (!existing.getUserId().equals(userId) && !userRepo.isAdmin(userId)) {
             throw new StatusException(ErrorStatus.FORBIDDEN);
         }
-        reviewRepo.delete(req.id());
+        reviewRepo.delete(r.id());
         return new OkResponse("Review deleted");
     }
 }

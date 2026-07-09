@@ -1,8 +1,8 @@
 package com.thales.server.service;
 
 import com.thales.common.model.*;
-import com.thales.common.model.AppRequest.*;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.Response.*;
 import com.thales.common.utils.ResponseBuilder;
 import com.thales.common.utils.Validator;
 import com.thales.server.repository.MovieRepository;
@@ -24,7 +24,8 @@ public class ServerService {
     private final ReviewService reviewService;
 
     public ServerService() {
-        SQLiteDatabase database = new SQLiteDatabase("data/voteflix.db");
+        String basedir = System.getProperty("server.basedir", ".");
+        SQLiteDatabase database = new SQLiteDatabase(basedir + "/data/voteflix.db");
         this.userRepo = new UserRepository(database);
         this.movieRepo = new MovieRepository(database);
         this.reviewRepo = new ReviewRepository(database);
@@ -49,10 +50,10 @@ public class ServerService {
     }
 
     public void handleMessage(String message, ClientHandler client) {
-        AppRequest request = null;
+        Request request = null;
         try {
             request = validator.parseRequest(message);
-            AppResponse response = dispatch(request);
+            Response response = dispatch(request);
             client.sendMessage(responseBuilder.serialize(response));
         } catch (StatusException e) {
             System.err.println(e.toString());
@@ -62,48 +63,45 @@ public class ServerService {
             client.sendMessage(responseBuilder.serializeError(
                 new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR)));
         } finally {
-            if (request instanceof LogoutRequest || request instanceof DeleteOwnUserRequest) {
+            if (request instanceof LogoutRequest || request instanceof DeleteUserRequest) {
                 client.close();
             }
         }
     }
 
-    private AppResponse dispatch(AppRequest request) {
+    private Response dispatch(Request request) {
         return switch (request) {
             case LoginRequest r -> handleLogin(r);
             case LogoutRequest r -> handleLogout(r);
 
-            case CreateUserRequest r -> userService.handleCreateUser(r);
-            case ListOwnUserRequest r -> userService.handleListOwnUser(r);
-            case ListUsersRequest r -> userService.handleListUsers(r);
-            case UpdateOwnUserRequest r -> userService.handleUpdateOwnUser(r);
-            case AdminUpdateUserRequest r -> userService.handleAdminUpdateUser(r);
-            case DeleteOwnUserRequest r -> userService.handleDeleteOwnUser(r);
-            case AdminDeleteUserRequest r -> userService.handleAdminDeleteUser(r);
+            case CreateUserRequest r -> userService.create(r);
+            case GetUserRequest r -> userService.get(r);
+            case ListUsersRequest r -> userService.list(r);
+            case UpdateUserRequest r -> userService.update(r);
+            case DeleteUserRequest r -> userService.delete(r);
 
-            case CreateMovieRequest r -> movieService.handleCreateMovie(r);
-            case ListMoviesRequest r -> movieService.handleListMovies(r);
-            case UpdateMovieRequest r -> movieService.handleUpdateMovie(r);
-            case DeleteMovieRequest r -> movieService.handleDeleteMovie(r);
+            case CreateMovieRequest r -> movieService.create(r);
+            case ListMoviesRequest r -> movieService.list(r);
+            case UpdateMovieRequest r -> movieService.update(r);
+            case DeleteMovieRequest r -> movieService.delete(r);
 
-            case CreateReviewRequest r -> reviewService.handleCreateReview(r);
-            case ListOwnReviewsRequest r -> reviewService.handleListOwnReviews(r);
-            case ListReviewsRequest r -> reviewService.handleListReviews(r);
-            case UpdateReviewRequest r -> reviewService.handleUpdateReview(r);
-            case DeleteReviewRequest r -> reviewService.handleDeleteReview(r);
+            case CreateReviewRequest r -> reviewService.create(r);
+            case ListReviewsRequest r -> reviewService.list(r);
+            case UpdateReviewRequest r -> reviewService.update(r);
+            case DeleteReviewRequest r -> reviewService.delete(r);
         };
     }
 
-    private AppResponse handleLogin(LoginRequest req) {
+    private Response handleLogin(LoginRequest req) {
         if (!userRepo.checkCredentials(req.username(), req.password())) {
             throw new StatusException(ErrorStatus.UNAUTHORIZED, "Invalid credentials");
         }
         int id = userRepo.findIdByUsername(req.username());
         String token = jwtService.generateToken(id, req.username());
-        return new LoginResponse("Login successful", token);
+        return new LoginResponse("Login successful", token, id);
     }
 
-    private AppResponse handleLogout(LogoutRequest req) {
+    private Response handleLogout(LogoutRequest req) {
         jwtService.verifyAndGetUserId(req.token());
         return new OkResponse("Logout successful");
     }

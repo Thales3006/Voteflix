@@ -1,12 +1,15 @@
 package com.thales.common.utils;
 
 import com.google.gson.JsonObject;
-import com.thales.common.model.AppRequest;
-import com.thales.common.model.AppRequest.*;
+import com.thales.common.model.Request;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.MovieFilter;
+import com.thales.common.model.ReviewFilter;
+import com.thales.common.model.UserFilter;
 
 public class RequestSerializer {
 
-    public String serialize(AppRequest request) {
+    public String serialize(Request request) {
         JsonObject json = new JsonObject();
         json.addProperty("operation", request.operation().getCode());
 
@@ -19,27 +22,23 @@ public class RequestSerializer {
 
             case CreateUserRequest r -> {
                 JsonObject user = new JsonObject();
-                user.addProperty("username", r.username());
-                user.addProperty("password", r.password());
+                user.addProperty("username", r.user().getUsername());
+                user.addProperty("password", r.user().getPassword());
                 json.add("user", user);
             }
-            case UpdateOwnUserRequest r -> {
+            case GetUserRequest r -> json.addProperty("token", r.token());
+            case ListUsersRequest r -> {
+                json.addProperty("token", r.token());
+                if (r.filter() != null) json.add("filter", serializeUserFilter(r.filter()));
+            }
+            case UpdateUserRequest r -> {
                 json.addProperty("token", r.token());
                 JsonObject user = new JsonObject();
-                user.addProperty("password", r.password());
+                user.addProperty("id", r.user().getId());
+                user.addProperty("password", r.user().getPassword());
                 json.add("user", user);
             }
-            case AdminUpdateUserRequest r -> {
-                json.addProperty("token", r.token());
-                json.addProperty("id", r.id());
-                JsonObject user = new JsonObject();
-                user.addProperty("password", r.password());
-                json.add("user", user);
-            }
-            case ListOwnUserRequest r -> json.addProperty("token", r.token());
-            case ListUsersRequest r -> json.addProperty("token", r.token());
-            case DeleteOwnUserRequest r -> json.addProperty("token", r.token());
-            case AdminDeleteUserRequest r -> {
+            case DeleteUserRequest r -> {
                 json.addProperty("token", r.token());
                 json.addProperty("id", r.id());
             }
@@ -48,11 +47,14 @@ public class RequestSerializer {
                 json.addProperty("token", r.token());
                 json.add("movie", r.movie().toJson());
             }
+            case ListMoviesRequest r -> {
+                json.addProperty("token", r.token());
+                if (r.filter() != null) json.add("filter", serializeMovieFilter(r.filter()));
+            }
             case UpdateMovieRequest r -> {
                 json.addProperty("token", r.token());
                 json.add("movie", r.movie().toJson());
             }
-            case ListMoviesRequest r -> json.addProperty("token", r.token());
             case DeleteMovieRequest r -> {
                 json.addProperty("token", r.token());
                 json.addProperty("id", r.id());
@@ -62,14 +64,13 @@ public class RequestSerializer {
                 json.addProperty("token", r.token());
                 json.add("review", r.review().toJson());
             }
+            case ListReviewsRequest r -> {
+                json.addProperty("token", r.token());
+                if (r.filter() != null) json.add("filter", serializeReviewFilter(r.filter()));
+            }
             case UpdateReviewRequest r -> {
                 json.addProperty("token", r.token());
                 json.add("review", r.review().toJson());
-            }
-            case ListOwnReviewsRequest r -> json.addProperty("token", r.token());
-            case ListReviewsRequest r -> {
-                json.addProperty("token", r.token());
-                json.addProperty("movie_id", r.movieId());
             }
             case DeleteReviewRequest r -> {
                 json.addProperty("token", r.token());
@@ -77,5 +78,25 @@ public class RequestSerializer {
             }
         }
         return json.toString();
+    }
+
+    private JsonObject serializeUserFilter(UserFilter f) {
+        JsonObject obj = new JsonObject();
+        if (f.username() != null) obj.addProperty("username", f.username());
+        return obj;
+    }
+
+    private JsonObject serializeMovieFilter(MovieFilter f) {
+        JsonObject obj = new JsonObject();
+        if (f.genre() != null) obj.addProperty("genre", f.genre());
+        if (f.year() != null) obj.addProperty("year", f.year());
+        return obj;
+    }
+
+    private JsonObject serializeReviewFilter(ReviewFilter f) {
+        JsonObject obj = new JsonObject();
+        if (f.movieId() != null) obj.addProperty("movie_id", f.movieId());
+        if (f.userId() != null) obj.addProperty("user_id", f.userId());
+        return obj;
     }
 }

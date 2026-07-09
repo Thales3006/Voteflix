@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.Movie;
+import com.thales.common.model.MovieFilter;
 import com.thales.common.model.StatusException;
 
 public class MovieRepository implements Repository<Movie, Integer> {
@@ -208,6 +209,70 @@ public class MovieRepository implements Repository<Movie, Integer> {
                 conn.rollback();
                 throw e;
             }
+        } catch (SQLException e) {
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public List<Movie> findAll(MovieFilter filter) throws StatusException {
+        if (filter == null || (filter.genre() == null && filter.year() == null)) return findAll();
+
+        StringBuilder movieSqlBuilder = new StringBuilder(
+            "SELECT m.id, m.title, m.director, m.year, COALESCE(AVG(r.rating), 0) AS rating, COUNT(r.rating) AS rating_amount, m.synopsis " +
+            "FROM movies m LEFT JOIN reviews r ON m.id = r.movie_id ");
+
+        if (filter.genre() != null) {
+            movieSqlBuilder.append("JOIN movie_genres mg ON m.id = mg.movie_id ")
+                           .append("JOIN genres g ON mg.genre_id = g.id ");
+        }
+
+        List<Object> params = new ArrayList<>();
+        boolean hasWhere = false;
+
+        if (filter.genre() != null) {
+            movieSqlBuilder.append("WHERE g.name = ? ");
+            params.add(filter.genre());
+            hasWhere = true;
+        }
+        if (filter.year() != null) {
+            movieSqlBuilder.append(hasWhere ? "AND " : "WHERE ").append("m.year = ? ");
+            params.add(filter.year());
+        }
+        movieSqlBuilder.append("GROUP BY m.id, m.title, m.director, m.year, m.synopsis");
+
+        String genreSql = "SELECT mg.movie_id, g.name FROM movie_genres mg JOIN genres g ON mg.genre_id = g.id";
+
+        try (Connection conn = db.getConnection()) {
+            Map<Integer, List<String>> genreMap = new HashMap<>();
+            try (PreparedStatement gstmt = conn.prepareStatement(genreSql)) {
+                ResultSet grs = gstmt.executeQuery();
+                while (grs.next()) {
+                    genreMap.computeIfAbsent(grs.getInt("movie_id"), _ -> new ArrayList<>())
+                            .add(grs.getString("name"));
+                }
+            }
+            List<Movie> movies = new ArrayList<>();
+            try (PreparedStatement pstmt = conn.prepareStatement(movieSqlBuilder.toString())) {
+                for (int i = 0; i < params.size(); i++) {
+                    if (params.get(i) instanceof Integer val) pstmt.setInt(i + 1, val);
+                    else pstmt.setString(i + 1, (String) params.get(i));
+                }
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    movies.add(new Movie(
+                        id,
+                        rs.getString("title"),
+                        rs.getString("director"),
+                        genreMap.getOrDefault(id, List.of()).toArray(new String[0]),
+                        rs.getInt("year"),
+                        rs.getFloat("rating"),
+                        rs.getInt("rating_amount"),
+                        rs.getString("synopsis")
+                    ));
+                }
+            }
+            return movies;
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
