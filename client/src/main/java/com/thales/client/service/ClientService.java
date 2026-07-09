@@ -22,6 +22,7 @@ public class ClientService {
     private int serverPort;
     private final BooleanProperty connected = new SimpleBooleanProperty(false);
     private String token;
+    private int userId;
     private boolean isAdmin;
     private String username;
     private final Validator validator;
@@ -52,6 +53,7 @@ public class ClientService {
     public void close() {
         token = null;
         username = null;
+        userId = 0;
         isAdmin = false;
         connected.set(false);
     }
@@ -67,13 +69,14 @@ public class ClientService {
     // ===================================
 
     public String requestCreateUser(String username, String password) throws Exception {
-        CreatedResponse r = (CreatedResponse) send(new CreateUserRequest(username, password));
+        CreatedResponse r = (CreatedResponse) send(new CreateUserRequest(new User(username, password)));
         return r.message();
     }
 
     public void requestLogin(String username, String password) throws Exception {
         LoginResponse r = (LoginResponse) send(new LoginRequest(username, password));
         this.token = r.token();
+        this.userId = r.id();
         this.username = username;
         this.isAdmin = "admin".equals(username);
     }
@@ -82,34 +85,39 @@ public class ClientService {
         send(new LogoutRequest(token));
         token = null;
         username = null;
+        userId = 0;
         isAdmin = false;
     }
 
-    public String requestUpdateOwnUser(String password) throws Exception {
-        OkResponse r = (OkResponse) send(new UpdateOwnUserRequest(token, password));
+    public String requestUpdateUser(String password) throws Exception {
+        OkResponse r = (OkResponse) send(new UpdateUserRequest(token, new User(userId, null, password)));
         return r.message();
     }
 
     public String requestAdminUpdateUser(int id, String password) throws Exception {
-        OkResponse r = (OkResponse) send(new AdminUpdateUserRequest(token, id, password));
+        OkResponse r = (OkResponse) send(new UpdateUserRequest(token, new User(id, null, password)));
         return r.message();
     }
 
-    public UserInfoResponse requestOwnUser() throws Exception {
-        return (UserInfoResponse) send(new ListOwnUserRequest(token));
+    public UserInfoResponse requestGetUser() throws Exception {
+        return (UserInfoResponse) send(new GetUserRequest(token));
     }
 
     public UserListResponse requestUserList() throws Exception {
-        return (UserListResponse) send(new ListUsersRequest(token));
+        return (UserListResponse) send(new ListUsersRequest(token, null));
     }
 
-    public String requestDeleteOwnUser() throws Exception {
-        OkResponse r = (OkResponse) send(new DeleteOwnUserRequest(token));
+    public UserListResponse requestUserList(UserFilter filter) throws Exception {
+        return (UserListResponse) send(new ListUsersRequest(token, filter));
+    }
+
+    public String requestDeleteUser() throws Exception {
+        OkResponse r = (OkResponse) send(new DeleteUserRequest(token, userId));
         return r.message();
     }
 
     public String requestAdminDeleteUser(int id) throws Exception {
-        OkResponse r = (OkResponse) send(new AdminDeleteUserRequest(token, id));
+        OkResponse r = (OkResponse) send(new DeleteUserRequest(token, id));
         return r.message();
     }
 
@@ -123,7 +131,11 @@ public class ClientService {
     }
 
     public MovieListResponse requestMovieList() throws Exception {
-        return (MovieListResponse) send(new ListMoviesRequest(token));
+        return (MovieListResponse) send(new ListMoviesRequest(token, null));
+    }
+
+    public MovieListResponse requestMovieList(MovieFilter filter) throws Exception {
+        return (MovieListResponse) send(new ListMoviesRequest(token, filter));
     }
 
     public String requestUpdateMovie(Movie movie) throws Exception {
@@ -146,11 +158,15 @@ public class ClientService {
     }
 
     public ReviewListResponse requestOwnReviewList() throws Exception {
-        return (ReviewListResponse) send(new ListOwnReviewsRequest(token));
+        return (ReviewListResponse) send(new ListReviewsRequest(token, new ReviewFilter(null, userId)));
     }
 
     public ReviewListResponse requestMovieReviewList(int movieId) throws Exception {
-        return (ReviewListResponse) send(new ListReviewsRequest(token, movieId));
+        return (ReviewListResponse) send(new ListReviewsRequest(token, new ReviewFilter(movieId, null)));
+    }
+
+    public ReviewListResponse requestReviewList(ReviewFilter filter) throws Exception {
+        return (ReviewListResponse) send(new ListReviewsRequest(token, filter));
     }
 
     public String requestUpdateReview(Review review) throws Exception {
