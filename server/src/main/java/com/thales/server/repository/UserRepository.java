@@ -1,4 +1,5 @@
-package com.thales.server.database;
+package com.thales.server.repository;
+import com.thales.server.database.Database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

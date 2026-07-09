@@ -5,10 +5,10 @@ import com.thales.common.model.AppRequest.*;
 import com.thales.common.model.AppResponse.*;
 import com.thales.common.utils.ResponseBuilder;
 import com.thales.common.utils.Validator;
-import com.thales.server.database.MovieRepository;
-import com.thales.server.database.ReviewRepository;
+import com.thales.server.repository.MovieRepository;
+import com.thales.server.repository.ReviewRepository;
 import com.thales.server.database.SQLiteDatabase;
-import com.thales.server.database.UserRepository;
+import com.thales.server.repository.UserRepository;
 import com.thales.server.network.ClientHandler;
 
 public class ServerService {
