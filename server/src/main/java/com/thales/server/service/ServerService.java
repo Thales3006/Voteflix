@@ -5,24 +5,35 @@ import com.thales.common.model.AppRequest.*;
 import com.thales.common.model.AppResponse.*;
 import com.thales.common.utils.ResponseBuilder;
 import com.thales.common.utils.Validator;
+import com.thales.server.repository.MovieRepository;
+import com.thales.server.repository.ReviewRepository;
+import com.thales.server.database.SQLiteDatabase;
+import com.thales.server.repository.UserRepository;
 import com.thales.server.network.ClientHandler;
 
 public class ServerService {
 
     private final Validator validator = Validator.getInstance();
     private final ResponseBuilder responseBuilder = new ResponseBuilder();
-    private final DatabaseService database = new DatabaseService();
+    private final UserRepository userRepo;
+    private final MovieRepository movieRepo;
+    private final ReviewRepository reviewRepo;
     private final JwtService jwtService;
     private final UserService userService;
     private final MovieService movieService;
     private final ReviewService reviewService;
 
     public ServerService() {
+        SQLiteDatabase database = new SQLiteDatabase("data/voteflix.db");
+        this.userRepo = new UserRepository(database);
+        this.movieRepo = new MovieRepository(database);
+        this.reviewRepo = new ReviewRepository(database);
+
         String secretKey = System.getenv().getOrDefault("JWT_SECRET", "256-bit-secret-key-placeholder");
         this.jwtService = new JwtService(secretKey);
-        this.userService = new UserService(database, jwtService);
-        this.movieService = new MovieService(database, jwtService);
-        this.reviewService = new ReviewService(database, jwtService);
+        this.userService = new UserService(userRepo, jwtService);
+        this.movieService = new MovieService(movieRepo, userRepo, jwtService);
+        this.reviewService = new ReviewService(reviewRepo, userRepo, jwtService);
 
         try {
             validator.loadSchemas();
@@ -84,10 +95,10 @@ public class ServerService {
     }
 
     private AppResponse handleLogin(LoginRequest req) {
-        if (!database.checkUser(req.username(), req.password())) {
+        if (!userRepo.checkCredentials(req.username(), req.password())) {
             throw new StatusException(ErrorStatus.UNAUTHORIZED, "Invalid credentials");
         }
-        int id = database.getUserId(req.username());
+        int id = userRepo.findIdByUsername(req.username());
         String token = jwtService.generateToken(id, req.username());
         return new LoginResponse("Login successful", token);
     }
