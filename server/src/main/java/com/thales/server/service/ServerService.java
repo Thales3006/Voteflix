@@ -62,7 +62,7 @@ public class ServerService {
             client.sendMessage(responseBuilder.serializeError(
                 new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR)));
         } finally {
-            if (request instanceof LogoutRequest || request instanceof DeleteOwnUserRequest) {
+            if (request instanceof LogoutRequest || request instanceof DeleteUserRequest) {
                 client.close();
             }
         }
@@ -73,24 +73,21 @@ public class ServerService {
             case LoginRequest r -> handleLogin(r);
             case LogoutRequest r -> handleLogout(r);
 
-            case CreateUserRequest r -> userService.handleCreateUser(r);
-            case ListOwnUserRequest r -> userService.handleListOwnUser(r);
-            case ListUsersRequest r -> userService.handleListUsers(r);
-            case UpdateOwnUserRequest r -> userService.handleUpdateOwnUser(r);
-            case AdminUpdateUserRequest r -> userService.handleAdminUpdateUser(r);
-            case DeleteOwnUserRequest r -> userService.handleDeleteOwnUser(r);
-            case AdminDeleteUserRequest r -> userService.handleAdminDeleteUser(r);
+            case CreateUserRequest r -> userService.create(r);
+            case GetUserRequest r -> userService.get(r);
+            case ListUsersRequest r -> userService.list(r);
+            case UpdateUserRequest r -> userService.update(r);
+            case DeleteUserRequest r -> userService.delete(r);
 
-            case CreateMovieRequest r -> movieService.handleCreateMovie(r);
-            case ListMoviesRequest r -> movieService.handleListMovies(r);
-            case UpdateMovieRequest r -> movieService.handleUpdateMovie(r);
-            case DeleteMovieRequest r -> movieService.handleDeleteMovie(r);
+            case CreateMovieRequest r -> movieService.create(r);
+            case ListMoviesRequest r -> movieService.list(r);
+            case UpdateMovieRequest r -> movieService.update(r);
+            case DeleteMovieRequest r -> movieService.delete(r);
 
-            case CreateReviewRequest r -> reviewService.handleCreateReview(r);
-            case ListOwnReviewsRequest r -> reviewService.handleListOwnReviews(r);
-            case ListReviewsRequest r -> reviewService.handleListReviews(r);
-            case UpdateReviewRequest r -> reviewService.handleUpdateReview(r);
-            case DeleteReviewRequest r -> reviewService.handleDeleteReview(r);
+            case CreateReviewRequest r -> reviewService.create(r);
+            case ListReviewsRequest r -> reviewService.list(r);
+            case UpdateReviewRequest r -> reviewService.update(r);
+            case DeleteReviewRequest r -> reviewService.delete(r);
         };
     }
 
@@ -100,7 +97,7 @@ public class ServerService {
         }
         int id = userRepo.findIdByUsername(req.username());
         String token = jwtService.generateToken(id, req.username());
-        return new LoginResponse("Login successful", token);
+        return new LoginResponse("Login successful", token, id);
     }
 
     private AppResponse handleLogout(LogoutRequest req) {
