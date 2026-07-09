@@ -4,6 +4,13 @@ public sealed interface AppRequest {
 
     Operation operation();
 
+    sealed interface UserRequest extends AppRequest
+        permits CreateUserRequest, GetUserRequest, ListUsersRequest, UpdateUserRequest, DeleteUserRequest {}
+    sealed interface MovieRequest extends AppRequest
+        permits CreateMovieRequest, ListMoviesRequest, UpdateMovieRequest, DeleteMovieRequest {}
+    sealed interface ReviewRequest extends AppRequest
+        permits CreateReviewRequest, ListReviewsRequest, UpdateReviewRequest, DeleteReviewRequest {}
+
     record LoginRequest(String username, String password) implements AppRequest {
         public Operation operation() { return Operation.LOGIN; }
     }
@@ -11,54 +18,45 @@ public sealed interface AppRequest {
         public Operation operation() { return Operation.LOGOUT; }
     }
 
-    record CreateUserRequest(String username, String password) implements AppRequest {
+    record CreateUserRequest(User user) implements UserRequest {
         public Operation operation() { return Operation.CREATE_USER; }
     }
-    record UpdateOwnUserRequest(String token, String password) implements AppRequest {
-        public Operation operation() { return Operation.UPDATE_OWN_USER; }
+    record GetUserRequest(String token) implements UserRequest {
+        public Operation operation() { return Operation.GET_USER; }
     }
-    record AdminUpdateUserRequest(String token, int id, String password) implements AppRequest {
-        public Operation operation() { return Operation.ADMIN_UPDATE_USER; }
-    }
-    record ListOwnUserRequest(String token) implements AppRequest {
-        public Operation operation() { return Operation.LIST_OWN_USER; }
-    }
-    record ListUsersRequest(String token) implements AppRequest {
+    record ListUsersRequest(String token, UserFilter filter) implements UserRequest {
         public Operation operation() { return Operation.LIST_USERS; }
     }
-    record DeleteOwnUserRequest(String token) implements AppRequest {
-        public Operation operation() { return Operation.DELETE_OWN_USER; }
+    record UpdateUserRequest(String token, User user) implements UserRequest {
+        public Operation operation() { return Operation.UPDATE_USER; }
     }
-    record AdminDeleteUserRequest(String token, int id) implements AppRequest {
-        public Operation operation() { return Operation.ADMIN_DELETE_USER; }
+    record DeleteUserRequest(String token, int id) implements UserRequest {
+        public Operation operation() { return Operation.DELETE_USER; }
     }
 
-    record CreateMovieRequest(String token, Movie movie) implements AppRequest {
+    record CreateMovieRequest(String token, Movie movie) implements MovieRequest {
         public Operation operation() { return Operation.CREATE_MOVIE; }
     }
-    record UpdateMovieRequest(String token, Movie movie) implements AppRequest {
-        public Operation operation() { return Operation.UPDATE_MOVIE; }
-    }
-    record ListMoviesRequest(String token) implements AppRequest {
+    record ListMoviesRequest(String token, MovieFilter filter) implements MovieRequest {
         public Operation operation() { return Operation.LIST_MOVIES; }
     }
-    record DeleteMovieRequest(String token, int id) implements AppRequest {
+    record UpdateMovieRequest(String token, Movie movie) implements MovieRequest {
+        public Operation operation() { return Operation.UPDATE_MOVIE; }
+    }
+    record DeleteMovieRequest(String token, int id) implements MovieRequest {
         public Operation operation() { return Operation.DELETE_MOVIE; }
     }
 
-    record CreateReviewRequest(String token, Review review) implements AppRequest {
+    record CreateReviewRequest(String token, Review review) implements ReviewRequest {
         public Operation operation() { return Operation.CREATE_REVIEW; }
     }
-    record UpdateReviewRequest(String token, Review review) implements AppRequest {
-        public Operation operation() { return Operation.UPDATE_REVIEW; }
-    }
-    record ListOwnReviewsRequest(String token) implements AppRequest {
-        public Operation operation() { return Operation.LIST_OWN_REVIEWS; }
-    }
-    record ListReviewsRequest(String token, int movieId) implements AppRequest {
+    record ListReviewsRequest(String token, ReviewFilter filter) implements ReviewRequest {
         public Operation operation() { return Operation.LIST_REVIEWS; }
     }
-    record DeleteReviewRequest(String token, int id) implements AppRequest {
+    record UpdateReviewRequest(String token, Review review) implements ReviewRequest {
+        public Operation operation() { return Operation.UPDATE_REVIEW; }
+    }
+    record DeleteReviewRequest(String token, int id) implements ReviewRequest {
         public Operation operation() { return Operation.DELETE_REVIEW; }
     }
 }
