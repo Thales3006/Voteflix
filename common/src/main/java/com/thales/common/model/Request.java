@@ -1,20 +1,20 @@
 package com.thales.common.model;
 
-public sealed interface AppRequest {
+public sealed interface Request {
 
     Operation operation();
 
-    sealed interface UserRequest extends AppRequest
+    sealed interface UserRequest extends Request
         permits CreateUserRequest, GetUserRequest, ListUsersRequest, UpdateUserRequest, DeleteUserRequest {}
-    sealed interface MovieRequest extends AppRequest
+    sealed interface MovieRequest extends Request
         permits CreateMovieRequest, ListMoviesRequest, UpdateMovieRequest, DeleteMovieRequest {}
-    sealed interface ReviewRequest extends AppRequest
+    sealed interface ReviewRequest extends Request
         permits CreateReviewRequest, ListReviewsRequest, UpdateReviewRequest, DeleteReviewRequest {}
 
-    record LoginRequest(String username, String password) implements AppRequest {
+    record LoginRequest(String username, String password) implements Request {
         public Operation operation() { return Operation.LOGIN; }
     }
-    record LogoutRequest(String token) implements AppRequest {
+    record LogoutRequest(String token) implements Request {
         public Operation operation() { return Operation.LOGOUT; }
     }
 

@@ -3,8 +3,8 @@ package com.thales.common.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.thales.common.model.*;
-import com.thales.common.model.AppRequest.*;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.Response.*;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -48,7 +48,7 @@ public class Validator {
         loaded = true;
     }
 
-    public AppRequest parseRequest(String json) throws StatusException {
+    public Request parseRequest(String json) throws StatusException {
         try {
             basicRequestSchema.validate(json);
         } catch (Exception e) {
@@ -77,7 +77,7 @@ public class Validator {
         return deserializeRequest(op, obj);
     }
 
-    public AppResponse parseResponse(String json, Operation forOperation) throws StatusException {
+    public Response parseResponse(String json, Operation forOperation) throws StatusException {
         try {
             basicResponseSchema.validate(json);
         } catch (Exception e) {
@@ -103,7 +103,7 @@ public class Validator {
         return deserializeResponse(kind, obj);
     }
 
-    private AppRequest deserializeRequest(Operation op, JsonObject obj) {
+    private Request deserializeRequest(Operation op, JsonObject obj) {
         return switch (op) {
             case LOGIN -> new LoginRequest(
                 obj.get("username").getAsString(),
@@ -190,7 +190,7 @@ public class Validator {
         return new ReviewFilter(movieId, userId);
     }
 
-    private AppResponse deserializeResponse(ResponseKind kind, JsonObject obj) {
+    private Response deserializeResponse(ResponseKind kind, JsonObject obj) {
         String message = obj.has("message") ? obj.get("message").getAsString() : "";
         return switch (kind) {
             case OK -> new OkResponse(message);

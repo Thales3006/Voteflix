@@ -1,11 +1,11 @@
 package com.thales.server.service;
 
-import com.thales.common.model.AppRequest;
-import com.thales.common.model.AppResponse;
+import com.thales.common.model.Request;
+import com.thales.common.model.Response;
 
-public interface CrudService<R extends AppRequest> {
-    AppResponse create(R req);
-    AppResponse list(R req);
-    AppResponse update(R req);
-    AppResponse delete(R req);
+public interface CrudService<R extends Request> {
+    Response create(R req);
+    Response list(R req);
+    Response update(R req);
+    Response delete(R req);
 }

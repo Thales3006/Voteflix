@@ -1,9 +1,9 @@
 package com.thales.server.service;
 
-import com.thales.common.model.AppRequest.MovieRequest;
-import com.thales.common.model.AppRequest.*;
-import com.thales.common.model.AppResponse;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Request.MovieRequest;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.Response;
+import com.thales.common.model.Response.*;
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.StatusException;
 import com.thales.server.repository.MovieRepository;
@@ -21,7 +21,7 @@ public class MovieService implements CrudService<MovieRequest> {
     }
 
     @Override
-    public AppResponse create(MovieRequest req) {
+    public Response create(MovieRequest req) {
         CreateMovieRequest r = (CreateMovieRequest) req;
         int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
@@ -30,14 +30,14 @@ public class MovieService implements CrudService<MovieRequest> {
     }
 
     @Override
-    public AppResponse list(MovieRequest req) {
+    public Response list(MovieRequest req) {
         ListMoviesRequest r = (ListMoviesRequest) req;
         jwtService.verifyAndGetUserId(r.token());
         return new MovieListResponse("Movie list", movieRepo.findAll(r.filter()));
     }
 
     @Override
-    public AppResponse update(MovieRequest req) {
+    public Response update(MovieRequest req) {
         UpdateMovieRequest r = (UpdateMovieRequest) req;
         int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
@@ -46,7 +46,7 @@ public class MovieService implements CrudService<MovieRequest> {
     }
 
     @Override
-    public AppResponse delete(MovieRequest req) {
+    public Response delete(MovieRequest req) {
         DeleteMovieRequest r = (DeleteMovieRequest) req;
         int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
