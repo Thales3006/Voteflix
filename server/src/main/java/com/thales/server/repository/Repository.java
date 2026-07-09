@@ -1,4 +1,4 @@
-package com.thales.server.database;
+package com.thales.server.repository;
 
 import java.util.List;
 

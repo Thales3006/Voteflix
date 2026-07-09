@@ -5,8 +5,8 @@ import com.thales.common.model.AppResponse;
 import com.thales.common.model.AppResponse.*;
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.StatusException;
-import com.thales.server.database.MovieRepository;
-import com.thales.server.database.UserRepository;
+import com.thales.server.repository.MovieRepository;
+import com.thales.server.repository.UserRepository;
 
 public class MovieService {
     private final MovieRepository movieRepo;
