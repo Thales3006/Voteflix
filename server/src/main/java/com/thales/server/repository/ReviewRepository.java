@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.Review;
+import com.thales.common.model.ReviewFilter;
 import com.thales.common.model.StatusException;
 
 public class ReviewRepository implements Repository<Review, Integer> {
@@ -127,6 +128,13 @@ public class ReviewRepository implements Repository<Review, Integer> {
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public List<Review> findAll(ReviewFilter filter) throws StatusException {
+        if (filter == null) return findAll();
+        if (filter.movieId() != null) return findByMovieId(filter.movieId());
+        if (filter.userId() != null) return findByUserId(filter.userId());
+        return findAll();
     }
 
     public List<Review> findByMovieId(int movieId) throws StatusException {

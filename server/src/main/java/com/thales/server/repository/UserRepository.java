@@ -13,6 +13,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.StatusException;
 import com.thales.common.model.User;
+import com.thales.common.model.UserFilter;
 
 public class UserRepository implements Repository<User, Integer> {
     private final Database db;
@@ -83,6 +84,23 @@ public class UserRepository implements Repository<User, Integer> {
         List<User> users = new ArrayList<>();
         try (Connection conn = db.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                users.add(new User(rs.getInt("id"), rs.getString("username")));
+            }
+        } catch (SQLException e) {
+            throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
+        }
+        return users;
+    }
+
+    public List<User> findAll(UserFilter filter) throws StatusException {
+        if (filter == null || filter.username() == null) return findAll();
+        String sql = "SELECT id, username FROM users WHERE username LIKE ?";
+        List<User> users = new ArrayList<>();
+        try (Connection conn = db.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, "%" + filter.username() + "%");
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 users.add(new User(rs.getInt("id"), rs.getString("username")));
