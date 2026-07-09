@@ -55,6 +55,12 @@
                 <version>3.3.0</version>
                 <configuration>
                     <mainClass>com.thales.server.Main</mainClass>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>server.basedir</key>
+                            <value>${project.basedir}</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
 
