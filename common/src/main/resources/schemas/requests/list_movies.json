@@ -4,7 +4,15 @@
   "type": "object",
   "properties": {
     "operation": { "type": "string", "const": "LIST_MOVIES" },
-    "token":     { "type": "string" }
+    "token":     { "type": "string" },
+    "filter": {
+      "type": "object",
+      "properties": {
+        "genre": { "type": "string" },
+        "year":  { "type": "integer" }
+      },
+      "additionalProperties": false
+    }
   },
   "required": ["operation", "token"],
   "additionalProperties": false

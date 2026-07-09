@@ -5,8 +5,9 @@
   "properties": {
     "status":  { "type": "string", "const": "200" },
     "message": { "type": "string" },
-    "token":   { "type": "string" }
+    "token":   { "type": "string" },
+    "id":      { "type": "integer" }
   },
-  "required": ["status", "token"],
+  "required": ["status", "token", "id"],
   "additionalProperties": false
 }
