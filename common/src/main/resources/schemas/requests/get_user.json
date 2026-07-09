@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "DeleteOwnUserRequest",
+  "title": "GetUserRequest",
   "type": "object",
   "properties": {
-    "operation": { "type": "string", "const": "DELETE_OWN_USER" },
+    "operation": { "type": "string", "const": "GET_USER" },
     "token":     { "type": "string" }
   },
   "required": ["operation", "token"],

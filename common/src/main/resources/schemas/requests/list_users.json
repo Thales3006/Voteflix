@@ -4,7 +4,14 @@
   "type": "object",
   "properties": {
     "operation": { "type": "string", "const": "LIST_USERS" },
-    "token":     { "type": "string" }
+    "token":     { "type": "string" },
+    "filter": {
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
   },
   "required": ["operation", "token"],
   "additionalProperties": false

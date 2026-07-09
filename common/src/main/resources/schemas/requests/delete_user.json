@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DeleteUserRequest",
+  "type": "object",
+  "properties": {
+    "operation": { "type": "string", "const": "DELETE_USER" },
+    "token": { "type": "string" },
+    "id":    { "type": "integer" }
+  },
+  "required": ["operation", "token", "id"],
+  "additionalProperties": false
+}
