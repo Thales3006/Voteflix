@@ -24,7 +24,8 @@ public class ServerService {
     private final ReviewService reviewService;
 
     public ServerService() {
-        SQLiteDatabase database = new SQLiteDatabase("data/voteflix.db");
+        String basedir = System.getProperty("server.basedir", ".");
+        SQLiteDatabase database = new SQLiteDatabase(basedir + "/data/voteflix.db");
         this.userRepo = new UserRepository(database);
         this.movieRepo = new MovieRepository(database);
         this.reviewRepo = new ReviewRepository(database);
