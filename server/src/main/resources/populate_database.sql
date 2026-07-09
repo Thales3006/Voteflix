@@ -2,27 +2,27 @@
 BEGIN;
 
 -- Users (username is UNIQUE, INSERT OR IGNORE is safe)
-INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('admin','admin',1);
-INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('sapo','sapo',0);
-INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('carlos','carlos',0);
-INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('marina','marina',0);
-INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('lucas','lucas',0);
+INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('admin','$2a$12$DusYaZKU1zsJ0R3yGzIgVOxOmJ4fG0QT1ln4vmzHvePal3HSVwuBS',1);
+INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('sapo','$2a$12$KYutxYfQWHocM8HdJNagSuyPZSfRPHT4.W7UbBZ9.Cwk65/CNDcW2',0);
+INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('carlos','$2a$12$I/CQNBg/ygROHyIhmykmAOyA1urx7nj1DRgWvu7RuOCsXzQiRtjTW',0);
+INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('marina','$2a$12$808OxdcWCC5aX.QZ18GBpuv3fUZ5TvMHk.e3stIwYUs52Uz1d.fBG',0);
+INSERT OR IGNORE INTO users(username,password,is_admin) VALUES('lucas','$2a$12$K8nNvSbSEIwLS5BuCceowej6wVkbuu8ysB.FBwqUlQq3L3CZHCE6a',0);
 
 -- Genres (name is UNIQUE, INSERT OR IGNORE is safe)
-INSERT OR IGNORE INTO genres(name) VALUES('Ação');
-INSERT OR IGNORE INTO genres(name) VALUES('Aventura');
-INSERT OR IGNORE INTO genres(name) VALUES('Comédia');
+INSERT OR IGNORE INTO genres(name) VALUES('Action');
+INSERT OR IGNORE INTO genres(name) VALUES('Adventure');
+INSERT OR IGNORE INTO genres(name) VALUES('Comedy');
 INSERT OR IGNORE INTO genres(name) VALUES('Drama');
-INSERT OR IGNORE INTO genres(name) VALUES('Fantasia');
-INSERT OR IGNORE INTO genres(name) VALUES('Ficção Científica');
-INSERT OR IGNORE INTO genres(name) VALUES('Terror');
+INSERT OR IGNORE INTO genres(name) VALUES('Fantasy');
+INSERT OR IGNORE INTO genres(name) VALUES('Sci-Fi');
+INSERT OR IGNORE INTO genres(name) VALUES('Horror');
 INSERT OR IGNORE INTO genres(name) VALUES('Romance');
-INSERT OR IGNORE INTO genres(name) VALUES('Documentário');
+INSERT OR IGNORE INTO genres(name) VALUES('Documentary');
 INSERT OR IGNORE INTO genres(name) VALUES('Musical');
-INSERT OR IGNORE INTO genres(name) VALUES('Animação');
+INSERT OR IGNORE INTO genres(name) VALUES('Animation');
 INSERT OR IGNORE INTO genres(name) VALUES('Crime');
-INSERT OR IGNORE INTO genres(name) VALUES('Suspense');
-INSERT OR IGNORE INTO genres(name) VALUES('Histórico');
+INSERT OR IGNORE INTO genres(name) VALUES('Thriller');
+INSERT OR IGNORE INTO genres(name) VALUES('Historical');
 
 -- Movies: no UNIQUE constraint, use WHERE NOT EXISTS to avoid duplicates on re-run
 INSERT INTO movies(title,director,year,rating,rating_amount,synopsis)
@@ -84,28 +84,28 @@ WHERE NOT EXISTS (SELECT 1 FROM movies WHERE title='Goodfellas' AND director='Ma
 -- Movie genres (movie_genres has PRIMARY KEY (movie_id, genre_id), INSERT OR IGNORE is safe)
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='The Matrix' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Ação' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Action' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='The Matrix' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Ficção Científica' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Sci-Fi' LIMIT 1));
 
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Inception' AND year=2010 LIMIT 1),
-    (SELECT id FROM genres WHERE name='Ficção Científica' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Sci-Fi' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Inception' AND year=2010 LIMIT 1),
     (SELECT id FROM genres WHERE name='Drama' LIMIT 1));
 
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Spirited Away' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Animação' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Animation' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Spirited Away' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Fantasia' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Fantasy' LIMIT 1));
 
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='The Godfather' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Ação' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Crime' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='The Godfather' LIMIT 1),
     (SELECT id FROM genres WHERE name='Drama' LIMIT 1));
@@ -123,7 +123,7 @@ INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
 
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='The Dark Knight' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Ação' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Action' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='The Dark Knight' LIMIT 1),
     (SELECT id FROM genres WHERE name='Crime' LIMIT 1));
@@ -143,11 +143,11 @@ INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM genres WHERE name='Drama' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Fight Club' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Suspense' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Thriller' LIMIT 1));
 
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='2001: A Space Odyssey' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Ficção Científica' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Sci-Fi' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='2001: A Space Odyssey' LIMIT 1),
     (SELECT id FROM genres WHERE name='Drama' LIMIT 1));
@@ -157,21 +157,21 @@ INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM genres WHERE name='Drama' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Parasite' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Suspense' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Thriller' LIMIT 1));
 
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Schindler''s List' LIMIT 1),
     (SELECT id FROM genres WHERE name='Drama' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Schindler''s List' LIMIT 1),
-    (SELECT id FROM genres WHERE name='Histórico' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Historical' LIMIT 1));
 
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Interstellar' AND year=2014 LIMIT 1),
-    (SELECT id FROM genres WHERE name='Ficção Científica' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Sci-Fi' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Interstellar' AND year=2014 LIMIT 1),
-    (SELECT id FROM genres WHERE name='Aventura' LIMIT 1));
+    (SELECT id FROM genres WHERE name='Adventure' LIMIT 1));
 INSERT OR IGNORE INTO movie_genres(movie_id,genre_id) VALUES(
     (SELECT id FROM movies WHERE title='Interstellar' AND year=2014 LIMIT 1),
     (SELECT id FROM genres WHERE name='Drama' LIMIT 1));

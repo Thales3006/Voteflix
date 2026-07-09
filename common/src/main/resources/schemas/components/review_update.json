@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ReviewUpdate",
+  "type": "object",
+  "properties": {
+    "id":          { "type": "integer" },
+    "rating":      { "type": "integer", "minimum": 1, "maximum": 5 },
+    "title":       { "type": "string", "minLength": 1, "maxLength": 100 },
+    "description": { "type": "string", "maxLength": 500 }
+  },
+  "required": ["id", "rating", "title", "description"],
+  "additionalProperties": false
+}

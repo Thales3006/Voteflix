@@ -2,20 +2,12 @@ package com.thales.client.service;
 
 import java.io.IOException;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.thales.common.model.Movie;
-import com.thales.common.model.Response;
-import com.thales.common.model.Review;
-import com.thales.common.model.User;
-import com.thales.common.utils.JsonValidator;
-
-import java.util.ArrayList;
-
-import org.apache.commons.math3.util.Pair;
-
 import com.thales.client.network.ClientSocket;
+import com.thales.common.model.*;
+import com.thales.common.model.AppRequest.*;
+import com.thales.common.model.AppResponse.*;
+import com.thales.common.utils.RequestSerializer;
+import com.thales.common.utils.Validator;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -32,304 +24,142 @@ public class ClientService {
     private String token;
     private boolean isAdmin;
     private String username;
-    private final Gson gson;
-    private JsonValidator validator;
+    private final Validator validator;
+    private final RequestSerializer serializer;
 
-
-    private ClientService(){
-        this.isAdmin = false;
-        this.gson = new Gson();
-        this.validator = JsonValidator.getInstance();
-        try{
+    private ClientService() {
+        this.validator = Validator.getInstance();
+        this.serializer = new RequestSerializer();
+        try {
             validator.loadSchemas();
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
     }
 
-    public static ClientService getInstance(){
-        if(instance == null){
-            instance = new ClientService();
-        }
+    public static ClientService getInstance() {
+        if (instance == null) instance = new ClientService();
         return instance;
     }
 
-    public void connect(String IP, int port) {
-        this.serverIP = IP;
+    public void connect(String ip, int port) {
+        this.serverIP = ip;
         this.serverPort = port;
         connected.set(true);
     }
 
-    public void close(){
+    public void close() {
         token = null;
         username = null;
         isAdmin = false;
         connected.set(false);
     }
 
-    private String sendAndReceive(String json) throws IOException {
-        return new ClientSocket().sendAndReceive(serverIP, serverPort, json);
+    private AppResponse send(AppRequest request) throws IOException {
+        String json = serializer.serialize(request);
+        String response = new ClientSocket().sendAndReceive(serverIP, serverPort, json);
+        return validator.parseResponse(response, request.operation());
     }
 
     // ===================================
-    //  Requests
+    //  User operations
     // ===================================
 
-    public String requestRegister(User user) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "CRIAR_USUARIO");
-        JsonObject usuario = new JsonObject();
-        usuario.addProperty("nome", user.getUsername());
-        usuario.addProperty("senha", user.getPassword());
-        json.add("usuario", usuario);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.CREATED);
-
-        return response.get("mensagem").getAsString();
+    public String requestCreateUser(String username, String password) throws Exception {
+        CreatedResponse r = (CreatedResponse) send(new CreateUserRequest(username, password));
+        return r.message();
     }
 
-    public String requestLogin(User user) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "LOGIN");
-        json.addProperty("usuario", user.getUsername());
-        json.addProperty("senha", user.getPassword());
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.LOGIN);
-
-        JsonElement token = response.get("token");
-        this.token = token.getAsString();
-
-        username = user.getUsername();
-        isAdmin = "admin".equals(username);
-
-        return response.get("mensagem").getAsString();
+    public void requestLogin(String username, String password) throws Exception {
+        LoginResponse r = (LoginResponse) send(new LoginRequest(username, password));
+        this.token = r.token();
+        this.username = username;
+        this.isAdmin = "admin".equals(username);
     }
 
-    public String requestLogout() throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "LOGOUT");
-        json.addProperty("token", token);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
-
+    public void requestLogout() throws Exception {
+        send(new LogoutRequest(token));
         token = null;
         username = null;
         isAdmin = false;
-
-        return response.get("mensagem").getAsString();
     }
 
-    public String requestUpdateOwnUser(User user) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "EDITAR_PROPRIO_USUARIO");
-        json.addProperty("token", token);
-        JsonObject usuario = new JsonObject();
-        usuario.addProperty("senha", user.getPassword());
-        json.add("usuario", usuario);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
-
-        return response.get("mensagem").getAsString();
+    public String requestUpdateOwnUser(String password) throws Exception {
+        OkResponse r = (OkResponse) send(new UpdateOwnUserRequest(token, password));
+        return r.message();
     }
 
-    public String requestUpdateUser(User user, int id) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "ADMIN_EDITAR_USUARIO");
-        json.addProperty("token", token);
-        json.addProperty("id", Integer.toString(id));
-        JsonObject usuario = new JsonObject();
-        usuario.addProperty("senha", user.getPassword());
-        json.add("usuario", usuario);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
-
-        return response.get("mensagem").getAsString();
+    public String requestAdminUpdateUser(int id, String password) throws Exception {
+        OkResponse r = (OkResponse) send(new AdminUpdateUserRequest(token, id, password));
+        return r.message();
     }
 
-    public Pair<String,User> requestOwnUser() throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "LISTAR_PROPRIO_USUARIO");
-        json.addProperty("token", token);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.USER_INFO);
-
-        String username = response.get("usuario").getAsString();
-        return new Pair<>(response.get("mensagem").getAsString(), new User(null, username, null));
+    public UserInfoResponse requestOwnUser() throws Exception {
+        return (UserInfoResponse) send(new ListOwnUserRequest(token));
     }
 
-    public Pair<String,ArrayList<User>> requestUserList() throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "LISTAR_USUARIOS");
-        json.addProperty("token", token);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.USER_LIST);
-
-        ArrayList<User> users = new ArrayList<>();
-        JsonElement usuariosElement = response.get("usuarios");
-        for (JsonElement element : usuariosElement.getAsJsonArray()) {
-            JsonObject obj = element.getAsJsonObject();
-            Integer id = Integer.parseInt(obj.get("id").getAsString());
-            String username = obj.get("nome").getAsString();
-            users.add(new User(id, username));
-        }
-        return new Pair<>(response.get("mensagem").getAsString(), users);
+    public UserListResponse requestUserList() throws Exception {
+        return (UserListResponse) send(new ListUsersRequest(token));
     }
 
     public String requestDeleteOwnUser() throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "EXCLUIR_PROPRIO_USUARIO");
-        json.addProperty("token", token);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
-
-        return response.get("mensagem").getAsString();
+        OkResponse r = (OkResponse) send(new DeleteOwnUserRequest(token));
+        return r.message();
     }
 
-    public String requestDeleteUser(int id) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "ADMIN_EXCLUIR_USUARIO");
-        json.addProperty("token", token);
-        json.addProperty("id", Integer.toString(id));
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
-
-        return response.get("mensagem").getAsString();
+    public String requestAdminDeleteUser(int id) throws Exception {
+        OkResponse r = (OkResponse) send(new AdminDeleteUserRequest(token, id));
+        return r.message();
     }
+
+    // ===================================
+    //  Movie operations
+    // ===================================
 
     public String requestCreateMovie(Movie movie) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "CRIAR_FILME");
-        json.addProperty("token", token);
-        JsonObject filme = movie.toJson();
-        json.add("filme", filme);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.CREATED);
-
-        return response.get("mensagem").getAsString();
+        CreatedResponse r = (CreatedResponse) send(new CreateMovieRequest(token, movie));
+        return r.message();
     }
 
-    public Pair<String,ArrayList<Movie>> requestMovieList() throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "LISTAR_FILMES");
-        json.addProperty("token", token);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.MOVIE_LIST);
-
-        ArrayList<Movie> movies = new ArrayList<>();
-        JsonElement filmesElement = response.get("filmes");
-        for (JsonElement element : filmesElement.getAsJsonArray()) {
-            movies.add(Movie.fromJson(element.getAsJsonObject()));
-        }
-        return new Pair<>(response.get("mensagem").getAsString(), movies);
+    public MovieListResponse requestMovieList() throws Exception {
+        return (MovieListResponse) send(new ListMoviesRequest(token));
     }
 
     public String requestUpdateMovie(Movie movie) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "EDITAR_FILME");
-        json.addProperty("token", token);
-        JsonObject filme = movie.toJson();
-        json.add("filme", filme);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
-
-        return response.get("mensagem").getAsString();
+        OkResponse r = (OkResponse) send(new UpdateMovieRequest(token, movie));
+        return r.message();
     }
 
     public String requestDeleteMovie(int id) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "EXCLUIR_FILME");
-        json.addProperty("token", token);
-        json.addProperty("id", Integer.toString(id));
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
-
-        return response.get("mensagem").getAsString();
+        OkResponse r = (OkResponse) send(new DeleteMovieRequest(token, id));
+        return r.message();
     }
+
+    // ===================================
+    //  Review operations
+    // ===================================
 
     public String requestCreateReview(Review review) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "CRIAR_REVIEW");
-        json.addProperty("token", token);
-        json.add("review", review.toJson());
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.CREATED);
-
-        return response.get("mensagem").getAsString();
+        CreatedResponse r = (CreatedResponse) send(new CreateReviewRequest(token, review));
+        return r.message();
     }
 
-    public Pair<String, ArrayList<Review>> requestOwnReviewList() throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "LISTAR_REVIEWS_USUARIO");
-        json.addProperty("token", token);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.REVIEW_LIST);
-
-        ArrayList<Review> reviews = new ArrayList<>();
-        JsonElement filmesElement = response.get("reviews");
-        for (JsonElement element : filmesElement.getAsJsonArray()) {
-            reviews.add(Review.fromJson(element.getAsJsonObject()));
-        }
-        return new Pair<>(response.get("mensagem").getAsString(), reviews);
+    public ReviewListResponse requestOwnReviewList() throws Exception {
+        return (ReviewListResponse) send(new ListOwnReviewsRequest(token));
     }
 
-    public Pair<String, ArrayList<Review>> requestMovieReviewList(int movieId) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "BUSCAR_FILME_ID");
-        json.addProperty("id_filme", Integer.toString(movieId));
-        json.addProperty("token", token);
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.REVIEW_LIST);
-
-        ArrayList<Review> reviews = new ArrayList<>();
-        JsonElement filmesElement = response.get("reviews");
-        for (JsonElement element : filmesElement.getAsJsonArray()) {
-            reviews.add(Review.fromJson(element.getAsJsonObject()));
-        }
-        return new Pair<>(response.get("mensagem").getAsString(), reviews);
+    public ReviewListResponse requestMovieReviewList(int movieId) throws Exception {
+        return (ReviewListResponse) send(new ListReviewsRequest(token, movieId));
     }
 
-    public String requestUpdateReview(Review newReview) throws Exception {
-        Review review = newReview;
-
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "EDITAR_REVIEW");
-        json.addProperty("token", token);
-        review.setDate(null);
-        review.setUsername(null);
-        json.add("review", review.toJson());
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
-
-        return response.get("mensagem").getAsString();
+    public String requestUpdateReview(Review review) throws Exception {
+        OkResponse r = (OkResponse) send(new UpdateReviewRequest(token, review));
+        return r.message();
     }
 
     public String requestDeleteReview(int id) throws Exception {
-        JsonObject json = new JsonObject();
-        json.addProperty("operacao", "EXCLUIR_REVIEW");
-        json.addProperty("token", token);
-        json.addProperty("id", Integer.toString(id));
-
-        JsonObject response = gson.fromJson(sendAndReceive(json.toString()), JsonObject.class);
-        validator.validateResponce(response, Response.OK);
-
-        return response.get("mensagem").getAsString();
+        OkResponse r = (OkResponse) send(new DeleteReviewRequest(token, id));
+        return r.message();
     }
 }

@@ -3,12 +3,13 @@
   "title": "MovieListResponse",
   "type": "object",
   "properties": {
-    "status": { "type": "string", "const": "200" },
-    "mensagem": { "type": "string" },
-    "filmes": { "type": "array",
-      "items": { "$ref": "../components/movie_responce.json" }
+    "status":  { "type": "string", "const": "200" },
+    "message": { "type": "string" },
+    "movies": {
+      "type": "array",
+      "items": { "$ref": "../components/movie_response.json" }
     }
   },
-  "required": ["status", "filmes"],
-  "additionalProperties": true
+  "required": ["status", "movies"],
+  "additionalProperties": false
 }

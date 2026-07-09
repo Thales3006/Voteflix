@@ -3,15 +3,17 @@
   "title": "CreateUserRequest",
   "type": "object",
   "properties": {
-    "operacao": { "type": "string", "const": "CRIAR_USUARIO" },
-    "usuario": { "type": "object", "properties": {
-      "nome": { "$ref": "../components/base_string.json" },
-      "senha": { "$ref": "../components/base_string.json" }
+    "operation": { "type": "string", "const": "CREATE_USER" },
+    "user": {
+      "type": "object",
+      "properties": {
+        "username": { "$ref": "../components/base_string.json" },
+        "password": { "$ref": "../components/base_string.json" }
       },
-      "required": ["nome", "senha"],
-      "additionalProperties": true
+      "required": ["username", "password"],
+      "additionalProperties": false
     }
   },
-  "required": ["operacao", "usuario"],
-  "additionalProperties": true
+  "required": ["operation", "user"],
+  "additionalProperties": false
 }

@@ -1,124 +1,68 @@
-
 package com.thales.server.service;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.thales.common.model.ErrorStatus;
-import com.thales.common.model.Request;
-import com.thales.common.model.StatusException;
-import com.thales.common.model.Movie;
-import com.thales.common.model.Review;
-import com.thales.common.utils.ErrorTable;
-import com.thales.common.utils.JsonValidator;
+import java.util.List;
 
-import com.thales.server.network.ClientHandler;
-import com.thales.server.service.DatabaseService;
+import com.thales.common.model.AppRequest.*;
+import com.thales.common.model.AppResponse;
+import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.ErrorStatus;
+import com.thales.common.model.Review;
+import com.thales.common.model.StatusException;
 
 public class ReviewService {
     private final DatabaseService database;
-    private final Gson gson = new Gson();
-    private final String secretKey = "256-bit-secret-key-placeholder";
-    private JsonValidator validator = JsonValidator.getInstance();
+    private final JwtService jwtService;
 
-    public ReviewService(DatabaseService database) {
+    public ReviewService(DatabaseService database, JwtService jwtService) {
         this.database = database;
+        this.jwtService = jwtService;
     }
 
-    private void setReviewUsername(Review review) {
-        if(review.getUserID() == null) {
-            return;
-        }
-        try{
-        review.setUsername(database.getUsername(review.getUserID()));
+    private void attachUsername(Review review) {
+        if (review.getUserId() == null) return;
+        try {
+            review.setUsername(database.getUsername(review.getUserId()));
         } catch (StatusException e) {}
     }
 
-    public String handleCreateReview(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
-        String token = jsonObject.get("token").getAsString();
-        Review review = Review.fromJson(jsonObject.get("review").getAsJsonObject());
-
-        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-        DecodedJWT jwt = verifier.verify(token);
-        int tokenId = jwt.getClaim("id").asInt();
-        review.setUserID(tokenId);
+    public AppResponse handleCreateReview(CreateReviewRequest req) {
+        int userId = jwtService.verifyAndGetUserId(req.token());
+        Review review = req.review();
+        review.setUserId(userId);
         database.createReview(review);
-
-        return createStatus(ErrorStatus.CREATED).toString();
+        return new CreatedResponse("Review created");
     }
 
-    public String handleListOwnReviews(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
-        String token = jsonObject.get("token").getAsString();
-        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-        DecodedJWT jwt = verifier.verify(token);
-        int tokenId = jwt.getClaim("id").asInt();
-
-        JsonObject json = createStatus(ErrorStatus.OK);
-        json.add("reviews", gson.toJsonTree(database.getUserReviews(tokenId).stream()
-            .map(review -> {setReviewUsername(review); return review.toJson();})
-            .toList()));
-        return json.toString();
-
+    public AppResponse handleListOwnReviews(ListOwnReviewsRequest req) {
+        int userId = jwtService.verifyAndGetUserId(req.token());
+        List<Review> reviews = database.getUserReviews(userId);
+        reviews.forEach(this::attachUsername);
+        return new ReviewListResponse("Reviews", reviews);
     }
 
-    public String handleListReviews(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
-        String token = jsonObject.get("token").getAsString();
-        int movieId = Integer.parseInt(jsonObject.get("id_filme").getAsString());
-
-        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-        verifier.verify(token);
-
-        JsonObject json = createStatus(ErrorStatus.OK);
-        Movie movie = database.getMovie(movieId);
-        json.add("filme", movie.toJson());
-        json.add("reviews", gson.toJsonTree(database.getMovieReviews(movieId).stream()
-            .map(review -> {setReviewUsername(review); return review.toJson();})
-            .toList()));
-        return json.toString();
+    public AppResponse handleListReviews(ListReviewsRequest req) {
+        jwtService.verifyAndGetUserId(req.token());
+        List<Review> reviews = database.getMovieReviews(req.movieId());
+        reviews.forEach(this::attachUsername);
+        return new ReviewListResponse("Reviews", reviews);
     }
 
-    public String handleUpdateReview(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
-        String token = jsonObject.get("token").getAsString();
-        Review review = Review.fromJson(jsonObject.get("review").getAsJsonObject());
-        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-        DecodedJWT jwt = verifier.verify(token);
-        int tokenId = jwt.getClaim("id").asInt();
-
-        Review oldReview = database.getReview(review.getID());
-        if (!oldReview.getUserID().equals(tokenId)) {
-            return createStatus(ErrorStatus.FORBIDDEN).toString();
-        }
+    public AppResponse handleUpdateReview(UpdateReviewRequest req) {
+        int userId = jwtService.verifyAndGetUserId(req.token());
+        Review review = req.review();
+        Review existing = database.getReview(review.getId());
+        if (!existing.getUserId().equals(userId)) throw new StatusException(ErrorStatus.FORBIDDEN);
         database.updateReview(review);
-
-        JsonObject json = createStatus(ErrorStatus.OK);
-        return json.toString();
+        return new OkResponse("Review updated");
     }
 
-    public String handleDeleteReview(JsonObject jsonObject, ClientHandler client) throws StatusException, JWTVerificationException {
-        String token = jsonObject.get("token").getAsString();
-        int reviewId = Integer.parseInt(jsonObject.get("id").getAsString());
-        JWTVerifier verifier = JWT.require(Algorithm.HMAC256(secretKey)).build();
-        DecodedJWT jwt = verifier.verify(token);
-        int tokenId = jwt.getClaim("id").asInt();
-
-        Review oldReview = database.getReview(reviewId);
-        if ((!oldReview.getUserID().equals(tokenId)) && (!database.isAdmin(tokenId))) {
-            return createStatus(ErrorStatus.FORBIDDEN).toString();
+    public AppResponse handleDeleteReview(DeleteReviewRequest req) {
+        int userId = jwtService.verifyAndGetUserId(req.token());
+        Review existing = database.getReview(req.id());
+        if (!existing.getUserId().equals(userId) && !database.isAdmin(userId)) {
+            throw new StatusException(ErrorStatus.FORBIDDEN);
         }
-        database.deleteReview(reviewId);
-        
-        JsonObject json = createStatus(ErrorStatus.OK);
-        return json.toString();
+        database.deleteReview(req.id());
+        return new OkResponse("Review deleted");
     }
-
-    public JsonObject createStatus(ErrorStatus status) {
-        JsonObject json = new JsonObject();
-        json.addProperty("status", status.getCode());
-        json.addProperty("mensagem", ErrorTable.getInstance().get(status).getSecond());
-        return json;
-    }
- }
+}
