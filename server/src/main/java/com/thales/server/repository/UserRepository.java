@@ -25,15 +25,25 @@ public class UserRepository implements Repository<User, Integer> {
     public void create(User user) throws StatusException {
         String checkSql = "SELECT id FROM users WHERE username = ?";
         String insertSql = "INSERT INTO users(username, password) VALUES(?, ?)";
-        try (Connection conn = db.getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
-            checkStmt.setString(1, user.getUsername());
-            ResultSet rs = checkStmt.executeQuery();
-            if (rs.next()) throw new StatusException(ErrorStatus.ALREADY_EXISTS);
-            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
-                insertStmt.setString(1, user.getUsername());
-                insertStmt.setString(2, BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12)));
-                insertStmt.executeUpdate();
+        try (Connection conn = db.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                    checkStmt.setString(1, user.getUsername());
+                    if (checkStmt.executeQuery().next()) {
+                        conn.rollback();
+                        throw new StatusException(ErrorStatus.ALREADY_EXISTS);
+                    }
+                }
+                try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                    insertStmt.setString(1, user.getUsername());
+                    insertStmt.setString(2, BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12)));
+                    insertStmt.executeUpdate();
+                }
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);

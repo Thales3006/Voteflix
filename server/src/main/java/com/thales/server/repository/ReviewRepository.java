@@ -28,26 +28,45 @@ public class ReviewRepository implements Repository<Review, Integer> {
         String insertSql = "INSERT INTO reviews(movie_id, user_id, rating, title, description) VALUES(?, ?, ?, ?, ?)";
 
         try (Connection conn = db.getConnection()) {
-            try (PreparedStatement checkMovieStmt = conn.prepareStatement(checkMovieSql)) {
-                checkMovieStmt.setInt(1, review.getMovieId());
-                if (!checkMovieStmt.executeQuery().next()) throw new StatusException(ErrorStatus.NOT_FOUND);
-            }
-            try (PreparedStatement checkUserStmt = conn.prepareStatement(checkUserSql)) {
-                checkUserStmt.setInt(1, review.getUserId());
-                if (!checkUserStmt.executeQuery().next()) throw new StatusException(ErrorStatus.NOT_FOUND);
-            }
-            try (PreparedStatement checkReviewStmt = conn.prepareStatement(checkReviewSql)) {
-                checkReviewStmt.setInt(1, review.getMovieId());
-                checkReviewStmt.setInt(2, review.getUserId());
-                if (checkReviewStmt.executeQuery().next()) throw new StatusException(ErrorStatus.ALREADY_EXISTS);
-            }
-            try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
-                pstmt.setInt(1, review.getMovieId());
-                pstmt.setInt(2, review.getUserId());
-                pstmt.setFloat(3, review.getRating());
-                pstmt.setString(4, review.getTitle());
-                pstmt.setString(5, review.getDescription());
-                if (pstmt.executeUpdate() == 0) throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
+            conn.setAutoCommit(false);
+            try {
+                try (PreparedStatement checkMovieStmt = conn.prepareStatement(checkMovieSql)) {
+                    checkMovieStmt.setInt(1, review.getMovieId());
+                    if (!checkMovieStmt.executeQuery().next()) {
+                        conn.rollback();
+                        throw new StatusException(ErrorStatus.NOT_FOUND);
+                    }
+                }
+                try (PreparedStatement checkUserStmt = conn.prepareStatement(checkUserSql)) {
+                    checkUserStmt.setInt(1, review.getUserId());
+                    if (!checkUserStmt.executeQuery().next()) {
+                        conn.rollback();
+                        throw new StatusException(ErrorStatus.NOT_FOUND);
+                    }
+                }
+                try (PreparedStatement checkReviewStmt = conn.prepareStatement(checkReviewSql)) {
+                    checkReviewStmt.setInt(1, review.getMovieId());
+                    checkReviewStmt.setInt(2, review.getUserId());
+                    if (checkReviewStmt.executeQuery().next()) {
+                        conn.rollback();
+                        throw new StatusException(ErrorStatus.ALREADY_EXISTS);
+                    }
+                }
+                try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+                    pstmt.setInt(1, review.getMovieId());
+                    pstmt.setInt(2, review.getUserId());
+                    pstmt.setFloat(3, review.getRating());
+                    pstmt.setString(4, review.getTitle());
+                    pstmt.setString(5, review.getDescription());
+                    if (pstmt.executeUpdate() == 0) {
+                        conn.rollback();
+                        throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
+                    }
+                }
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
         } catch (SQLException e) {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR);
