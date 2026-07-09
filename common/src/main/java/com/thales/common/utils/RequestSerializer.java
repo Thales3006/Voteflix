@@ -1,15 +1,15 @@
 package com.thales.common.utils;
 
 import com.google.gson.JsonObject;
-import com.thales.common.model.AppRequest;
-import com.thales.common.model.AppRequest.*;
+import com.thales.common.model.Request;
+import com.thales.common.model.Request.*;
 import com.thales.common.model.MovieFilter;
 import com.thales.common.model.ReviewFilter;
 import com.thales.common.model.UserFilter;
 
 public class RequestSerializer {
 
-    public String serialize(AppRequest request) {
+    public String serialize(Request request) {
         JsonObject json = new JsonObject();
         json.addProperty("operation", request.operation().getCode());
 

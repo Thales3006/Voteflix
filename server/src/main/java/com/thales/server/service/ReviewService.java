@@ -2,10 +2,10 @@ package com.thales.server.service;
 
 import java.util.List;
 
-import com.thales.common.model.AppRequest.ReviewRequest;
-import com.thales.common.model.AppRequest.*;
-import com.thales.common.model.AppResponse;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Request.ReviewRequest;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.Response;
+import com.thales.common.model.Response.*;
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.Review;
 import com.thales.common.model.StatusException;
@@ -31,7 +31,7 @@ public class ReviewService implements CrudService<ReviewRequest> {
     }
 
     @Override
-    public AppResponse create(ReviewRequest req) {
+    public Response create(ReviewRequest req) {
         CreateReviewRequest r = (CreateReviewRequest) req;
         int userId = jwtService.verifyAndGetUserId(r.token());
         Review review = r.review();
@@ -41,7 +41,7 @@ public class ReviewService implements CrudService<ReviewRequest> {
     }
 
     @Override
-    public AppResponse list(ReviewRequest req) {
+    public Response list(ReviewRequest req) {
         ListReviewsRequest r = (ListReviewsRequest) req;
         jwtService.verifyAndGetUserId(r.token());
         List<Review> reviews = reviewRepo.findAll(r.filter());
@@ -50,7 +50,7 @@ public class ReviewService implements CrudService<ReviewRequest> {
     }
 
     @Override
-    public AppResponse update(ReviewRequest req) {
+    public Response update(ReviewRequest req) {
         UpdateReviewRequest r = (UpdateReviewRequest) req;
         int userId = jwtService.verifyAndGetUserId(r.token());
         Review review = r.review();
@@ -61,7 +61,7 @@ public class ReviewService implements CrudService<ReviewRequest> {
     }
 
     @Override
-    public AppResponse delete(ReviewRequest req) {
+    public Response delete(ReviewRequest req) {
         DeleteReviewRequest r = (DeleteReviewRequest) req;
         int userId = jwtService.verifyAndGetUserId(r.token());
         Review existing = reviewRepo.findById(r.id());

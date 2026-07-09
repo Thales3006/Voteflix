@@ -3,13 +3,13 @@ package com.thales.common.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.thales.common.model.*;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Response.*;
 
 public class ResponseBuilder {
 
     private static final Gson gson = new Gson();
 
-    public String serialize(AppResponse response) {
+    public String serialize(Response response) {
         JsonObject json = new JsonObject();
         switch (response) {
             case OkResponse r -> {
@@ -24,6 +24,7 @@ public class ResponseBuilder {
                 json.addProperty("status", ErrorStatus.OK.getCode());
                 json.addProperty("message", r.message());
                 json.addProperty("token", r.token());
+                json.addProperty("id", r.id());
             }
             case MovieListResponse r -> {
                 json.addProperty("status", ErrorStatus.OK.getCode());

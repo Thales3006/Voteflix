@@ -1,8 +1,8 @@
 package com.thales.server.service;
 
 import com.thales.common.model.*;
-import com.thales.common.model.AppRequest.*;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.Response.*;
 import com.thales.common.utils.ResponseBuilder;
 import com.thales.common.utils.Validator;
 import com.thales.server.repository.MovieRepository;
@@ -49,10 +49,10 @@ public class ServerService {
     }
 
     public void handleMessage(String message, ClientHandler client) {
-        AppRequest request = null;
+        Request request = null;
         try {
             request = validator.parseRequest(message);
-            AppResponse response = dispatch(request);
+            Response response = dispatch(request);
             client.sendMessage(responseBuilder.serialize(response));
         } catch (StatusException e) {
             System.err.println(e.toString());
@@ -68,7 +68,7 @@ public class ServerService {
         }
     }
 
-    private AppResponse dispatch(AppRequest request) {
+    private Response dispatch(Request request) {
         return switch (request) {
             case LoginRequest r -> handleLogin(r);
             case LogoutRequest r -> handleLogout(r);
@@ -91,7 +91,7 @@ public class ServerService {
         };
     }
 
-    private AppResponse handleLogin(LoginRequest req) {
+    private Response handleLogin(LoginRequest req) {
         if (!userRepo.checkCredentials(req.username(), req.password())) {
             throw new StatusException(ErrorStatus.UNAUTHORIZED, "Invalid credentials");
         }
@@ -100,7 +100,7 @@ public class ServerService {
         return new LoginResponse("Login successful", token, id);
     }
 
-    private AppResponse handleLogout(LogoutRequest req) {
+    private Response handleLogout(LogoutRequest req) {
         jwtService.verifyAndGetUserId(req.token());
         return new OkResponse("Logout successful");
     }

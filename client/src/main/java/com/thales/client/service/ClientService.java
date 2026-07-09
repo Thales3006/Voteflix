@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import com.thales.client.network.ClientSocket;
 import com.thales.common.model.*;
-import com.thales.common.model.AppRequest.*;
-import com.thales.common.model.AppResponse.*;
+import com.thales.common.model.Request.*;
+import com.thales.common.model.Response.*;
 import com.thales.common.utils.RequestSerializer;
 import com.thales.common.utils.Validator;
 
@@ -58,7 +58,7 @@ public class ClientService {
         connected.set(false);
     }
 
-    private AppResponse send(AppRequest request) throws IOException {
+    private Response send(Request request) throws IOException {
         String json = serializer.serialize(request);
         String response = new ClientSocket().sendAndReceive(serverIP, serverPort, json);
         return validator.parseResponse(response, request.operation());
