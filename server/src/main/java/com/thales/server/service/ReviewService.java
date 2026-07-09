@@ -8,20 +8,24 @@ import com.thales.common.model.AppResponse.*;
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.Review;
 import com.thales.common.model.StatusException;
+import com.thales.server.database.ReviewRepository;
+import com.thales.server.database.UserRepository;
 
 public class ReviewService {
-    private final DatabaseService database;
+    private final ReviewRepository reviewRepo;
+    private final UserRepository userRepo;
     private final JwtService jwtService;
 
-    public ReviewService(DatabaseService database, JwtService jwtService) {
-        this.database = database;
+    public ReviewService(ReviewRepository reviewRepo, UserRepository userRepo, JwtService jwtService) {
+        this.reviewRepo = reviewRepo;
+        this.userRepo = userRepo;
         this.jwtService = jwtService;
     }
 
     private void attachUsername(Review review) {
         if (review.getUserId() == null) return;
         try {
-            review.setUsername(database.getUsername(review.getUserId()));
+            review.setUsername(userRepo.findUsernameById(review.getUserId()));
         } catch (StatusException e) {}
     }
 
@@ -29,20 +33,20 @@ public class ReviewService {
         int userId = jwtService.verifyAndGetUserId(req.token());
         Review review = req.review();
         review.setUserId(userId);
-        database.createReview(review);
+        reviewRepo.create(review);
         return new CreatedResponse("Review created");
     }
 
     public AppResponse handleListOwnReviews(ListOwnReviewsRequest req) {
         int userId = jwtService.verifyAndGetUserId(req.token());
-        List<Review> reviews = database.getUserReviews(userId);
+        List<Review> reviews = reviewRepo.findByUserId(userId);
         reviews.forEach(this::attachUsername);
         return new ReviewListResponse("Reviews", reviews);
     }
 
     public AppResponse handleListReviews(ListReviewsRequest req) {
         jwtService.verifyAndGetUserId(req.token());
-        List<Review> reviews = database.getMovieReviews(req.movieId());
+        List<Review> reviews = reviewRepo.findByMovieId(req.movieId());
         reviews.forEach(this::attachUsername);
         return new ReviewListResponse("Reviews", reviews);
     }
@@ -50,19 +54,19 @@ public class ReviewService {
     public AppResponse handleUpdateReview(UpdateReviewRequest req) {
         int userId = jwtService.verifyAndGetUserId(req.token());
         Review review = req.review();
-        Review existing = database.getReview(review.getId());
+        Review existing = reviewRepo.findById(review.getId());
         if (!existing.getUserId().equals(userId)) throw new StatusException(ErrorStatus.FORBIDDEN);
-        database.updateReview(review);
+        reviewRepo.update(review);
         return new OkResponse("Review updated");
     }
 
     public AppResponse handleDeleteReview(DeleteReviewRequest req) {
         int userId = jwtService.verifyAndGetUserId(req.token());
-        Review existing = database.getReview(req.id());
-        if (!existing.getUserId().equals(userId) && !database.isAdmin(userId)) {
+        Review existing = reviewRepo.findById(req.id());
+        if (!existing.getUserId().equals(userId) && !userRepo.isAdmin(userId)) {
             throw new StatusException(ErrorStatus.FORBIDDEN);
         }
-        database.deleteReview(req.id());
+        reviewRepo.delete(req.id());
         return new OkResponse("Review deleted");
     }
 }
