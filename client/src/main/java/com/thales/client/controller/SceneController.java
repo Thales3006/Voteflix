@@ -24,8 +24,16 @@ public abstract class SceneController {
     //  PopUps
     // ===================================
 
+    private Alert styledAlert(AlertType type) {
+        Alert alert = new Alert(type);
+        alert.getDialogPane().getStylesheets().add(
+            SceneController.class.getResource("/style.css").toExternalForm()
+        );
+        return alert;
+    }
+
     protected void showPopup(String title, String message) {
-        Alert alert = new Alert(AlertType.INFORMATION);
+        Alert alert = styledAlert(AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
@@ -33,12 +41,16 @@ public abstract class SceneController {
     }
 
     protected void showStatusError(StatusException e) {
-        showPopup("Error " + e.getStatus().getCode(), e.getUserMessage());
+        Alert alert = styledAlert(AlertType.ERROR);
+        alert.setTitle("Error " + e.getStatus().getCode());
+        alert.setHeaderText(null);
+        alert.setContentText(e.getUserMessage());
+        alert.showAndWait();
     }
 
     protected void feedback(String message) {
-        Alert alert = new Alert(AlertType.INFORMATION);
-        alert.setTitle("Action successful");
+        Alert alert = styledAlert(AlertType.INFORMATION);
+        alert.setTitle("Success");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
