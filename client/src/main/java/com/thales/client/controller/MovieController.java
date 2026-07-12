@@ -11,22 +11,23 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
-
 public class MovieController extends SceneController {
 
     @FXML private TextField titleField;
     @FXML private TextField directorField;
     @FXML private TextField yearField;
     @FXML private TextField genresField;
-    @FXML private TextField synopsisField;
+    @FXML private TextArea synopsisField;
     @FXML private Label ratingLabel;
     @FXML private Label reviewAmountLabel;
     @FXML private TextField reviewTitleField;
@@ -44,6 +45,12 @@ public class MovieController extends SceneController {
     @FXML private TilePane movieTilePane;
     @FXML private VBox reviewVbox;
     @FXML private Button loadReviewButton;
+    @FXML private GridPane movieFormPane;
+    @FXML private VBox movieDisplayPane;
+    @FXML private Label displayTitleLabel;
+    @FXML private Label displayDirectorLabel;
+    @FXML private Label displayYearLabel;
+    @FXML private Label displaySynopsisLabel;
 
     private final SimpleObjectProperty<Movie> currentMovie = new SimpleObjectProperty<>();
 
@@ -57,34 +64,39 @@ public class MovieController extends SceneController {
 
         currentMovie.addListener((_, _, movie) -> {
             if (movie != null) {
-                titleField.setText(movie.getTitle());
-                directorField.setText(movie.getDirector());
-                yearField.setText(String.valueOf(movie.getYear()));
-                genresField.setText(String.join(", ", movie.getGenre()));
-                synopsisField.setText(movie.getSynopsis());
-                ratingLabel.setText(String.valueOf(movie.getRating()));
-                reviewAmountLabel.setText(String.valueOf(movie.getRatingCount()));
+                boolean hasRating = movie.getRatingCount() != null && movie.getRatingCount() > 0;
+                ratingLabel.setText(hasRating ? String.valueOf(movie.getRating()) : "—");
+                reviewAmountLabel.setText(String.valueOf(movie.getRatingCount() != null ? movie.getRatingCount() : 0));
                 idLabel.setText(String.valueOf(movie.getId()));
+
+                if (clientService.isAdmin()) {
+                    titleField.setText(movie.getTitle());
+                    directorField.setText(movie.getDirector());
+                    yearField.setText(String.valueOf(movie.getYear()));
+                    genresField.setText(String.join(", ", movie.getGenre()));
+                    synopsisField.setText(movie.getSynopsis());
+                } else {
+                    displayTitleLabel.setText(movie.getTitle() != null ? movie.getTitle() : "");
+                    displayDirectorLabel.setText(movie.getDirector() != null ? movie.getDirector() : "");
+                    displayYearLabel.setText(movie.getYear() + (movie.getGenre() != null ? "  ·  " + String.join(", ", movie.getGenre()) : ""));
+                    displaySynopsisLabel.setText(movie.getSynopsis() != null ? movie.getSynopsis() : "");
+                }
 
                 movieOverlay.setVisible(true);
                 movieOverlay.setManaged(true);
+                movieOverlay.getStyleClass().add("open");
                 handle(null, () -> { loadReviews(); });
             }
         });
 
         if (clientService.isAdmin()) {
-            titleField.setEditable(true);
-            directorField.setEditable(true);
-            yearField.setEditable(true);
-            genresField.setEditable(true);
-            synopsisField.setEditable(true);
             movieButtonHbox.setVisible(true);
             movieButtonHbox.setManaged(true);
         } else {
-            for (TextField f : java.util.List.of(titleField, directorField, yearField, genresField, synopsisField)) {
-                f.getStyleClass().add("movie-display-field");
-            }
-            titleField.setStyle("-fx-font-weight: bold; -fx-font-size: 14px; -fx-background-color: transparent; -fx-border-color: transparent; -fx-background-insets: 0; -fx-padding: 2 0; -fx-effect: none; -fx-cursor: default; -fx-text-fill: #f0e6d3;");
+            movieFormPane.setVisible(false);
+            movieFormPane.setManaged(false);
+            movieDisplayPane.setVisible(true);
+            movieDisplayPane.setManaged(true);
         }
 
         handle(null, () -> { loadMovies(); });
@@ -96,6 +108,7 @@ public class MovieController extends SceneController {
 
     private void closeOverlay() {
         currentMovie.set(null);
+        movieOverlay.getStyleClass().remove("open");
         movieOverlay.setVisible(false);
         movieOverlay.setManaged(false);
     }
@@ -106,13 +119,26 @@ public class MovieController extends SceneController {
 
         movieTilePane.getChildren().clear();
         for (Movie movie : movies) {
-            VBox movieBox = new VBox();
+            VBox movieBox = new VBox(6);
             movieBox.prefWidthProperty().bind(movieTilePane.widthProperty().divide(2.2));
-            movieBox.getChildren().addAll(
-                new Label("Title: " + movie.getTitle()),
-                new Label("Director: " + movie.getDirector()),
-                new Label("Year: " + movie.getYear())
-            );
+
+            Label titleLabel = new Label(movie.getTitle() != null ? movie.getTitle() : "");
+            titleLabel.getStyleClass().add("movie-card-title");
+
+            Label directorLabel = new Label(movie.getDirector() != null ? movie.getDirector() : "");
+            directorLabel.getStyleClass().add("movie-card-sub");
+
+            Label yearLabel = new Label(String.valueOf(movie.getYear()));
+            yearLabel.getStyleClass().add("movie-card-meta");
+            boolean hasRating = movie.getRatingCount() != null && movie.getRatingCount() > 0;
+            Label ratingBadge = new Label(hasRating ? "★ " + movie.getRating() : "");
+            ratingBadge.getStyleClass().add("movie-card-rating");
+            Region metaSpacer = new Region();
+            HBox.setHgrow(metaSpacer, Priority.ALWAYS);
+            HBox metaRow = new HBox(4, yearLabel, metaSpacer, ratingBadge);
+            metaRow.setAlignment(Pos.CENTER_LEFT);
+
+            movieBox.getChildren().addAll(titleLabel, directorLabel, metaRow);
             movieBox.getStyleClass().add("movie-view");
             movieTilePane.getChildren().add(movieBox);
 

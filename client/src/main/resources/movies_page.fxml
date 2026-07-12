@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -48,7 +49,7 @@
          </ScrollPane>
 
          <!-- Overlay backdrop — click outside the card to dismiss -->
-         <VBox fx:id="movieOverlay" alignment="CENTER" managed="false" visible="false"
+         <VBox fx:id="movieOverlay" styleClass="overlay-backdrop" alignment="CENTER" managed="false" visible="false"
              style="-fx-background-color: rgba(10,6,4,0.78);">
             <padding>
                <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
@@ -82,7 +83,8 @@
                               <Insets bottom="12.0" left="16.0" right="12.0" top="12.0" />
                            </padding>
                            <children>
-                              <GridPane hgap="8.0" vgap="8.0">
+                              <!-- Admin form (editable fields) -->
+                              <GridPane fx:id="movieFormPane" hgap="8.0" vgap="8.0">
                                  <columnConstraints>
                                     <ColumnConstraints hgrow="NEVER" minWidth="68.0" prefWidth="76.0" />
                                     <ColumnConstraints hgrow="ALWAYS" />
@@ -92,7 +94,7 @@
                                     <RowConstraints prefHeight="28.0" />
                                     <RowConstraints prefHeight="28.0" />
                                     <RowConstraints prefHeight="28.0" />
-                                    <RowConstraints prefHeight="52.0" />
+                                    <RowConstraints prefHeight="60.0" />
                                  </rowConstraints>
                                  <children>
                                     <Label styleClass="detail-label" text="Title" />
@@ -100,13 +102,22 @@
                                     <Label styleClass="detail-label" text="Year" GridPane.rowIndex="2" />
                                     <Label styleClass="detail-label" text="Genres" GridPane.rowIndex="3" />
                                     <Label styleClass="detail-label" text="Synopsis" GridPane.rowIndex="4" />
-                                    <TextField fx:id="titleField" editable="false" promptText="—" GridPane.columnIndex="1" />
-                                    <TextField fx:id="directorField" editable="false" promptText="—" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <TextField fx:id="yearField" editable="false" promptText="—" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    <TextField fx:id="genresField" editable="false" promptText="—" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                    <TextField fx:id="synopsisField" alignment="TOP_LEFT" editable="false" prefHeight="44.0" promptText="—" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                    <TextField fx:id="titleField" promptText="—" GridPane.columnIndex="1" />
+                                    <TextField fx:id="directorField" promptText="—" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <TextField fx:id="yearField" promptText="—" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <TextField fx:id="genresField" promptText="—" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                    <TextArea fx:id="synopsisField" prefHeight="60.0" promptText="—" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                  </children>
                               </GridPane>
+
+                              <!-- User display (read-only labels, hidden for admins) -->
+                              <VBox fx:id="movieDisplayPane" managed="false" visible="false" spacing="6.0">
+                                 <Label fx:id="displayTitleLabel" styleClass="movie-display-title" wrapText="true" />
+                                 <Label fx:id="displayDirectorLabel" styleClass="movie-display-director" />
+                                 <Label fx:id="displayYearLabel" styleClass="movie-display-meta" />
+                                 <Separator />
+                                 <Label fx:id="displaySynopsisLabel" styleClass="movie-display-synopsis" wrapText="true" />
+                              </VBox>
 
                               <!-- Stats: rating + review count only (no ID exposed to users) -->
                               <HBox spacing="14.0">
