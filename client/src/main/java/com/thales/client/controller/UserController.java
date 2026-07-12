@@ -17,9 +17,9 @@ import javafx.scene.layout.VBox;
 public class UserController extends SceneController {
     @FXML private Button updateUserButton;
     @FXML private Button deleteUserButton;
-    @FXML private Button listUserButton;
     @FXML private TextField passwordField;
     @FXML private Label usernameLabel;
+    @FXML private Label avatarLabel;
     @FXML private ListView<User> userListView;
     @FXML private VBox usersVbox;
 
@@ -28,7 +28,8 @@ public class UserController extends SceneController {
     @FXML protected void initialize() {
 
         if (clientService.isAdmin()) {
-            usersVbox.setDisable(false);
+            usersVbox.setVisible(true);
+            usersVbox.setManaged(true);
 
             userListView.setCellFactory(_ -> new ListCell<User>() {
                 @Override
@@ -62,16 +63,19 @@ public class UserController extends SceneController {
     private void listOwnUser() throws Exception {
         var response = clientService.requestGetUser();
         selectedUser = new User((Integer) null, response.username());
-        usernameLabel.setText(response.username());
+        setProfileDisplay(response.username());
+    }
+
+    private void setProfileDisplay(String username) {
+        usernameLabel.setText(username);
+        avatarLabel.setText(username != null && !username.isEmpty()
+            ? String.valueOf(username.charAt(0)).toUpperCase()
+            : "?");
     }
 
     // ===================================
     //  UI interaction handlers
     // ===================================
-
-    @FXML void HandleListUserButton(ActionEvent event) {
-        handle(event, () -> listOwnUser());
-    }
 
     @FXML void HandleUpdateUserButton(ActionEvent event) {
         handle(event, () -> {
@@ -109,7 +113,7 @@ public class UserController extends SceneController {
     @FXML void HandleSelectUser(MouseEvent event) {
         handle(null, () -> {
             selectedUser = userListView.getSelectionModel().getSelectedItem();
-            usernameLabel.setText(selectedUser.getUsername());
+            setProfileDisplay(selectedUser.getUsername());
         });
     }
 
