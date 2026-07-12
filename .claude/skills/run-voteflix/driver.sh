@@ -14,7 +14,7 @@
 #   vfx_stop             — kill server, client, Xvfb
 
 VOTEFLIX_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
-DISPLAY="${DISPLAY:-:99}"
+DISPLAY=:99
 export DISPLAY
 
 _XVFB_PID=
