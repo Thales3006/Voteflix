@@ -22,13 +22,13 @@ public class UserService implements CrudService<UserRequest> {
     public Response create(UserRequest req) {
         CreateUserRequest r = (CreateUserRequest) req;
         userRepo.create(r.user());
-        return new CreatedResponse("User created");
+        return new CreatedResponse("Account registered. You may now sign in.");
     }
 
     public Response get(GetUserRequest req) {
         int id = jwtService.verifyAndGetUserId(req.token());
         String username = userRepo.findUsernameById(id);
-        return new UserInfoResponse("User info", username);
+        return new UserInfoResponse("OK", username);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class UserService implements CrudService<UserRequest> {
         ListUsersRequest r = (ListUsersRequest) req;
         int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
-        return new UserListResponse("User list", userRepo.findAll(r.filter()));
+        return new UserListResponse("OK", userRepo.findAll(r.filter()));
     }
 
     @Override
@@ -47,7 +47,7 @@ public class UserService implements CrudService<UserRequest> {
             throw new StatusException(ErrorStatus.FORBIDDEN);
         }
         userRepo.update(r.user());
-        return new OkResponse("User updated");
+        return new OkResponse("Password updated successfully.");
     }
 
     @Override
@@ -60,6 +60,6 @@ public class UserService implements CrudService<UserRequest> {
         String username = userRepo.findUsernameById(r.id());
         if ("admin".equals(username)) throw new StatusException(ErrorStatus.FORBIDDEN);
         userRepo.delete(r.id());
-        return new OkResponse("User deleted");
+        return new OkResponse("Account removed.");
     }
 }
