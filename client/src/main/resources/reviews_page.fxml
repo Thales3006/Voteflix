@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -12,6 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@style.css"
@@ -32,70 +34,77 @@
       </HBox>
    </top>
    <center>
-      <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" BorderPane.alignment="CENTER">
-         <content>
-            <VBox fx:id="reviewList" alignment="TOP_CENTER" spacing="10.0">
-               <padding>
-                  <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-               </padding>
+      <StackPane BorderPane.alignment="CENTER">
+         <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER">
+            <content>
+               <VBox fx:id="reviewList" alignment="TOP_CENTER" spacing="12.0">
+                  <padding>
+                     <Insets bottom="20.0" left="60.0" right="60.0" top="20.0" />
+                  </padding>
+               </VBox>
+            </content>
+         </ScrollPane>
+
+         <VBox fx:id="reviewOverlay" styleClass="overlay-backdrop" alignment="CENTER" managed="false" visible="false"
+               style="-fx-background-color: rgba(10,6,4,0.82);">
+            <VBox styleClass="form-card" maxWidth="680.0" spacing="0.0">
+               <HBox alignment="CENTER_LEFT" spacing="12.0" style="-fx-padding: 16 20 12 20;">
+                  <Label styleClass="section-title" text="EDIT REVIEW" />
+                  <Region HBox.hgrow="ALWAYS" />
+                  <Button mnemonicParsing="false" onAction="#HandleCloseReviewOverlay" text="✕"
+                      style="-fx-background-color: transparent; -fx-text-fill: #6b5040; -fx-font-size: 16px; -fx-cursor: hand; -fx-effect: none; -fx-border-color: transparent;" />
+               </HBox>
+               <Separator />
+               <VBox spacing="14.0" style="-fx-padding: 20;">
+                  <GridPane hgap="12.0" vgap="8.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="90.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints prefHeight="34.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="90.0" vgrow="ALWAYS" />
+                        <RowConstraints prefHeight="34.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Label styleClass="detail-label" text="Title" />
+                        <Label styleClass="detail-label" text="Description" GridPane.rowIndex="1" />
+                        <Label styleClass="detail-label" text="Rating" GridPane.rowIndex="2" />
+                        <TextField fx:id="titleField" GridPane.columnIndex="1" />
+                        <TextArea fx:id="descriptionField" prefHeight="84.0" wrapText="true"
+                            GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="ratingField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                     </children>
+                  </GridPane>
+                  <Separator />
+                  <GridPane hgap="12.0" vgap="6.0">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="NEVER" minWidth="90.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints prefHeight="26.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="26.0" vgrow="SOMETIMES" />
+                        <RowConstraints prefHeight="26.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                     <children>
+                        <Label styleClass="detail-label" text="Movie" />
+                        <Label styleClass="detail-label" text="Author" GridPane.rowIndex="1" />
+                        <Label styleClass="detail-label" text="Date" GridPane.rowIndex="2" />
+                        <Label fx:id="movieLabel" GridPane.columnIndex="1" />
+                        <Label fx:id="usernameLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label fx:id="dateLabel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                     </children>
+                  </GridPane>
+                  <Separator />
+                  <HBox spacing="10.0">
+                     <Button fx:id="updateButton" mnemonicParsing="false" onAction="#HandleUpdateButton" text="Update" />
+                     <Region HBox.hgrow="ALWAYS" />
+                     <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#HandleDeleteButton" text="Delete" />
+                  </HBox>
+               </VBox>
             </VBox>
-         </content>
-      </ScrollPane>
+         </VBox>
+      </StackPane>
    </center>
-   <right>
-      <VBox alignment="TOP_LEFT" prefWidth="380.0" spacing="8.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label styleClass="section-title" text="REVIEW DETAILS" />
-            <Separator />
-            <GridPane hgap="10.0" vgap="6.0">
-               <columnConstraints>
-                  <ColumnConstraints hgrow="NEVER" minWidth="80.0" prefWidth="90.0" />
-                  <ColumnConstraints hgrow="ALWAYS" />
-               </columnConstraints>
-               <rowConstraints>
-                  <RowConstraints prefHeight="32.0" vgrow="SOMETIMES" />
-                  <RowConstraints prefHeight="88.0" vgrow="ALWAYS" />
-                  <RowConstraints prefHeight="32.0" vgrow="SOMETIMES" />
-               </rowConstraints>
-               <children>
-                  <Label styleClass="detail-label" text="Title" />
-                  <Label styleClass="detail-label" text="Description" GridPane.rowIndex="1" />
-                  <Label styleClass="detail-label" text="Rating" GridPane.rowIndex="2" />
-                  <TextField fx:id="titleField" GridPane.columnIndex="1" />
-                  <TextField fx:id="descriptionField" alignment="TOP_LEFT" prefHeight="82.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <TextField fx:id="ratingField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-               </children>
-            </GridPane>
-            <GridPane hgap="10.0" vgap="6.0">
-               <columnConstraints>
-                  <ColumnConstraints hgrow="NEVER" minWidth="80.0" prefWidth="90.0" />
-                  <ColumnConstraints hgrow="ALWAYS" />
-               </columnConstraints>
-               <rowConstraints>
-                  <RowConstraints prefHeight="26.0" vgrow="SOMETIMES" />
-                  <RowConstraints prefHeight="26.0" vgrow="SOMETIMES" />
-                  <RowConstraints prefHeight="26.0" vgrow="SOMETIMES" />
-               </rowConstraints>
-               <children>
-                  <Label styleClass="detail-label" text="Movie" />
-                  <Label styleClass="detail-label" text="Author" GridPane.rowIndex="1" />
-                  <Label styleClass="detail-label" text="Date" GridPane.rowIndex="2" />
-                  <Label fx:id="movieLabel" GridPane.columnIndex="1" />
-                  <Label fx:id="usernameLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label fx:id="dateLabel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-               </children>
-            </GridPane>
-            <Separator />
-            <HBox spacing="8.0">
-               <children>
-                  <Button fx:id="updateButton" mnemonicParsing="false" onAction="#HandleUpdateButton" text="Update" />
-                  <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#HandleDeleteButton" text="Delete" />
-               </children>
-            </HBox>
-         </children>
-         <padding>
-            <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
-         </padding>
-      </VBox>
-   </right>
 </BorderPane>
