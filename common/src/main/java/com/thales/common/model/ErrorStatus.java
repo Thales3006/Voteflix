@@ -3,14 +3,14 @@ package com.thales.common.model;
 public enum ErrorStatus {
     OK("200", "OK"),
     CREATED("201", "Created"),
-    BAD_REQUEST("400", "Bad request"),
+    BAD_REQUEST("400", "Bad Request"),
     UNAUTHORIZED("401", "Unauthorized"),
-    FORBIDDEN("403", "Access denied"),
-    NOT_FOUND("404", "Resource not found"),
-    ALREADY_EXISTS("409", "Resource already exists"),
-    UNPROCESSABLE_ENTITY("422", "Unprocessable entity"),
-    INTERNAL_SERVER_ERROR("500", "Internal server error"),
-    UNKNOWN_ERROR("", "Unknown error");
+    FORBIDDEN("403", "Forbidden"),
+    NOT_FOUND("404", "Not Found"),
+    ALREADY_EXISTS("409", "Conflict"),
+    UNPROCESSABLE_ENTITY("422", "Unprocessable Entity"),
+    INTERNAL_SERVER_ERROR("500", "Internal Server Error"),
+    UNKNOWN_ERROR("000", "Unknown Error");
 
     private final String code;
     private final String message;
