@@ -1,6 +1,8 @@
 package com.thales.client.service;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 import com.thales.client.network.ClientSocket;
 import com.thales.common.model.*;
@@ -44,7 +46,10 @@ public class ClientService {
         return instance;
     }
 
-    public void connect(String ip, int port) {
+    public void connect(String ip, int port) throws IOException {
+        try (Socket probe = new Socket()) {
+            probe.connect(new InetSocketAddress(ip, port), 2000);
+        }
         this.serverIP = ip;
         this.serverPort = port;
         connected.set(true);

@@ -98,11 +98,11 @@ public class ServerService {
         }
         int id = userRepo.findIdByUsername(req.username());
         String token = jwtService.generateToken(id, req.username());
-        return new LoginResponse("Login successful", token, id);
+        return new LoginResponse("OK", token, id);
     }
 
     private Response handleLogout(LogoutRequest req) {
         jwtService.verifyAndGetUserId(req.token());
-        return new OkResponse("Logout successful");
+        return new OkResponse("OK");
     }
 }
