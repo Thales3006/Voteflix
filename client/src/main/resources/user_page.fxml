@@ -9,13 +9,14 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@style.css"
     xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="com.thales.client.controller.UserController">
    <left>
-      <VBox fx:id="usersVbox" alignment="TOP_LEFT" disable="true" prefWidth="220.0" spacing="8.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="usersVbox" alignment="TOP_LEFT" managed="false" visible="false" prefWidth="240.0" spacing="8.0" BorderPane.alignment="CENTER">
          <children>
             <Label styleClass="section-title" text="ALL USERS" />
             <Separator />
@@ -30,34 +31,24 @@
       </VBox>
    </left>
    <center>
-      <VBox alignment="TOP_LEFT" spacing="8.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label styleClass="section-title" text="MY PROFILE" />
-            <Separator />
-            <HBox spacing="12.0" alignment="CENTER_LEFT">
-               <children>
-                  <Label styleClass="detail-label" text="Username" />
-                  <Label fx:id="usernameLabel" text="" />
-               </children>
-            </HBox>
-            <VBox spacing="6.0">
-               <children>
-                  <Label styleClass="detail-label" text="New Password" />
-                  <TextField fx:id="passwordField" prefWidth="240.0" promptText="New password" />
-               </children>
+      <StackPane BorderPane.alignment="CENTER">
+         <VBox alignment="CENTER" maxWidth="380.0" spacing="20.0" styleClass="user-profile-card" StackPane.alignment="CENTER">
+            <Label fx:id="avatarLabel" styleClass="user-avatar" text="?" />
+            <VBox spacing="4.0" alignment="CENTER">
+               <Label styleClass="section-title" text="USERNAME" />
+               <Label fx:id="usernameLabel" styleClass="user-display-name" text="" />
             </VBox>
             <Separator />
+            <VBox spacing="6.0">
+               <Label styleClass="detail-label" text="Change Password" />
+               <TextField fx:id="passwordField" prefWidth="280.0" promptText="New password" />
+            </VBox>
             <HBox spacing="8.0" alignment="CENTER_LEFT">
-               <children>
-                  <Button fx:id="updateUserButton" mnemonicParsing="false" onAction="#HandleUpdateUserButton" text="Update" />
-                  <Region HBox.hgrow="ALWAYS" />
-                  <Button fx:id="deleteUserButton" mnemonicParsing="false" onAction="#HandleDeleteUserButton" text="Delete Account" />
-               </children>
+               <Button fx:id="updateUserButton" mnemonicParsing="false" onAction="#HandleUpdateUserButton" text="Update" />
+               <Region HBox.hgrow="ALWAYS" />
+               <Button fx:id="deleteUserButton" mnemonicParsing="false" onAction="#HandleDeleteUserButton" text="Delete Account" />
             </HBox>
-         </children>
-         <padding>
-            <Insets bottom="16.0" left="24.0" right="24.0" top="16.0" />
-         </padding>
-      </VBox>
+         </VBox>
+      </StackPane>
    </center>
 </BorderPane>
