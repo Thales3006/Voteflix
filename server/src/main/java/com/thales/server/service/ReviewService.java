@@ -37,7 +37,7 @@ public class ReviewService implements CrudService<ReviewRequest> {
         Review review = r.review();
         review.setUserId(userId);
         reviewRepo.create(review);
-        return new CreatedResponse("Review created");
+        return new CreatedResponse("Review posted.");
     }
 
     @Override
@@ -46,7 +46,7 @@ public class ReviewService implements CrudService<ReviewRequest> {
         jwtService.verifyAndGetUserId(r.token());
         List<Review> reviews = reviewRepo.findAll(r.filter());
         reviews.forEach(this::attachUsername);
-        return new ReviewListResponse("Reviews", reviews);
+        return new ReviewListResponse("OK", reviews);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class ReviewService implements CrudService<ReviewRequest> {
         Review existing = reviewRepo.findById(review.getId());
         if (!existing.getUserId().equals(userId)) throw new StatusException(ErrorStatus.FORBIDDEN);
         reviewRepo.update(review);
-        return new OkResponse("Review updated");
+        return new OkResponse("Review updated.");
     }
 
     @Override
@@ -69,6 +69,6 @@ public class ReviewService implements CrudService<ReviewRequest> {
             throw new StatusException(ErrorStatus.FORBIDDEN);
         }
         reviewRepo.delete(r.id());
-        return new OkResponse("Review deleted");
+        return new OkResponse("Review removed.");
     }
 }

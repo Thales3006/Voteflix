@@ -26,14 +26,14 @@ public class MovieService implements CrudService<MovieRequest> {
         int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
         movieRepo.create(r.movie());
-        return new CreatedResponse("Movie created");
+        return new CreatedResponse("Movie added.");
     }
 
     @Override
     public Response list(MovieRequest req) {
         ListMoviesRequest r = (ListMoviesRequest) req;
         jwtService.verifyAndGetUserId(r.token());
-        return new MovieListResponse("Movie list", movieRepo.findAll(r.filter()));
+        return new MovieListResponse("OK", movieRepo.findAll(r.filter()));
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MovieService implements CrudService<MovieRequest> {
         int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
         movieRepo.update(r.movie());
-        return new OkResponse("Movie updated");
+        return new OkResponse("Movie updated.");
     }
 
     @Override
@@ -51,6 +51,6 @@ public class MovieService implements CrudService<MovieRequest> {
         int id = jwtService.verifyAndGetUserId(r.token());
         if (!userRepo.isAdmin(id)) throw new StatusException(ErrorStatus.FORBIDDEN);
         movieRepo.delete(r.id());
-        return new OkResponse("Movie deleted");
+        return new OkResponse("Movie removed.");
     }
 }
