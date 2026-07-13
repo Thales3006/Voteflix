@@ -1,9 +1,7 @@
 package com.thales.common.model;
 
-import java.util.Optional;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import lombok.Data;
 
@@ -29,47 +27,39 @@ public class Movie {
         this.synopsis = synopsis;
     }
 
-    public JsonObject toJson() {
-        JsonObject json = new JsonObject();
-        if (id != null) json.addProperty("id", id);
-        if (title != null) json.addProperty("title", title);
-        if (director != null) json.addProperty("director", director);
-        if (year != null) json.addProperty("year", year);
-        if (rating != null) json.addProperty("rating", rating);
-        if (ratingCount != null) json.addProperty("rating_count", ratingCount);
-        if (synopsis != null) json.addProperty("synopsis", synopsis);
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        if (id != null) json.put("id", id);
+        if (title != null) json.put("title", title);
+        if (director != null) json.put("director", director);
+        if (year != null) json.put("year", year);
+        if (rating != null) json.put("rating", rating);
+        if (ratingCount != null) json.put("rating_count", ratingCount);
+        if (synopsis != null) json.put("synopsis", synopsis);
         if (genre != null) {
-            JsonArray genreArray = new JsonArray();
+            JSONArray genreArray = new JSONArray();
             for (String g : genre) {
-                if (g != null) genreArray.add(g);
+                if (g != null) genreArray.put(g);
             }
-            if (genreArray.size() > 0) json.add("genre", genreArray);
+            if (genreArray.length() > 0) json.put("genre", genreArray);
         }
         return json;
     }
 
-    public static Movie fromJson(JsonObject json) {
-        Integer id = Optional.ofNullable(json.get("id"))
-            .map(e -> e.getAsInt()).orElse(null);
-        String title = Optional.ofNullable(json.get("title"))
-            .map(e -> e.getAsString()).orElse(null);
-        String director = Optional.ofNullable(json.get("director"))
-            .map(e -> e.getAsString()).orElse(null);
-        Integer year = Optional.ofNullable(json.get("year"))
-            .map(e -> e.getAsInt()).orElse(null);
-        Float rating = Optional.ofNullable(json.get("rating"))
-            .map(e -> e.getAsFloat()).orElse(null);
-        Integer ratingCount = Optional.ofNullable(json.get("rating_count"))
-            .map(e -> e.getAsInt()).orElse(null);
-        String synopsis = Optional.ofNullable(json.get("synopsis"))
-            .map(e -> e.getAsString()).orElse(null);
-        String[] genre = Optional.ofNullable(json.getAsJsonArray("genre"))
-            .map(array -> {
-                String[] g = new String[array.size()];
-                for (int i = 0; i < array.size(); i++) g[i] = array.get(i).getAsString();
-                return g;
-            }).orElse(null);
-
+    public static Movie fromJson(JSONObject json) {
+        Integer id = json.has("id") ? json.getInt("id") : null;
+        String title = json.has("title") ? json.getString("title") : null;
+        String director = json.has("director") ? json.getString("director") : null;
+        Integer year = json.has("year") ? json.getInt("year") : null;
+        Float rating = json.has("rating") ? (float) json.getDouble("rating") : null;
+        Integer ratingCount = json.has("rating_count") ? json.getInt("rating_count") : null;
+        String synopsis = json.has("synopsis") ? json.getString("synopsis") : null;
+        String[] genre = null;
+        if (json.has("genre")) {
+            JSONArray arr = json.getJSONArray("genre");
+            genre = new String[arr.length()];
+            for (int i = 0; i < arr.length(); i++) genre[i] = arr.getString(i);
+        }
         return new Movie(id, title, director, genre, year, rating, ratingCount, synopsis);
     }
 }

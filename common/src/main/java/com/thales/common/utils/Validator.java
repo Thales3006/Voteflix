@@ -1,7 +1,7 @@
 package com.thales.common.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import com.thales.common.model.*;
 import com.thales.common.model.Request.*;
 import com.thales.common.model.Response.*;
@@ -13,7 +13,6 @@ import java.util.Map;
 public class Validator {
 
     private static Validator instance;
-    private static final Gson gson = new Gson();
 
     private Map<Operation, JsonSchema> requestSchemas;
     private Map<ResponseKind, JsonSchema> responseSchemas;
@@ -55,8 +54,8 @@ public class Validator {
             throw new StatusException(ErrorStatus.BAD_REQUEST, "Malformed request");
         }
 
-        JsonObject obj = gson.fromJson(json, JsonObject.class);
-        String code = obj.get("operation").getAsString();
+        JSONObject obj = new JSONObject(json);
+        String code = obj.getString("operation");
         Operation op = Operation.fromCode(code);
 
         if (op == Operation.UNKNOWN) {
@@ -84,12 +83,12 @@ public class Validator {
             throw new StatusException(ErrorStatus.INTERNAL_SERVER_ERROR, "Malformed response");
         }
 
-        JsonObject obj = gson.fromJson(json, JsonObject.class);
-        String statusCode = obj.get("status").getAsString();
+        JSONObject obj = new JSONObject(json);
+        String statusCode = obj.getString("status");
 
         if (!statusCode.startsWith("2")) {
             ErrorStatus status = ErrorStatus.fromCode(statusCode);
-            String message = obj.has("message") ? obj.get("message").getAsString() : status.getMessage();
+            String message = obj.has("message") ? obj.getString("message") : status.getMessage();
             throw new StatusException(status, message);
         }
 
@@ -103,123 +102,126 @@ public class Validator {
         return deserializeResponse(kind, obj);
     }
 
-    private Request deserializeRequest(Operation op, JsonObject obj) {
+    private Request deserializeRequest(Operation op, JSONObject obj) {
         return switch (op) {
             case LOGIN -> new LoginRequest(
-                obj.get("username").getAsString(),
-                obj.get("password").getAsString()
+                obj.getString("username"),
+                obj.getString("password")
             );
-            case LOGOUT -> new LogoutRequest(obj.get("token").getAsString());
+            case LOGOUT -> new LogoutRequest(obj.getString("token"));
 
             case CREATE_USER -> {
-                JsonObject user = obj.get("user").getAsJsonObject();
+                JSONObject user = obj.getJSONObject("user");
                 yield new CreateUserRequest(new User(
-                    user.get("username").getAsString(),
-                    user.get("password").getAsString()
+                    user.getString("username"),
+                    user.getString("password")
                 ));
             }
-            case GET_USER -> new GetUserRequest(obj.get("token").getAsString());
+            case GET_USER -> new GetUserRequest(obj.getString("token"));
             case LIST_USERS -> new ListUsersRequest(
-                obj.get("token").getAsString(),
-                obj.has("filter") ? parseUserFilter(obj.get("filter").getAsJsonObject()) : null
+                obj.getString("token"),
+                obj.has("filter") ? parseUserFilter(obj.getJSONObject("filter")) : null
             );
             case UPDATE_USER -> {
-                JsonObject user = obj.get("user").getAsJsonObject();
+                JSONObject user = obj.getJSONObject("user");
                 yield new UpdateUserRequest(
-                    obj.get("token").getAsString(),
-                    new User(user.get("id").getAsInt(), null, user.get("password").getAsString())
+                    obj.getString("token"),
+                    new User(user.getInt("id"), null, user.getString("password"))
                 );
             }
             case DELETE_USER -> new DeleteUserRequest(
-                obj.get("token").getAsString(),
-                obj.get("id").getAsInt()
+                obj.getString("token"),
+                obj.getInt("id")
             );
 
             case CREATE_MOVIE -> new CreateMovieRequest(
-                obj.get("token").getAsString(),
-                Movie.fromJson(obj.get("movie").getAsJsonObject())
+                obj.getString("token"),
+                Movie.fromJson(obj.getJSONObject("movie"))
             );
             case LIST_MOVIES -> new ListMoviesRequest(
-                obj.get("token").getAsString(),
-                obj.has("filter") ? parseMovieFilter(obj.get("filter").getAsJsonObject()) : null
+                obj.getString("token"),
+                obj.has("filter") ? parseMovieFilter(obj.getJSONObject("filter")) : null
             );
             case UPDATE_MOVIE -> new UpdateMovieRequest(
-                obj.get("token").getAsString(),
-                Movie.fromJson(obj.get("movie").getAsJsonObject())
+                obj.getString("token"),
+                Movie.fromJson(obj.getJSONObject("movie"))
             );
             case DELETE_MOVIE -> new DeleteMovieRequest(
-                obj.get("token").getAsString(),
-                obj.get("id").getAsInt()
+                obj.getString("token"),
+                obj.getInt("id")
             );
 
             case CREATE_REVIEW -> new CreateReviewRequest(
-                obj.get("token").getAsString(),
-                Review.fromJson(obj.get("review").getAsJsonObject())
+                obj.getString("token"),
+                Review.fromJson(obj.getJSONObject("review"))
             );
             case LIST_REVIEWS -> new ListReviewsRequest(
-                obj.get("token").getAsString(),
-                obj.has("filter") ? parseReviewFilter(obj.get("filter").getAsJsonObject()) : null
+                obj.getString("token"),
+                obj.has("filter") ? parseReviewFilter(obj.getJSONObject("filter")) : null
             );
             case UPDATE_REVIEW -> new UpdateReviewRequest(
-                obj.get("token").getAsString(),
-                Review.fromJson(obj.get("review").getAsJsonObject())
+                obj.getString("token"),
+                Review.fromJson(obj.getJSONObject("review"))
             );
             case DELETE_REVIEW -> new DeleteReviewRequest(
-                obj.get("token").getAsString(),
-                obj.get("id").getAsInt()
+                obj.getString("token"),
+                obj.getInt("id")
             );
 
             default -> throw new StatusException(ErrorStatus.BAD_REQUEST);
         };
     }
 
-    private UserFilter parseUserFilter(JsonObject f) {
-        String username = f.has("username") ? f.get("username").getAsString() : null;
+    private UserFilter parseUserFilter(JSONObject f) {
+        String username = f.has("username") ? f.getString("username") : null;
         return new UserFilter(username);
     }
 
-    private MovieFilter parseMovieFilter(JsonObject f) {
-        String genre = f.has("genre") ? f.get("genre").getAsString() : null;
-        Integer year = f.has("year") ? f.get("year").getAsInt() : null;
+    private MovieFilter parseMovieFilter(JSONObject f) {
+        String genre = f.has("genre") ? f.getString("genre") : null;
+        Integer year = f.has("year") ? f.getInt("year") : null;
         return new MovieFilter(genre, year);
     }
 
-    private ReviewFilter parseReviewFilter(JsonObject f) {
-        Integer movieId = f.has("movie_id") ? f.get("movie_id").getAsInt() : null;
-        Integer userId = f.has("user_id") ? f.get("user_id").getAsInt() : null;
+    private ReviewFilter parseReviewFilter(JSONObject f) {
+        Integer movieId = f.has("movie_id") ? f.getInt("movie_id") : null;
+        Integer userId = f.has("user_id") ? f.getInt("user_id") : null;
         return new ReviewFilter(movieId, userId);
     }
 
-    private Response deserializeResponse(ResponseKind kind, JsonObject obj) {
-        String message = obj.has("message") ? obj.get("message").getAsString() : "";
+    private Response deserializeResponse(ResponseKind kind, JSONObject obj) {
+        String message = obj.has("message") ? obj.getString("message") : "";
         return switch (kind) {
             case OK -> new OkResponse(message);
             case CREATED -> new CreatedResponse(message);
             case LOGIN -> new LoginResponse(
                 message,
-                obj.get("token").getAsString(),
-                obj.get("id").getAsInt()
+                obj.getString("token"),
+                obj.getInt("id")
             );
             case MOVIE_LIST -> {
                 var movies = new ArrayList<Movie>();
-                for (var el : obj.getAsJsonArray("movies")) {
-                    movies.add(Movie.fromJson(el.getAsJsonObject()));
+                JSONArray arr = obj.getJSONArray("movies");
+                for (int i = 0; i < arr.length(); i++) {
+                    movies.add(Movie.fromJson(arr.getJSONObject(i)));
                 }
                 yield new MovieListResponse(message, movies);
             }
             case REVIEW_LIST -> {
                 var reviews = new ArrayList<Review>();
-                for (var el : obj.getAsJsonArray("reviews")) {
-                    reviews.add(Review.fromJson(el.getAsJsonObject()));
+                JSONArray arr = obj.getJSONArray("reviews");
+                for (int i = 0; i < arr.length(); i++) {
+                    reviews.add(Review.fromJson(arr.getJSONObject(i)));
                 }
                 yield new ReviewListResponse(message, reviews);
             }
-            case USER_INFO -> new UserInfoResponse(message, obj.get("username").getAsString());
+            case USER_INFO -> new UserInfoResponse(message, obj.getString("username"));
             case USER_LIST -> {
                 var users = new ArrayList<User>();
-                for (var el : obj.getAsJsonArray("users")) {
-                    JsonObject u = el.getAsJsonObject();
-                    users.add(new User(u.get("id").getAsInt(), u.get("username").getAsString()));
+                JSONArray arr = obj.getJSONArray("users");
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject u = arr.getJSONObject(i);
+                    users.add(new User(u.getInt("id"), u.getString("username")));
                 }
                 yield new UserListResponse(message, users);
             }

@@ -1,64 +1,68 @@
 package com.thales.common.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import com.thales.common.model.*;
 import com.thales.common.model.Response.*;
 
 public class ResponseBuilder {
 
-    private static final Gson gson = new Gson();
-
     public String serialize(Response response) {
-        JsonObject json = new JsonObject();
+        JSONObject json = new JSONObject();
         switch (response) {
             case OkResponse r -> {
-                json.addProperty("status", ErrorStatus.OK.getCode());
-                json.addProperty("message", r.message());
+                json.put("status", ErrorStatus.OK.getCode());
+                json.put("message", r.message());
             }
             case CreatedResponse r -> {
-                json.addProperty("status", ErrorStatus.CREATED.getCode());
-                json.addProperty("message", r.message());
+                json.put("status", ErrorStatus.CREATED.getCode());
+                json.put("message", r.message());
             }
             case LoginResponse r -> {
-                json.addProperty("status", ErrorStatus.OK.getCode());
-                json.addProperty("message", r.message());
-                json.addProperty("token", r.token());
-                json.addProperty("id", r.id());
+                json.put("status", ErrorStatus.OK.getCode());
+                json.put("message", r.message());
+                json.put("token", r.token());
+                json.put("id", r.id());
             }
             case MovieListResponse r -> {
-                json.addProperty("status", ErrorStatus.OK.getCode());
-                json.addProperty("message", r.message());
-                json.add("movies", gson.toJsonTree(r.movies().stream().map(Movie::toJson).toList()));
+                json.put("status", ErrorStatus.OK.getCode());
+                json.put("message", r.message());
+                JSONArray movies = new JSONArray();
+                r.movies().stream().map(Movie::toJson).forEach(movies::put);
+                json.put("movies", movies);
             }
             case ReviewListResponse r -> {
-                json.addProperty("status", ErrorStatus.OK.getCode());
-                json.addProperty("message", r.message());
-                json.add("reviews", gson.toJsonTree(r.reviews().stream().map(Review::toJson).toList()));
+                json.put("status", ErrorStatus.OK.getCode());
+                json.put("message", r.message());
+                JSONArray reviews = new JSONArray();
+                r.reviews().stream().map(Review::toJson).forEach(reviews::put);
+                json.put("reviews", reviews);
             }
             case UserInfoResponse r -> {
-                json.addProperty("status", ErrorStatus.OK.getCode());
-                json.addProperty("message", r.message());
-                json.addProperty("username", r.username());
+                json.put("status", ErrorStatus.OK.getCode());
+                json.put("message", r.message());
+                json.put("username", r.username());
             }
             case UserListResponse r -> {
-                json.addProperty("status", ErrorStatus.OK.getCode());
-                json.addProperty("message", r.message());
-                json.add("users", gson.toJsonTree(r.users().stream().map(u -> {
-                    JsonObject o = new JsonObject();
-                    o.addProperty("id", u.getId());
-                    o.addProperty("username", u.getUsername());
+                json.put("status", ErrorStatus.OK.getCode());
+                json.put("message", r.message());
+                JSONArray users = new JSONArray();
+                r.users().stream().map(u -> {
+                    JSONObject o = new JSONObject();
+                    o.put("id", u.getId());
+                    o.put("username", u.getUsername());
                     return o;
-                }).toList()));
+                }).forEach(users::put);
+                json.put("users", users);
             }
         }
         return json.toString();
     }
 
     public String serializeError(StatusException e) {
-        JsonObject json = new JsonObject();
-        json.addProperty("status", e.getStatus().getCode());
-        json.addProperty("message", e.getUserMessage());
+        JSONObject json = new JSONObject();
+        json.put("status", e.getStatus().getCode());
+        json.put("message", e.getUserMessage());
         return json.toString();
     }
 }
