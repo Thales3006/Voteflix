@@ -6,6 +6,7 @@ import com.thales.client.service.ClientService;
 import com.thales.common.model.ErrorStatus;
 import com.thales.common.model.StatusException;
 
+import com.thales.client.util.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -75,6 +76,8 @@ public abstract class SceneController {
                     switchPage(event, "/login_page.fxml");
                 } catch (Exception ee) { System.err.println(ee.toString()); }
             }
+        } catch (ValidationException e) {
+            showPopup("Validation Error", e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println(e);

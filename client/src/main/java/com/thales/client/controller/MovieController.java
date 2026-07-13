@@ -1,7 +1,9 @@
 package com.thales.client.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
+import com.thales.client.util.Validate;
 import com.thales.common.model.Movie;
 import com.thales.common.model.Review;
 
@@ -65,6 +67,9 @@ public class MovieController extends SceneController {
 
         reviewScoreField.setTextFormatter(new TextFormatter<>(change ->
             change.getControlNewText().matches("[1-5]?") ? change : null));
+
+        yearField.setTextFormatter(new TextFormatter<>(change ->
+            change.getControlNewText().matches("\\d{0,4}") ? change : null));
 
         currentMovie.addListener((_, _, movie) -> {
             if (movie != null) {
@@ -186,21 +191,24 @@ public class MovieController extends SceneController {
         movieOverlay.getStyleClass().add("open");
     }
 
+    private Movie buildMovieFromForm(Integer id) {
+        String title = titleField.getText().trim();
+        String director = directorField.getText().trim();
+        String synopsis = synopsisField.getText().trim();
+        String[] genres = Arrays.stream(genresField.getText().trim().split(",\\s*"))
+            .map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+        Validate.length(title, "Title", 1, 100);
+        Validate.length(director, "Director", 1, 100);
+        Validate.intRange(yearField.getText(), "Year", 1000, 9999);
+        Validate.genre(genres);
+        Validate.notEmpty(synopsis, "Synopsis");
+        Validate.maxLength(synopsis, "Synopsis", 500);
+        return new Movie(id, title, director, genres, Integer.parseInt(yearField.getText()), null, null, synopsis);
+    }
+
     @FXML private void HandleCreateMovieButton(ActionEvent event) {
         handle(event, () -> {
-            Movie movie = new Movie(
-                null,
-                titleField.getText().trim(),
-                directorField.getText().trim(),
-                java.util.Arrays.stream(genresField.getText().trim().split(",\\s*"))
-                    .map(String::trim)
-                    .toArray(String[]::new),
-                Integer.parseInt(yearField.getText()),
-                null,
-                null,
-                synopsisField.getText().trim()
-            );
-            clientService.requestCreateMovie(movie);
+            clientService.requestCreateMovie(buildMovieFromForm(null));
             loadMovies();
             closeOverlay();
         });
@@ -208,22 +216,8 @@ public class MovieController extends SceneController {
 
     @FXML private void HandleUpdateMovieButton(ActionEvent event) {
         handle(event, () -> {
-            if (currentMovie.get() == null) {
-                throw new Exception("You have to select a movie");
-            }
-            Movie movie = new Movie(
-                currentMovie.get().getId(),
-                titleField.getText(),
-                directorField.getText(),
-                java.util.Arrays.stream(genresField.getText().trim().split(",\\s*"))
-                    .map(String::trim)
-                    .toArray(String[]::new),
-                Integer.parseInt(yearField.getText()),
-                null,
-                null,
-                synopsisField.getText()
-            );
-            clientService.requestUpdateMovie(movie);
+            if (currentMovie.get() == null) throw new Exception("You have to select a movie");
+            clientService.requestUpdateMovie(buildMovieFromForm(currentMovie.get().getId()));
             loadMovies();
         });
     }
@@ -258,18 +252,16 @@ public class MovieController extends SceneController {
 
     @FXML private void HandleCreateReviewButton(ActionEvent event) {
         handle(event, () -> {
-            if (currentMovie.get() == null) {
-                throw new Exception("You have to select a movie");
-            }
+            if (currentMovie.get() == null) throw new Exception("You have to select a movie");
+            String title = reviewTitleField.getText();
+            String description = reviewDescriptionField.getText();
+            Validate.length(title, "Review title", 1, 100);
+            Validate.maxLength(description, "Review description", 500);
+            Validate.intRange(reviewScoreField.getText(), "Score", 1, 5);
             Review review = new Review(
-                null,
-                currentMovie.get().getId(),
-                null,
-                Integer.valueOf(reviewScoreField.getText()),
-                reviewTitleField.getText(),
-                reviewDescriptionField.getText(),
-                null,
-                null
+                null, currentMovie.get().getId(), null,
+                Integer.parseInt(reviewScoreField.getText()),
+                title, description, null, null
             );
             clientService.requestCreateReview(review);
             loadReviews();
