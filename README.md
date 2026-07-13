@@ -2,7 +2,28 @@
 
 A desktop movie review platform built on a custom client-server architecture over raw TCP.
 
-<!-- Screenshots -->
+<table>
+  <tr>
+    <td align="center">
+      <strong>Login Screen</strong><br/><br/>
+      <img src="https://github.com/user-attachments/assets/823a6787-7291-4809-976e-948910168c95" width="420" alt="login-screen"/>
+    </td>
+    <td align="center">
+      <strong>Movie Edit Screen (Admin)</strong><br/><br/>
+      <img src="https://github.com/user-attachments/assets/5edbcd8a-3830-4201-a7cc-22dc877043a4" width="420" alt="admin-movie-screen"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <strong>Movie Screen</strong><br/><br/>
+      <img src="https://github.com/user-attachments/assets/c55f8dd4-f417-42cb-98d5-bc8ec4eaf464" width="420" alt="movie-screen"/>
+    </td>
+    <td align="center">
+      <strong>Users Screen (Admin)</strong><br/><br/>
+      <img src="https://github.com/user-attachments/assets/81529840-e798-4813-a4d4-d55816726059" width="420" alt="admin-user-screen"/>
+    </td>
+  </tr>
+</table>
 
 
 ## About
