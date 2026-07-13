@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextField;
@@ -31,19 +32,22 @@ public class MovieController extends SceneController {
     @FXML private Label ratingLabel;
     @FXML private Label reviewAmountLabel;
     @FXML private TextField reviewTitleField;
-    @FXML private TextField reviewDescriptionField;
+    @FXML private TextArea reviewDescriptionField;
     @FXML private TextField reviewScoreField;
     @FXML private Label idLabel;
     @FXML private Button createMovieButton;
     @FXML private Button updateMovieButton;
     @FXML private Button deleteMovieButton;
     @FXML private Button createReviewButton;
+    @FXML private Button newMovieButton;
     @FXML private Button refreshMovieButton;
     @FXML private VBox movieInfoPane;
     @FXML private VBox movieOverlay;
     @FXML private HBox movieButtonHbox;
     @FXML private TilePane movieTilePane;
     @FXML private VBox reviewVbox;
+    @FXML private VBox reviewPanel;
+    @FXML private Separator reviewPanelSeparator;
     @FXML private Button loadReviewButton;
     @FXML private GridPane movieFormPane;
     @FXML private VBox movieDisplayPane;
@@ -82,6 +86,15 @@ public class MovieController extends SceneController {
                     displaySynopsisLabel.setText(movie.getSynopsis() != null ? movie.getSynopsis() : "");
                 }
 
+                updateMovieButton.setVisible(true);
+                updateMovieButton.setManaged(true);
+                deleteMovieButton.setVisible(true);
+                deleteMovieButton.setManaged(true);
+                reviewPanel.setVisible(true);
+                reviewPanel.setManaged(true);
+                reviewPanelSeparator.setVisible(true);
+                reviewPanelSeparator.setManaged(true);
+                createMovieButton.setText("Save");
                 movieOverlay.setVisible(true);
                 movieOverlay.setManaged(true);
                 movieOverlay.getStyleClass().add("open");
@@ -92,6 +105,8 @@ public class MovieController extends SceneController {
         if (clientService.isAdmin()) {
             movieButtonHbox.setVisible(true);
             movieButtonHbox.setManaged(true);
+            newMovieButton.setVisible(true);
+            newMovieButton.setManaged(true);
         } else {
             movieFormPane.setVisible(false);
             movieFormPane.setManaged(false);
@@ -146,6 +161,31 @@ public class MovieController extends SceneController {
         }
     }
 
+    @FXML private void HandleNewMovieButton(ActionEvent event) {
+        currentMovie.set(null);
+        titleField.clear();
+        directorField.clear();
+        yearField.clear();
+        genresField.clear();
+        synopsisField.clear();
+        ratingLabel.setText("—");
+        reviewAmountLabel.setText("0");
+        idLabel.setText("");
+        reviewVbox.getChildren().clear();
+        updateMovieButton.setVisible(false);
+        updateMovieButton.setManaged(false);
+        deleteMovieButton.setVisible(false);
+        deleteMovieButton.setManaged(false);
+        reviewPanel.setVisible(false);
+        reviewPanel.setManaged(false);
+        reviewPanelSeparator.setVisible(false);
+        reviewPanelSeparator.setManaged(false);
+        createMovieButton.setText("Create");
+        movieOverlay.setVisible(true);
+        movieOverlay.setManaged(true);
+        movieOverlay.getStyleClass().add("open");
+    }
+
     @FXML private void HandleCreateMovieButton(ActionEvent event) {
         handle(event, () -> {
             Movie movie = new Movie(
@@ -162,6 +202,7 @@ public class MovieController extends SceneController {
             );
             clientService.requestCreateMovie(movie);
             loadMovies();
+            closeOverlay();
         });
     }
 

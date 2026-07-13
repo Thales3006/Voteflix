@@ -25,6 +25,10 @@
          <children>
             <Label styleClass="page-title" text="Movies" />
             <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="newMovieButton" mnemonicParsing="false" onAction="#HandleNewMovieButton"
+                managed="false" visible="false"
+                style="-fx-background-color: transparent; -fx-text-fill: #6b5040; -fx-border-color: #3a2e26; -fx-border-width: 1; -fx-effect: none; -fx-font-weight: normal;"
+                text="+ New Movie" />
             <Button fx:id="refreshMovieButton" mnemonicParsing="false" onAction="#HandleRefreshMovieButton"
                 style="-fx-background-color: transparent; -fx-text-fill: #6b5040; -fx-border-color: #3a2e26; -fx-border-width: 1; -fx-effect: none; -fx-font-weight: normal;"
                 text="↺ Refresh" />
@@ -56,7 +60,7 @@
             </padding>
             <children>
 
-               <VBox fx:id="movieInfoPane" styleClass="form-card" maxWidth="820.0" prefHeight="500.0" maxHeight="540.0" spacing="0.0" style="-fx-padding: 0; -fx-border-width: 0;">
+               <VBox fx:id="movieInfoPane" styleClass="form-card" maxWidth="940.0" prefHeight="520.0" maxHeight="560.0" spacing="0.0" style="-fx-padding: 0; -fx-border-width: 0;">
                   <children>
 
                      <!-- Header: Region spacer pushes ✕ to the right -->
@@ -148,10 +152,10 @@
                            </children>
                         </VBox>
 
-                        <Separator orientation="VERTICAL" />
+                        <Separator fx:id="reviewPanelSeparator" orientation="VERTICAL" />
 
                         <!-- Right: new review form + scrollable reviews -->
-                        <VBox prefWidth="300.0" spacing="6.0">
+                        <VBox fx:id="reviewPanel" prefWidth="400.0" spacing="6.0">
                            <padding>
                               <Insets bottom="12.0" left="12.0" right="16.0" top="12.0" />
                            </padding>
@@ -166,7 +170,7 @@
                                  </columnConstraints>
                                  <rowConstraints>
                                     <RowConstraints prefHeight="26.0" />
-                                    <RowConstraints prefHeight="44.0" />
+                                    <RowConstraints prefHeight="80.0" />
                                     <RowConstraints prefHeight="26.0" />
                                  </rowConstraints>
                                  <children>
@@ -174,7 +178,7 @@
                                     <Label styleClass="detail-label" text="Description" GridPane.rowIndex="1" />
                                     <Label styleClass="detail-label" text="Score" GridPane.rowIndex="2" />
                                     <TextField fx:id="reviewTitleField" promptText="Title" GridPane.columnIndex="1" />
-                                    <TextField fx:id="reviewDescriptionField" alignment="TOP_LEFT" prefHeight="40.0" promptText="Description" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <TextArea fx:id="reviewDescriptionField" prefHeight="76.0" promptText="Description" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                     <TextField fx:id="reviewScoreField" promptText="1 – 5" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                  </children>
                               </GridPane>
