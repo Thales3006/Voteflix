@@ -77,7 +77,6 @@ public class ServerListener {
                 ClientHandler socket = new ClientHandler(serverService, connection);
                 socket.start();
 
-                serverService.log("A client has connected");
             } catch (Exception e) {
                 serverService.log("Server Offline!");
                 return;
