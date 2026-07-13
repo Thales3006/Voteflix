@@ -2,6 +2,7 @@ package com.thales.client.controller;
 
 import java.util.List;
 
+import com.thales.client.util.Validate;
 import com.thales.common.model.User;
 
 import javafx.event.ActionEvent;
@@ -10,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -26,6 +28,8 @@ public class UserController extends SceneController {
     private User selectedUser = null;
 
     @FXML protected void initialize() {
+        passwordField.setTextFormatter(new TextFormatter<>(change ->
+            change.getControlNewText().matches("[A-Za-z0-9_]{0,20}") ? change : null));
 
         if (clientService.isAdmin()) {
             usersVbox.setVisible(true);
@@ -83,6 +87,8 @@ public class UserController extends SceneController {
                 showPopup("Error", "You should select someone to update");
                 return;
             }
+            Validate.length(passwordField.getText(), "Password", 3, 20);
+            Validate.alphanumeric(passwordField.getText(), "Password");
             String request = clientService.getUsername().equals(selectedUser.getUsername())
                 ? clientService.requestUpdateUser(passwordField.getText())
                 : clientService.requestAdminUpdateUser(selectedUser.getId(), passwordField.getText());
