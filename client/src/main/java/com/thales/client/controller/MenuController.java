@@ -12,6 +12,10 @@ public class MenuController extends SceneController {
     @FXML Button reviewButton;
     @FXML BorderPane mainContent;
 
+    @FXML private void initialize() {
+        handle(null, () -> switchContent(mainContent, "/movies_page.fxml"));
+    }
+
     // ===================================
     //  UI interaction handlers
     // ===================================
