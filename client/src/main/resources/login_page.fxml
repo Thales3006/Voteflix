@@ -53,7 +53,6 @@
                         <HBox alignment="CENTER" spacing="12.0">
                            <children>
                               <Button fx:id="loginButton" mnemonicParsing="false" onAction="#HandleLoginButton" prefWidth="112.0" text="Sign In" />
-                              <Label styleClass="detail-label" text="or" />
                               <Button fx:id="registerButton" mnemonicParsing="false" onAction="#HandleRegisterButton" prefWidth="112.0" text="Register" />
                            </children>
                         </HBox>
