@@ -2,6 +2,7 @@ package com.thales.client.controller;
 
 import java.util.List;
 
+import com.thales.client.util.Validate;
 import com.thales.common.model.Review;
 
 import javafx.beans.property.SimpleObjectProperty;
@@ -11,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -36,6 +38,9 @@ public class ReviewController extends SceneController {
         reviewOverlay.setOnMouseClicked(e -> {
             if (e.getTarget() == reviewOverlay) HandleCloseReviewOverlay();
         });
+
+        ratingField.setTextFormatter(new TextFormatter<>(change ->
+            change.getControlNewText().matches("[1-5]?") ? change : null));
 
         currentReview.addListener((_, _, review) -> {
             if (review != null) {
@@ -115,9 +120,10 @@ public class ReviewController extends SceneController {
 
     @FXML private void HandleUpdateButton(ActionEvent event) {
         handle(event, () -> {
-            if (currentReview.get() == null) {
-                throw new Exception("You have to select a review");
-            }
+            if (currentReview.get() == null) throw new Exception("You have to select a review");
+            Validate.length(titleField.getText(), "Title", 1, 100);
+            Validate.maxLength(descriptionField.getText(), "Description", 500);
+            Validate.intRange(ratingField.getText(), "Rating", 1, 5);
             clientService.requestUpdateReview(extractReview());
             loadReviews();
         });
@@ -125,21 +131,19 @@ public class ReviewController extends SceneController {
 
     @FXML private void HandleDeleteButton(ActionEvent event) {
         handle(event, () -> {
-            if (currentReview.get() == null) {
-                throw new Exception("You have to select a review");
-            }
+            if (currentReview.get() == null) throw new Exception("You have to select a review");
             clientService.requestDeleteReview(currentReview.get().getId());
             HandleCloseReviewOverlay();
             loadReviews();
         });
     }
 
-    @FXML private Review extractReview() {
+    private Review extractReview() {
         return new Review(
             currentReview.get().getId(),
             null,
             null,
-            Integer.valueOf(ratingField.getText()),
+            Integer.parseInt(ratingField.getText()),
             titleField.getText(),
             descriptionField.getText(),
             null,

@@ -1,7 +1,9 @@
 package com.thales.client.controller;
 
+import java.util.Arrays;
 import java.util.List;
 
+import com.thales.client.util.Validate;
 import com.thales.common.model.Movie;
 import com.thales.common.model.Review;
 
@@ -11,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextField;
@@ -31,19 +34,22 @@ public class MovieController extends SceneController {
     @FXML private Label ratingLabel;
     @FXML private Label reviewAmountLabel;
     @FXML private TextField reviewTitleField;
-    @FXML private TextField reviewDescriptionField;
+    @FXML private TextArea reviewDescriptionField;
     @FXML private TextField reviewScoreField;
     @FXML private Label idLabel;
     @FXML private Button createMovieButton;
     @FXML private Button updateMovieButton;
     @FXML private Button deleteMovieButton;
     @FXML private Button createReviewButton;
+    @FXML private Button newMovieButton;
     @FXML private Button refreshMovieButton;
     @FXML private VBox movieInfoPane;
     @FXML private VBox movieOverlay;
     @FXML private HBox movieButtonHbox;
     @FXML private TilePane movieTilePane;
     @FXML private VBox reviewVbox;
+    @FXML private VBox reviewPanel;
+    @FXML private Separator reviewPanelSeparator;
     @FXML private Button loadReviewButton;
     @FXML private GridPane movieFormPane;
     @FXML private VBox movieDisplayPane;
@@ -61,6 +67,9 @@ public class MovieController extends SceneController {
 
         reviewScoreField.setTextFormatter(new TextFormatter<>(change ->
             change.getControlNewText().matches("[1-5]?") ? change : null));
+
+        yearField.setTextFormatter(new TextFormatter<>(change ->
+            change.getControlNewText().matches("\\d{0,4}") ? change : null));
 
         currentMovie.addListener((_, _, movie) -> {
             if (movie != null) {
@@ -82,6 +91,15 @@ public class MovieController extends SceneController {
                     displaySynopsisLabel.setText(movie.getSynopsis() != null ? movie.getSynopsis() : "");
                 }
 
+                updateMovieButton.setVisible(true);
+                updateMovieButton.setManaged(true);
+                deleteMovieButton.setVisible(true);
+                deleteMovieButton.setManaged(true);
+                reviewPanel.setVisible(true);
+                reviewPanel.setManaged(true);
+                reviewPanelSeparator.setVisible(true);
+                reviewPanelSeparator.setManaged(true);
+                createMovieButton.setText("Save");
                 movieOverlay.setVisible(true);
                 movieOverlay.setManaged(true);
                 movieOverlay.getStyleClass().add("open");
@@ -92,6 +110,8 @@ public class MovieController extends SceneController {
         if (clientService.isAdmin()) {
             movieButtonHbox.setVisible(true);
             movieButtonHbox.setManaged(true);
+            newMovieButton.setVisible(true);
+            newMovieButton.setManaged(true);
         } else {
             movieFormPane.setVisible(false);
             movieFormPane.setManaged(false);
@@ -146,43 +166,58 @@ public class MovieController extends SceneController {
         }
     }
 
+    @FXML private void HandleNewMovieButton(ActionEvent event) {
+        currentMovie.set(null);
+        titleField.clear();
+        directorField.clear();
+        yearField.clear();
+        genresField.clear();
+        synopsisField.clear();
+        ratingLabel.setText("—");
+        reviewAmountLabel.setText("0");
+        idLabel.setText("");
+        reviewVbox.getChildren().clear();
+        updateMovieButton.setVisible(false);
+        updateMovieButton.setManaged(false);
+        deleteMovieButton.setVisible(false);
+        deleteMovieButton.setManaged(false);
+        reviewPanel.setVisible(false);
+        reviewPanel.setManaged(false);
+        reviewPanelSeparator.setVisible(false);
+        reviewPanelSeparator.setManaged(false);
+        createMovieButton.setText("Create");
+        movieOverlay.setVisible(true);
+        movieOverlay.setManaged(true);
+        movieOverlay.getStyleClass().add("open");
+    }
+
+    private Movie buildMovieFromForm(Integer id) {
+        String title = titleField.getText().trim();
+        String director = directorField.getText().trim();
+        String synopsis = synopsisField.getText().trim();
+        String[] genres = Arrays.stream(genresField.getText().trim().split(",\\s*"))
+            .map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+        Validate.length(title, "Title", 1, 100);
+        Validate.length(director, "Director", 1, 100);
+        Validate.intRange(yearField.getText(), "Year", 1000, 9999);
+        Validate.genre(genres);
+        Validate.notEmpty(synopsis, "Synopsis");
+        Validate.maxLength(synopsis, "Synopsis", 500);
+        return new Movie(id, title, director, genres, Integer.parseInt(yearField.getText()), null, null, synopsis);
+    }
+
     @FXML private void HandleCreateMovieButton(ActionEvent event) {
         handle(event, () -> {
-            Movie movie = new Movie(
-                null,
-                titleField.getText().trim(),
-                directorField.getText().trim(),
-                java.util.Arrays.stream(genresField.getText().trim().split(",\\s*"))
-                    .map(String::trim)
-                    .toArray(String[]::new),
-                Integer.parseInt(yearField.getText()),
-                null,
-                null,
-                synopsisField.getText().trim()
-            );
-            clientService.requestCreateMovie(movie);
+            clientService.requestCreateMovie(buildMovieFromForm(null));
             loadMovies();
+            closeOverlay();
         });
     }
 
     @FXML private void HandleUpdateMovieButton(ActionEvent event) {
         handle(event, () -> {
-            if (currentMovie.get() == null) {
-                throw new Exception("You have to select a movie");
-            }
-            Movie movie = new Movie(
-                currentMovie.get().getId(),
-                titleField.getText(),
-                directorField.getText(),
-                java.util.Arrays.stream(genresField.getText().trim().split(",\\s*"))
-                    .map(String::trim)
-                    .toArray(String[]::new),
-                Integer.parseInt(yearField.getText()),
-                null,
-                null,
-                synopsisField.getText()
-            );
-            clientService.requestUpdateMovie(movie);
+            if (currentMovie.get() == null) throw new Exception("You have to select a movie");
+            clientService.requestUpdateMovie(buildMovieFromForm(currentMovie.get().getId()));
             loadMovies();
         });
     }
@@ -217,18 +252,16 @@ public class MovieController extends SceneController {
 
     @FXML private void HandleCreateReviewButton(ActionEvent event) {
         handle(event, () -> {
-            if (currentMovie.get() == null) {
-                throw new Exception("You have to select a movie");
-            }
+            if (currentMovie.get() == null) throw new Exception("You have to select a movie");
+            String title = reviewTitleField.getText();
+            String description = reviewDescriptionField.getText();
+            Validate.length(title, "Review title", 1, 100);
+            Validate.maxLength(description, "Review description", 500);
+            Validate.intRange(reviewScoreField.getText(), "Score", 1, 5);
             Review review = new Review(
-                null,
-                currentMovie.get().getId(),
-                null,
-                Integer.valueOf(reviewScoreField.getText()),
-                reviewTitleField.getText(),
-                reviewDescriptionField.getText(),
-                null,
-                null
+                null, currentMovie.get().getId(), null,
+                Integer.parseInt(reviewScoreField.getText()),
+                title, description, null, null
             );
             clientService.requestCreateReview(review);
             loadReviews();

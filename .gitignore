@@ -22,6 +22,7 @@ bin/
 
 # Log file
 *.log
+log.txt
 
 # BlueJ files
 *.ctxt
@@ -45,3 +46,9 @@ hs_err_pid*
 *.db
 *.sqlite
 *.sqlite3
+
+# Runtime data
+server/data/
+
+# Environment config
+server/.env

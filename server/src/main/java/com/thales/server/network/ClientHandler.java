@@ -5,6 +5,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import org.json.JSONObject;
+
 import com.thales.server.service.ServerService;
 
 import lombok.Getter;
@@ -41,7 +43,8 @@ public class ClientHandler extends Thread {
     }
 
     private void receiveMessage(String message){
-        serverService.log("Received: " + message);
+        serverService.log("Received:\n" + prettyJson(message));
+        serverService.logMessage("Received", message);
         serverService.handleMessage(message, this);
     }
 
@@ -49,15 +52,19 @@ public class ClientHandler extends Thread {
         if(out == null){
             return;
         }
-        serverService.log("Send: " + message);
+        serverService.log("Send:\n" + prettyJson(message));
+        serverService.logMessage("Send", message);
         out.println(message);
+    }
+
+    private String prettyJson(String json) {
+        try { return new JSONObject(json).toString(2); } catch (Exception e) { return json; }
     }
 
     public void close() {
         try {
             if (connection != null && !connection.isClosed()){
                 connection.close();
-                serverService.log("A client has disconnected");
             }
             if (in != null){
                 in.close();

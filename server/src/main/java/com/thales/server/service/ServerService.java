@@ -22,15 +22,25 @@ public class ServerService {
     private final UserService userService;
     private final MovieService movieService;
     private final ReviewService reviewService;
+    private java.io.BufferedWriter logWriter;
 
     public ServerService() {
         String basedir = System.getProperty("server.basedir", ".");
-        SQLiteDatabase database = new SQLiteDatabase(basedir + "/data/voteflix.db");
+        java.util.Map<String, String> env = loadDotEnv(basedir);
+
+        String dbPath   = resolvePath(basedir, env.getOrDefault("DB_PATH",  "./data/voteflix.db"));
+        String logPath  = resolvePath(basedir, env.getOrDefault("LOG_PATH", "./data/log.txt"));
+        String secretKey = env.getOrDefault("JWT_SECRET", "256-bit-secret-key-placeholder");
+
+        new java.io.File(dbPath).getParentFile().mkdirs();
+        java.io.File logFile = new java.io.File(logPath);
+        if (logFile.getParentFile() != null) logFile.getParentFile().mkdirs();
+
+        SQLiteDatabase database = new SQLiteDatabase(dbPath);
         this.userRepo = new UserRepository(database);
         this.movieRepo = new MovieRepository(database);
         this.reviewRepo = new ReviewRepository(database);
 
-        String secretKey = System.getenv().getOrDefault("JWT_SECRET", "256-bit-secret-key-placeholder");
         this.jwtService = new JwtService(secretKey);
         this.userService = new UserService(userRepo, jwtService);
         this.movieService = new MovieService(movieRepo, userRepo, jwtService);
@@ -41,6 +51,48 @@ public class ServerService {
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
+        }
+
+        try {
+            logWriter = new java.io.BufferedWriter(new java.io.FileWriter(logPath, true));
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static java.util.Map<String, String> loadDotEnv(String basedir) {
+        java.util.Map<String, String> env = new java.util.HashMap<>();
+        java.io.File file = new java.io.File(basedir + "/.env");
+        if (!file.exists()) return env;
+        try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#")) continue;
+                int idx = line.indexOf('=');
+                if (idx > 0) env.put(line.substring(0, idx).trim(), line.substring(idx + 1).trim());
+            }
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+        return env;
+    }
+
+    private static String resolvePath(String basedir, String path) {
+        java.nio.file.Path p = java.nio.file.Paths.get(path);
+        if (p.isAbsolute()) return path;
+        return java.nio.file.Paths.get(basedir, path).normalize().toString();
+    }
+
+    public void logMessage(String direction, String rawJson) {
+        if (logWriter == null) return;
+        String timestamp = java.time.LocalDateTime.now().withNano(0).toString().replace("T", " ");
+        try {
+            logWriter.write("[" + timestamp + "] " + direction + ": " + rawJson);
+            logWriter.newLine();
+            logWriter.flush();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
         }
     }
 

@@ -2,7 +2,7 @@ package com.thales.common.model;
 
 import java.time.LocalDate;
 
-import com.google.gson.JsonObject;
+import org.json.JSONObject;
 
 import lombok.Data;
 
@@ -29,33 +29,29 @@ public class Review {
         this.date = date;
     }
 
-    public JsonObject toJson() {
-        JsonObject json = new JsonObject();
-        if (id != null) json.addProperty("id", id);
-        if (movieId != null) json.addProperty("movie_id", movieId);
-        if (username != null) json.addProperty("username", username);
-        if (rating != null) json.addProperty("rating", rating);
-        if (title != null) json.addProperty("title", title);
-        if (description != null) json.addProperty("description", description);
-        if (edited != null) json.addProperty("edited", edited);
-        if (date != null) json.addProperty("date", date.toString());
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        if (id != null) json.put("id", id);
+        if (movieId != null) json.put("movie_id", movieId);
+        if (username != null) json.put("username", username);
+        if (rating != null) json.put("rating", rating);
+        if (title != null) json.put("title", title);
+        if (description != null) json.put("description", description);
+        if (edited != null) json.put("edited", edited);
+        if (date != null) json.put("date", date.toString());
         return json;
     }
 
-    public static Review fromJson(JsonObject json) {
-        Integer id = null, movieId = null, userId = null, rating = null;
-        String username = null, title = null, description = null;
-        Boolean edited = null;
-        LocalDate date = null;
-
-        if (json.has("id")) id = json.get("id").getAsInt();
-        if (json.has("movie_id")) movieId = json.get("movie_id").getAsInt();
-        if (json.has("username")) username = json.get("username").getAsString();
-        if (json.has("rating")) rating = json.get("rating").getAsInt();
-        if (json.has("title")) title = json.get("title").getAsString();
-        if (json.has("description")) description = json.get("description").getAsString();
-        if (json.has("edited")) edited = json.get("edited").getAsBoolean();
-        if (json.has("date")) date = LocalDate.parse(json.get("date").getAsString());
+    public static Review fromJson(JSONObject json) {
+        Integer id = json.has("id") ? json.getInt("id") : null;
+        Integer movieId = json.has("movie_id") ? json.getInt("movie_id") : null;
+        Integer userId = null;
+        String username = json.has("username") ? json.getString("username") : null;
+        Integer rating = json.has("rating") ? json.getInt("rating") : null;
+        String title = json.has("title") ? json.getString("title") : null;
+        String description = json.has("description") ? json.getString("description") : null;
+        Boolean edited = json.has("edited") ? json.getBoolean("edited") : null;
+        LocalDate date = json.has("date") ? LocalDate.parse(json.getString("date")) : null;
 
         Review review = new Review(id, movieId, userId, rating, title, description, edited, date);
         review.setUsername(username);
