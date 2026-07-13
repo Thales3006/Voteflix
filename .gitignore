@@ -45,3 +45,9 @@ hs_err_pid*
 *.db
 *.sqlite
 *.sqlite3
+
+# Runtime data
+server/data/
+
+# Environment config
+server/.env
