@@ -69,8 +69,8 @@ Each request opens a new TCP connection, sends a single JSON line, reads the res
 ```
 Client                          Server
   │── TCP connect ───────────────>│
-  │── JSON request (one line) ───>│
-  │<─ JSON response (one line) ───│
+  │── JSON request ──────────────>│
+  │<─ JSON response ──────────────│
   │── TCP close ─────────────────>│
 ```
 
