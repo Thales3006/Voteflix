@@ -1,6 +1,6 @@
 package com.thales.common.utils;
 
-import com.google.gson.JsonObject;
+import org.json.JSONObject;
 import com.thales.common.model.Request;
 import com.thales.common.model.Request.*;
 import com.thales.common.model.MovieFilter;
@@ -10,93 +10,93 @@ import com.thales.common.model.UserFilter;
 public class RequestSerializer {
 
     public String serialize(Request request) {
-        JsonObject json = new JsonObject();
-        json.addProperty("operation", request.operation().getCode());
+        JSONObject json = new JSONObject();
+        json.put("operation", request.operation().getCode());
 
         switch (request) {
             case LoginRequest r -> {
-                json.addProperty("username", r.username());
-                json.addProperty("password", r.password());
+                json.put("username", r.username());
+                json.put("password", r.password());
             }
-            case LogoutRequest r -> json.addProperty("token", r.token());
+            case LogoutRequest r -> json.put("token", r.token());
 
             case CreateUserRequest r -> {
-                JsonObject user = new JsonObject();
-                user.addProperty("username", r.user().getUsername());
-                user.addProperty("password", r.user().getPassword());
-                json.add("user", user);
+                JSONObject user = new JSONObject();
+                user.put("username", r.user().getUsername());
+                user.put("password", r.user().getPassword());
+                json.put("user", user);
             }
-            case GetUserRequest r -> json.addProperty("token", r.token());
+            case GetUserRequest r -> json.put("token", r.token());
             case ListUsersRequest r -> {
-                json.addProperty("token", r.token());
-                if (r.filter() != null) json.add("filter", serializeUserFilter(r.filter()));
+                json.put("token", r.token());
+                if (r.filter() != null) json.put("filter", serializeUserFilter(r.filter()));
             }
             case UpdateUserRequest r -> {
-                json.addProperty("token", r.token());
-                JsonObject user = new JsonObject();
-                user.addProperty("id", r.user().getId());
-                user.addProperty("password", r.user().getPassword());
-                json.add("user", user);
+                json.put("token", r.token());
+                JSONObject user = new JSONObject();
+                user.put("id", r.user().getId());
+                user.put("password", r.user().getPassword());
+                json.put("user", user);
             }
             case DeleteUserRequest r -> {
-                json.addProperty("token", r.token());
-                json.addProperty("id", r.id());
+                json.put("token", r.token());
+                json.put("id", r.id());
             }
 
             case CreateMovieRequest r -> {
-                json.addProperty("token", r.token());
-                json.add("movie", r.movie().toJson());
+                json.put("token", r.token());
+                json.put("movie", r.movie().toJson());
             }
             case ListMoviesRequest r -> {
-                json.addProperty("token", r.token());
-                if (r.filter() != null) json.add("filter", serializeMovieFilter(r.filter()));
+                json.put("token", r.token());
+                if (r.filter() != null) json.put("filter", serializeMovieFilter(r.filter()));
             }
             case UpdateMovieRequest r -> {
-                json.addProperty("token", r.token());
-                json.add("movie", r.movie().toJson());
+                json.put("token", r.token());
+                json.put("movie", r.movie().toJson());
             }
             case DeleteMovieRequest r -> {
-                json.addProperty("token", r.token());
-                json.addProperty("id", r.id());
+                json.put("token", r.token());
+                json.put("id", r.id());
             }
 
             case CreateReviewRequest r -> {
-                json.addProperty("token", r.token());
-                json.add("review", r.review().toJson());
+                json.put("token", r.token());
+                json.put("review", r.review().toJson());
             }
             case ListReviewsRequest r -> {
-                json.addProperty("token", r.token());
-                if (r.filter() != null) json.add("filter", serializeReviewFilter(r.filter()));
+                json.put("token", r.token());
+                if (r.filter() != null) json.put("filter", serializeReviewFilter(r.filter()));
             }
             case UpdateReviewRequest r -> {
-                json.addProperty("token", r.token());
-                json.add("review", r.review().toJson());
+                json.put("token", r.token());
+                json.put("review", r.review().toJson());
             }
             case DeleteReviewRequest r -> {
-                json.addProperty("token", r.token());
-                json.addProperty("id", r.id());
+                json.put("token", r.token());
+                json.put("id", r.id());
             }
         }
         return json.toString();
     }
 
-    private JsonObject serializeUserFilter(UserFilter f) {
-        JsonObject obj = new JsonObject();
-        if (f.username() != null) obj.addProperty("username", f.username());
+    private JSONObject serializeUserFilter(UserFilter f) {
+        JSONObject obj = new JSONObject();
+        if (f.username() != null) obj.put("username", f.username());
         return obj;
     }
 
-    private JsonObject serializeMovieFilter(MovieFilter f) {
-        JsonObject obj = new JsonObject();
-        if (f.genre() != null) obj.addProperty("genre", f.genre());
-        if (f.year() != null) obj.addProperty("year", f.year());
+    private JSONObject serializeMovieFilter(MovieFilter f) {
+        JSONObject obj = new JSONObject();
+        if (f.genre() != null) obj.put("genre", f.genre());
+        if (f.year() != null) obj.put("year", f.year());
         return obj;
     }
 
-    private JsonObject serializeReviewFilter(ReviewFilter f) {
-        JsonObject obj = new JsonObject();
-        if (f.movieId() != null) obj.addProperty("movie_id", f.movieId());
-        if (f.userId() != null) obj.addProperty("user_id", f.userId());
+    private JSONObject serializeReviewFilter(ReviewFilter f) {
+        JSONObject obj = new JSONObject();
+        if (f.movieId() != null) obj.put("movie_id", f.movieId());
+        if (f.userId() != null) obj.put("user_id", f.userId());
         return obj;
     }
 }
